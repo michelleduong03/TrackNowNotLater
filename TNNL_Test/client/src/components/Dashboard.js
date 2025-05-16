@@ -144,6 +144,21 @@ export default function DashboardApp() {
             </button>
           ))}
 
+          <button
+            onClick={() => window.open('http://localhost:5001/api/gmail/auth/google', '_blank')}
+            style={{
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              border: 'none',
+              backgroundColor: '#db4437',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Connect Gmail
+          </button>
+
           <h3 style={{ marginTop: '2rem' }}>Purchases</h3>
           <div style={{ marginBottom: '1rem' }}>
             {['All', ...BNPL_SERVICES].map(tab => (
