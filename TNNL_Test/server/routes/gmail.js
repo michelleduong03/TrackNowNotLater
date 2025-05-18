@@ -38,15 +38,12 @@ router.get('/oauth2callback', async (req, res) => {
     });
 
     const messages = resMessages.data.messages || [];
-    const indeedEmails = [];
+    const BNPLEmails = [];
 
     const paymentKeywords = [
       'payment', 'due', 'amount', 'installment', 'balance',
       'next payment', 'due date', '1st payment', '$'
     ];
-
-    // Regex to find price amounts like $12.34, $1,234.56 etc.
-    const priceRegex = /\$\s?[\d,]+(\.\d{2})?/g;
 
     for (const msg of messages) {
       const fullMsg = await gmail.users.messages.get({
@@ -124,7 +121,7 @@ router.get('/oauth2callback', async (req, res) => {
       );
 
       if (foundKeywords.length > 0) {
-        indeedEmails.push({
+        BNPLEmails.push({
         subject,
         date,
         merchantName,
@@ -147,7 +144,7 @@ router.get('/oauth2callback', async (req, res) => {
       message: 'Klarna email fetch complete!',
       email: profile.data.emailAddress,
       tokens,
-      indeedEmails,
+      BNPLEmails,
     });
   } catch (err) {
     console.error('Error during OAuth callback', err);
