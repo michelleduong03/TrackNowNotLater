@@ -33,7 +33,8 @@ router.get('/oauth2callback', async (req, res) => {
 
     const resMessages = await gmail.users.messages.list({
       userId: 'me',
-      q: 'from:@klarna.com',
+      // query
+      q: 'subject:(klarna OR "pay in 4" OR "payment due" OR installment OR "1st payment") OR ("klarna order reference" OR "1st payment of $")',
       maxResults: 100,
     });
 
@@ -120,8 +121,20 @@ router.get('/oauth2callback', async (req, res) => {
         bodyText.toLowerCase().includes(keyword.toLowerCase())
       );
 
+      const fromHeader = headers.find(h => h.name === 'From')?.value || 'Unknown';
+      const provider = (() => {
+        if (fromHeader.includes('klarna')) return 'Klarna';
+        if (fromHeader.includes('affirm')) return 'Affirm';
+        if (fromHeader.includes('afterpay')) return 'Afterpay';
+        if (fromHeader.includes('zip')) return 'Zip';
+        if (fromHeader.includes('sezzle')) return 'Sezzle';
+        const match = fromHeader.match(/@([\w.-]+)\.com/);
+        return match ? match[1] : 'Unknown';
+      })();
+
       if (foundKeywords.length > 0) {
         BNPLEmails.push({
+        provider,
         subject,
         date,
         merchantName,
