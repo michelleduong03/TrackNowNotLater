@@ -132,7 +132,16 @@ router.get('/oauth2callback', async (req, res) => {
         return match ? match[1] : 'Unknown';
       })();
 
-      if (foundKeywords.length > 0) {
+      const isForwarded = subject.toLowerCase().startsWith('fwd:') || subject.toLowerCase().startsWith('fw:') 
+      || bodyText.toLowerCase().includes('forwarded message') 
+      || bodyText.toLowerCase().includes('---------- forwarded message ---------');
+
+      if (foundKeywords.length > 0
+        && installmentAmount !== 'Not found'
+        && klarnaOrderId !== 'Unknown'
+        && paymentPlan !== 'Not found'
+        && !isForwarded
+      ) {
         BNPLEmails.push({
         provider,
         subject,
