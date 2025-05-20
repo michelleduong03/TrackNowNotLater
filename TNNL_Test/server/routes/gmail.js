@@ -33,7 +33,6 @@ router.get('/oauth2callback', async (req, res) => {
 
     const resMessages = await gmail.users.messages.list({
       userId: 'me',
-      // query
       q: 'subject:(klarna OR "pay in 4" OR "payment due" OR installment OR "1st payment") OR ("klarna order reference" OR "1st payment of $")',
       maxResults: 100,
     });
@@ -64,7 +63,7 @@ router.get('/oauth2callback', async (req, res) => {
       const bodyText = bodyData
         ? Buffer.from(bodyData, 'base64').toString('utf-8')
         : fullMsg.data.snippet;
-      
+
       const merchantMatch = bodyText.match(/Summary\s*([\s\S]*?)\s*Merchant order reference/i);
       const merchantName = merchantMatch ? merchantMatch[1].trim().split('\n')[0].trim() : 'Unknown merchant';
 
@@ -74,8 +73,6 @@ router.get('/oauth2callback', async (req, res) => {
       const totalMatch = bodyText.match(/(?:Total to pay|Total|Amount)[^\d-]*(-?\$\s?[\d,]+(\.\d{2})?)/i);
       const totalAmount = totalMatch ? totalMatch[1].trim() : 'Not found';
 
-      // const installmentMatch = bodyText.match(/(?:1st payment|installment|will be charged)[^\d-]*(-?\$\s?[\d,]+(\.\d{2})?)/i);
-      // const installmentAmount = installmentMatch ? installmentMatch[1].trim() : 'Not found';
       let installmentAmount = 'Not found';
       let isFirstPayment = false;
 
@@ -115,7 +112,33 @@ router.get('/oauth2callback', async (req, res) => {
         const lines = itemsMatch[1].split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('$') && !l.startsWith('-$'));
         items = lines;
       }
-        
+
+      // New parsing for payment confirmation email with payments and schedule
+      let paymentConfirmed = false;
+      let confirmedAmount = 'Not found';
+      let nextPaymentAmount = 'Not found';
+      let nextPaymentDate = 'Not found';
+      let paymentSchedule = [];
+
+      if (/payment.*successful/i.test(bodyText)) {
+        paymentConfirmed = true;
+
+        const confirmedMatch = bodyText.match(/payment of\s*\$([\d,.]+)/i);
+        if (confirmedMatch) confirmedAmount = `$${confirmedMatch[1]}`;
+
+        const nextPaymentMatch = bodyText.match(/next payment of\s*\$([\d,.]+)\s*will be charged on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
+        if (nextPaymentMatch) {
+          nextPaymentAmount = `$${nextPaymentMatch[1]}`;
+          nextPaymentDate = nextPaymentMatch[2];
+        }
+
+        const scheduleRegex = /([A-Za-z]+\s\d{1,2})\s*\n\s*\$([\d,.]+)/g;
+        let match;
+        while ((match = scheduleRegex.exec(bodyText)) !== null) {
+          paymentSchedule.push({ date: match[1], amount: `$${match[2]}` });
+        }
+      }
+
       // Filter for emails containing any payment-related keyword (case-insensitive)
       const foundKeywords = paymentKeywords.filter(keyword =>
         bodyText.toLowerCase().includes(keyword.toLowerCase())
@@ -132,33 +155,63 @@ router.get('/oauth2callback', async (req, res) => {
         return match ? match[1] : 'Unknown';
       })();
 
-      const isForwarded = subject.toLowerCase().startsWith('fwd:') || subject.toLowerCase().startsWith('fw:') 
-      || bodyText.toLowerCase().includes('forwarded message') 
-      || bodyText.toLowerCase().includes('---------- forwarded message ---------');
+      // const isForwarded = subject.toLowerCase().startsWith('fwd:') || subject.toLowerCase().startsWith('fw:') 
+      // || bodyText.toLowerCase().includes('forwarded message') 
+      // || bodyText.toLowerCase().includes('---------- forwarded message ---------');
+      
 
-      if (foundKeywords.length > 0
-        && installmentAmount !== 'Not found'
-        && klarnaOrderId !== 'Unknown'
-        && paymentPlan !== 'Not found'
-        && !isForwarded
-      ) {
+      // if (foundKeywords.length > 0
+      //   && installmentAmount !== 'Not found'
+      //   && klarnaOrderId !== 'Unknown'
+      //   && paymentPlan !== 'Not found'
+      //   && !isForwarded
+      // ) {
+      //   BNPLEmails.push({
+      //     provider,
+      //     subject,
+      //     date,
+      //     merchantName,
+      //     klarnaOrderId,
+      //     totalAmount,
+      //     installmentAmount,
+      //     isFirstPayment,
+      //     paymentPlan,
+      //     orderDate,
+      //     cardUsed,
+      //     discount,
+      //     status,
+      //     items,
+      //     paymentConfirmed,
+      //     confirmedAmount,
+      //     nextPaymentAmount,
+      //     nextPaymentDate,
+      //     paymentSchedule,
+      //     snippet: bodyText.substring(0, 300),
+      //   });
+      // }
+      const hasKeyInfo = installmentAmount !== 'Not found' && klarnaOrderId !== 'Unknown' && paymentPlan !== 'Not found';
+      const hasFollowUpInfo = nextPaymentDate !== 'Not found' || nextPaymentAmount !== 'Not found';
+
+      if (hasKeyInfo || hasFollowUpInfo) {
         BNPLEmails.push({
-        provider,
-        subject,
-        date,
-        merchantName,
-        klarnaOrderId,
-        totalAmount,
-        installmentAmount,
-        isFirstPayment,
-        paymentPlan,
-        orderDate,
-        cardUsed,
-        discount,
-        status,
-        items,
-        snippet: bodyText.substring(0, 300),
-      });
+          provider,
+          subject,
+          date,
+          merchantName,
+          klarnaOrderId,
+          totalAmount,
+          installmentAmount,
+          isFirstPayment,
+          paymentPlan,
+          orderDate,
+          cardUsed,
+          discount,
+          status,
+          nextPaymentDate,
+          nextPaymentAmount,
+          items,
+          snippet: bodyText.substring(0, 300),
+        });
       }
     }
 
