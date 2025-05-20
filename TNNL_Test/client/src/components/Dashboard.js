@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import BNPLCallback from './BNPLCallback';
 
 const BNPL_SERVICES = ['Klarna', 'Afterpay', 'Affirm'];
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
@@ -18,8 +19,9 @@ export default function DashboardApp() {
       if (!connectedServices.includes(service)) {
         setConnectedServices(prev => [...prev, service]);
 
-        const mockPurchases = getMockPurchases(service);
-        await Promise.all(mockPurchases.map(p => axios.post('/payments', p)));
+        // const mockPurchases = getMockPurchases(service);
+        // await Promise.all(mockPurchases.map(p => axios.post('/payments', p)));
+        await axios.post(`/gmail/parse?service=${service}`);
         fetchPayments();
       }
     } catch (err) {
@@ -33,23 +35,23 @@ export default function DashboardApp() {
     window.location.href = '/';
   };
 
-  const getMockPurchases = (service) => {
-    const mockData = {
-      Klarna: [{
-        provider: 'Klarna', purchaseAmount: 120, installments: 4,
-        firstDueDate: '2025-06-01', description: 'Sneakers from Klarna'
-      }],
-      Afterpay: [{
-        provider: 'Afterpay', purchaseAmount: 80, installments: 4,
-        firstDueDate: '2025-06-05', description: 'Headphones from Afterpay'
-      }],
-      Affirm: [{
-        provider: 'Affirm', purchaseAmount: 200, installments: 6,
-        firstDueDate: '2025-06-10', description: 'Monitor from Affirm'
-      }]
-    };
-    return mockData[service] || [];
-  };
+  // const getMockPurchases = (service) => {
+  //   const mockData = {
+  //     Klarna: [{
+  //       provider: 'Klarna', purchaseAmount: 120, installments: 4,
+  //       firstDueDate: '2025-06-01', description: 'Sneakers from Klarna'
+  //     }],
+  //     Afterpay: [{
+  //       provider: 'Afterpay', purchaseAmount: 80, installments: 4,
+  //       firstDueDate: '2025-06-05', description: 'Headphones from Afterpay'
+  //     }],
+  //     Affirm: [{
+  //       provider: 'Affirm', purchaseAmount: 200, installments: 6,
+  //       firstDueDate: '2025-06-10', description: 'Monitor from Affirm'
+  //     }]
+  //   };
+  //   return mockData[service] || [];
+  // };
 
   const fetchPayments = async () => {
     try {
@@ -125,7 +127,7 @@ export default function DashboardApp() {
             </div>
           )}
 
-          <h3 style={{ marginTop: '2rem' }}>Connect Your BNPL Services</h3>
+          {/* <h3 style={{ marginTop: '2rem' }}>Connect Your BNPL Services</h3>
           {BNPL_SERVICES.map(service => (
             <button
               key={service}
@@ -142,7 +144,7 @@ export default function DashboardApp() {
             >
               {connectedServices.includes(service) ? `${service} Connected` : `Connect ${service}`}
             </button>
-          ))}
+          ))} */}
 
           <button
             onClick={() => window.open('http://localhost:5001/api/gmail/auth/google', '_blank')}
@@ -158,6 +160,9 @@ export default function DashboardApp() {
           >
             Connect Gmail
           </button>
+
+          {/* Show Gmail parsed purchases */}
+          <BNPLCallback />
 
           <h3 style={{ marginTop: '2rem' }}>Purchases</h3>
           <div style={{ marginBottom: '1rem' }}>
@@ -179,7 +184,7 @@ export default function DashboardApp() {
             ))}
           </div>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          {/* <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#eee' }}>
                 <th style={{ border: '1px solid #ccc', padding: '8px' }}>Provider</th>
@@ -233,7 +238,7 @@ export default function DashboardApp() {
                 );
               })}
             </tbody>
-          </table>
+          </table> */}
         </>
       );
     }
