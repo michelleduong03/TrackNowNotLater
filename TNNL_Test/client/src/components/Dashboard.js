@@ -63,8 +63,33 @@ export default function DashboardApp() {
     }
   };
 
+  // useEffect(() => {
+  //   fetchPayments();
+  // }, []);
+  const [purchases, setPurchases] = useState([]);
   useEffect(() => {
-    fetchPayments();
+    const fetchSavedPurchases = async () => {
+      const token = localStorage.getItem('token');
+      const userEmail = localStorage.getItem('userEmail');
+
+      if (!userEmail || !token) return;
+
+      try {
+        const res = await fetch(`http://localhost:5001/api/payments/${userEmail}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setPurchases(data);
+        setPayments(data);
+      } catch (err) {
+        console.error('Failed to fetch saved purchases', err);
+      }
+    };
+
+    fetchSavedPurchases();
   }, []);
 
   const getChartData = () => {
