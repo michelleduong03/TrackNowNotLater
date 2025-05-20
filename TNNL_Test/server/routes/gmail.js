@@ -215,12 +215,13 @@ router.get('/oauth2callback', async (req, res) => {
       }
     }
 
-    res.json({
-      message: 'Klarna email fetch complete!',
-      email: profile.data.emailAddress,
-      tokens,
-      BNPLEmails,
-    });
+    // res.json({
+    //   message: 'Klarna email fetch complete!',
+    //   email: profile.data.emailAddress,
+    //   tokens,
+    //   BNPLEmails,
+    // });
+    res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
     res.status(500).send('Authentication failed');
