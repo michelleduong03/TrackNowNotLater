@@ -18,8 +18,23 @@ const authMiddleware = (req, res, next) => {
 };
 
 router.post('/', authMiddleware, async (req, res) => {
+  console.log('POST /api/payments called');
+  console.log('Request body:', req.body);
+  console.log('User ID from token:', req.userId);
   try {
-    const payment = new Payment({ user: req.userId, ...req.body });
+    // const payment = new Payment({ user: req.userId, ...req.body });
+    // await payment.save();
+    console.log('Payment data received:', req.body);
+    const paymentData = {
+      user: req.userId,
+      provider: req.body.merchantName,
+      purchaseAmount: Number(req.body.totalAmount),
+      installments: Number(req.body.paymentPlan),
+      firstDueDate: new Date(req.body.orderDate),
+      description: req.body.description || '',
+    };
+
+    const payment = new Payment(paymentData);
     await payment.save();
     res.json(payment);
   } catch (err) {

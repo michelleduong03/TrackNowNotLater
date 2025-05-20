@@ -1,5 +1,6 @@
 const express = require('express');
 const { google } = require('googleapis');
+const Payment = require('../models/Payment');
 
 const router = express.Router();
 
@@ -214,6 +215,12 @@ router.get('/oauth2callback', async (req, res) => {
         });
       }
     }
+    await Payment.insertMany(
+      BNPLEmails.map(email => ({
+        ...email,
+        userEmail: profile.data.emailAddress, // for identifying the user
+      }))
+    );
 
     // res.json({
     //   message: 'Klarna email fetch complete!',
