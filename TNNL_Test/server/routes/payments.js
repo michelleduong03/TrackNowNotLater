@@ -51,4 +51,25 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/:email', async (req, res) => {
+  const userEmail = req.params.email;
+  try {
+    const purchases = await Payment.find({ userEmail });
+    res.json(purchases);
+  } catch (err) {
+    res.status(500).send('Error fetching purchases');
+  }
+});
+
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const purchases = await Payment.find({ user: userId });
+    res.json(purchases);
+  } catch (err) {
+    res.status(500).send('Error fetching purchases');
+  }
+});
+
+
 module.exports = router;
