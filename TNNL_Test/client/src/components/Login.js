@@ -11,7 +11,8 @@ export default function Login() {
     try {
       const res = await axios.post('/auth/login', form);
       localStorage.setItem('token', res.data.token);
-      localStorage.setItem('userEmail', form.email);
+      localStorage.setItem('userId', res.data.user._id);
+      // localStorage.setItem('userEmail', form.email);
       navigate('/dashboard');
     } catch (err) {
       const message = err.response?.data?.message || err.message || 'Login failed';
