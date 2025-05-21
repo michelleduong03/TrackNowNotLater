@@ -160,68 +160,48 @@ router.get('/oauth2callback', async (req, res) => {
       || bodyText.toLowerCase().includes('forwarded message') 
       || bodyText.toLowerCase().includes('---------- forwarded message ---------');
       
-
-      // if (foundKeywords.length > 0
-      //   && installmentAmount !== 'Not found'
-      //   && klarnaOrderId !== 'Unknown'
-      //   && paymentPlan !== 'Not found'
-      //   && !isForwarded
-      // ) {
-      //   BNPLEmails.push({
-      //     provider,
-      //     subject,
-      //     date,
-      //     merchantName,
-      //     klarnaOrderId,
-      //     totalAmount,
-      //     installmentAmount,
-      //     isFirstPayment,
-      //     paymentPlan,
-      //     orderDate,
-      //     cardUsed,
-      //     discount,
-      //     status,
-      //     items,
-      //     paymentConfirmed,
-      //     confirmedAmount,
-      //     nextPaymentAmount,
-      //     nextPaymentDate,
-      //     paymentSchedule,
-      //     snippet: bodyText.substring(0, 300),
-      //   });
-      // }
       const hasKeyInfo = installmentAmount !== 'Not found' && klarnaOrderId !== 'Unknown' && paymentPlan !== 'Not found';
       const hasFollowUpInfo = nextPaymentDate !== 'Not found' || nextPaymentAmount !== 'Not found';
 
       if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
-        BNPLEmails.push({
-          provider,
-          subject,
-          date,
-          merchantName,
-          klarnaOrderId,
-          totalAmount,
-          installmentAmount,
-          isFirstPayment,
-          paymentPlan,
-          orderDate,
-          cardUsed,
-          discount,
-          status,
-          nextPaymentDate,
-          nextPaymentAmount,
-          items,
-          snippet: bodyText.substring(0, 300),
-        });
+        const hasValidData = totalAmount !== 'Not found';
+
+        if (hasValidData) {
+          BNPLEmails.push({
+            provider,
+            subject,
+            date,
+            merchantName,
+            klarnaOrderId,
+            totalAmount,
+            installmentAmount,
+            isFirstPayment,
+            paymentPlan,
+            orderDate,
+            cardUsed,
+            discount,
+            status,
+            nextPaymentDate,
+            nextPaymentAmount,
+            items,
+            snippet: bodyText.substring(0, 300),
+          });
+        }
       }
+      // await Payment.insertMany(
+      // BNPLEmails.map(email => ({
+      //   ...email,
+      //   userEmail: profile.data.emailAddress, // for identifying the user
+      // }))
+      // );
     }
+
     await Payment.insertMany(
       BNPLEmails.map(email => ({
         ...email,
         userEmail: profile.data.emailAddress, // for identifying the user
       }))
-    );
-
+      );
     // res.json({
     //   message: 'Klarna email fetch complete!',
     //   email: profile.data.emailAddress,
