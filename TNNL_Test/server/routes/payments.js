@@ -22,16 +22,35 @@ router.post('/', authMiddleware, async (req, res) => {
   console.log('Request body:', req.body);
   console.log('User ID from token:', req.userId);
   try {
-    // const payment = new Payment({ user: req.userId, ...req.body });
-    // await payment.save();
     console.log('Payment data received:', req.body);
+    // const paymentData = {
+    //   user: req.userId,
+    //   provider: req.body.merchantName,
+    //   purchaseAmount: Number(req.body.totalAmount),
+    //   installments: Number(req.body.paymentPlan),
+    //   firstDueDate: new Date(req.body.orderDate),
+    //   description: req.body.description || '',
+    // };
     const paymentData = {
       user: req.userId,
-      provider: req.body.merchantName,
-      purchaseAmount: Number(req.body.totalAmount),
-      installments: Number(req.body.paymentPlan),
-      firstDueDate: new Date(req.body.orderDate),
-      description: req.body.description || '',
+      provider: req.body.provider,
+      subject: req.body.subject,
+      date: req.body.date,
+      merchantName: req.body.merchantName,
+      klarnaOrderId: req.body.klarnaOrderId,
+      totalAmount: req.body.totalAmount,
+      installmentAmount: req.body.installmentAmount,
+      isFirstPayment: req.body.isFirstPayment,
+      paymentPlan: req.body.paymentPlan,
+      orderDate: req.body.orderDate,
+      cardUsed: req.body.cardUsed,
+      discount: req.body.discount,
+      status: req.body.status,
+      nextPaymentDate: req.body.nextPaymentDate,
+      nextPaymentAmount: req.body.nextPaymentAmount,
+      items: req.body.items,
+      snippet: req.body.snippet,
+      userEmail: req.body.userEmail,
     };
 
     const payment = new Payment(paymentData);
@@ -51,20 +70,22 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/:email', async (req, res) => {
-  const userEmail = req.params.email;
-  try {
-    const purchases = await Payment.find({ userEmail });
-    res.json(purchases);
-  } catch (err) {
-    res.status(500).send('Error fetching purchases');
-  }
-});
+// router.get('/:email', async (req, res) => {
+//   const userEmail = req.params.email;
+//   try {
+//     const purchases = await Payment.find({ userEmail });
+//     res.json(purchases);
+//   } catch (err) {
+//     res.status(500).send('Error fetching purchases');
+//   }
+// });
 
-router.get('/:userId', async (req, res) => {
-  const userId = req.params.userId;
+router.get('/user/:userId', async (req, res) => {
   try {
+    const userId = req.params.userId;
     const purchases = await Payment.find({ user: userId });
+    console.log('Payments for user:', userId);
+    console.log(JSON.stringify(purchases, null, 2));
     res.json(purchases);
   } catch (err) {
     res.status(500).send('Error fetching purchases');
