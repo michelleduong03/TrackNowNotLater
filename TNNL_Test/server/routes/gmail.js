@@ -208,6 +208,38 @@ router.get('/oauth2callback', async (req, res) => {
       }
     }
 
+    for (const emailPayment of BNPLEmails) {
+      try {
+        await Payment.findOneAndUpdate(
+          { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
+          {
+            user: userId,
+            userEmail: profile.data.emailAddress,
+            provider: emailPayment.provider,
+            subject: emailPayment.subject,
+            date: new Date(emailPayment.date),
+            merchantName: emailPayment.merchantName,
+            klarnaOrderId: emailPayment.klarnaOrderId,
+            totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g,"")) || 0,
+            installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g,"")) || 0,
+            isFirstPayment: emailPayment.isFirstPayment,
+            paymentPlan: emailPayment.paymentPlan,
+            orderDate: emailPayment.orderDate,
+            cardUsed: emailPayment.cardUsed,
+            discount: emailPayment.discount,
+            status: emailPayment.status,
+            nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+            nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g,"")) || 0,
+            items: emailPayment.items || [],
+            snippet: emailPayment.snippet,
+          },
+          { upsert: true, new: true }
+        );
+      } catch (err) {
+        console.error('Error upserting payment:', err);
+      }
+    }
+
     // await Payment.insertMany(
     //   BNPLEmails.map(email => ({
     //     ...email,
@@ -215,13 +247,13 @@ router.get('/oauth2callback', async (req, res) => {
     //     userEmail: profile.data.emailAddress, // for identifying the user
     //   }))
     //   );
-    res.json({
-      message: 'Klarna email fetch complete!',
-      email: profile.data.emailAddress,
-      user: userId,
-      tokens,
-      BNPLEmails,
-    });
+    // res.json({
+    //   message: 'Klarna email fetch complete!',
+    //   email: profile.data.emailAddress,
+    //   user: userId,
+    //   tokens,
+    //   BNPLEmails,
+    // });
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
