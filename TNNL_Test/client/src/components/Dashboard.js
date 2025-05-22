@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
@@ -13,15 +14,16 @@ export default function DashboardApp() {
   const [notes, setNotes] = useState({});
   const [confirmed, setConfirmed] = useState({});
   const [page, setPage] = useState('dashboard'); 
+  const userId = localStorage.getItem('userId');
+  console.log('userId from localStorage:', userId);
 
   const handleConnect = async (service) => {
     try {
       if (!connectedServices.includes(service)) {
         setConnectedServices(prev => [...prev, service]);
 
-        // const mockPurchases = getMockPurchases(service);
-        // await Promise.all(mockPurchases.map(p => axios.post('/payments', p)));
-        await axios.post(`/gmail/parse?service=${service}`);
+        // await axios.post(`/gmail/parse?service=${service}`);
+        window.location.href = `/gmail/auth/google`;
         fetchPayments();
       }
     } catch (err) {
@@ -35,27 +37,10 @@ export default function DashboardApp() {
     window.location.href = '/';
   };
 
-  // const getMockPurchases = (service) => {
-  //   const mockData = {
-  //     Klarna: [{
-  //       provider: 'Klarna', purchaseAmount: 120, installments: 4,
-  //       firstDueDate: '2025-06-01', description: 'Sneakers from Klarna'
-  //     }],
-  //     Afterpay: [{
-  //       provider: 'Afterpay', purchaseAmount: 80, installments: 4,
-  //       firstDueDate: '2025-06-05', description: 'Headphones from Afterpay'
-  //     }],
-  //     Affirm: [{
-  //       provider: 'Affirm', purchaseAmount: 200, installments: 6,
-  //       firstDueDate: '2025-06-10', description: 'Monitor from Affirm'
-  //     }]
-  //   };
-  //   return mockData[service] || [];
-  // };
-
   const fetchPayments = async () => {
     try {
       const res = await axios.get('/payments');
+      console.log('Fetched payments:', res.data);
       setPayments(res.data);
     } catch (err) {
       alert('Error fetching payments');
@@ -63,10 +48,23 @@ export default function DashboardApp() {
     }
   };
 
-  // useEffect(() => {
-  //   fetchPayments();
-  // }, []);
+  const parseAmount = (amount) => {
+  if (!amount) return 0;
+  if (typeof amount === 'number') return amount;
+  const num = parseFloat(amount.toString().replace(/[$,]/g, ''));
+  return isNaN(num) ? 0 : num;
+  };
+
+  const parseDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
   const [purchases, setPurchases] = useState([]);
+
   useEffect(() => {
     const fetchSavedPurchases = async () => {
       const token = localStorage.getItem('token');
@@ -75,7 +73,7 @@ export default function DashboardApp() {
       if (!userEmail || !token) return;
 
       try {
-        const res = await fetch(`http://localhost:5001/api/payments/${userEmail}`, {
+        const res = await fetch(`http://localhost:5001/api/payments/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -120,6 +118,7 @@ export default function DashboardApp() {
   // Simple placeholder pages for demonstration:
   const renderContent = () => {
     if (page === 'dashboard') {
+      console.log(payments)
       return (
         <>
           <h2>TrackNowNotLater Dashboard</h2>
@@ -145,31 +144,12 @@ export default function DashboardApp() {
               </PieChart>
 
               <div style={{ marginTop: '1rem', display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-                <div><strong>Total Owed:</strong> ${getTotalBalance().toFixed(2)}</div>
-                <div><strong>Due This Month:</strong> ${getBalanceDueThisMonth().toFixed(2)}</div>
+                <div><strong>Total Owed:</strong> ${getTotalBalance()}</div>
+                <div><strong>Due This Month:</strong> ${getBalanceDueThisMonth()}</div>
                 <div><strong>Next Due:</strong> {getNextDueDate()}</div>
               </div>
             </div>
           )}
-
-          {/* <h3 style={{ marginTop: '2rem' }}>Connect Your BNPL Services</h3>
-          {BNPL_SERVICES.map(service => (
-            <button
-              key={service}
-              onClick={() => handleConnect(service)}
-              disabled={connectedServices.includes(service)}
-              style={{
-                marginRight: '10px',
-                padding: '0.5rem 1rem',
-                borderRadius: '20px',
-                border: 'none',
-                backgroundColor: connectedServices.includes(service) ? '#d3f9d8' : '#bee3f8',
-                cursor: connectedServices.includes(service) ? 'default' : 'pointer'
-              }}
-            >
-              {connectedServices.includes(service) ? `${service} Connected` : `Connect ${service}`}
-            </button>
-          ))} */}
 
           <button
             onClick={() => window.open('http://localhost:5001/api/gmail/auth/google', '_blank')}
@@ -209,7 +189,7 @@ export default function DashboardApp() {
             ))}
           </div>
 
-          {/* <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#eee' }}>
                 <th style={{ border: '1px solid #ccc', padding: '8px' }}>Provider</th>
@@ -224,15 +204,20 @@ export default function DashboardApp() {
             </thead>
             <tbody>
               {getFilteredPayments().map(p => {
+                const purchaseAmount = parseAmount(p.purchaseAmount);
+                const installments = parseInt(p.installments) || 1; // fallback 1 to avoid div by zero
                 const paidCount = 1; // update as needed
-                const remaining = p.purchaseAmount - (p.purchaseAmount / p.installments * paidCount);
+                const remaining = purchaseAmount - (purchaseAmount / installments * paidCount);
+                const firstDueDate = parseDate(p.firstDueDate);
 
                 return (
                   <tr key={p._id} style={{ borderBottom: '1px solid #ccc' }}>
                     <td style={{ border: '1px solid #ccc', padding: '8px' }}>{p.provider}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{paidCount} of {p.installments}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>${p.purchaseAmount.toFixed(2)}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{new Date(p.firstDueDate).toLocaleDateString()}</td>
+                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{paidCount} of {installments}</td>
+                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>${purchaseAmount.toFixed(2)}</td>
+                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                      {firstDueDate ? firstDueDate.toLocaleDateString() : '—'}
+                    </td>
                     <td style={{ border: '1px solid #ccc', padding: '8px' }}>Every 2 weeks</td>
                     <td style={{ border: '1px solid #ccc', padding: '8px' }}>${remaining.toFixed(2)}</td>
                     <td style={{ border: '1px solid #ccc', padding: '8px' }}>
@@ -263,11 +248,10 @@ export default function DashboardApp() {
                 );
               })}
             </tbody>
-          </table> */}
+          </table>
         </>
       );
     }
-
     if (page === 'bankAccounts') {
       return <h2>Bank Accounts Page - Connected Accounts here</h2>;
     }
