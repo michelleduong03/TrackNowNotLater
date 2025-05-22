@@ -141,7 +141,8 @@ const BNPLCallback = () => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
               },
-              body: JSON.stringify(purchase),
+              // body: JSON.stringify(purchase),
+              body: JSON.stringify({ userId, ...purchase }),
             })
           ));
 
