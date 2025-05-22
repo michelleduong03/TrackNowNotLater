@@ -1,6 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 const Payment = require('../models/Payment');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.get('/auth/google', (req, res) => {
     access_type: 'offline',
     scope: SCOPES,
     prompt: 'consent',
+    state: JSON.stringify({ userId: req.userId }),
   });
   res.redirect(authUrl);
 });
@@ -166,7 +168,7 @@ router.get('/oauth2callback', async (req, res) => {
       if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
         const hasValidData = totalAmount !== 'Not found';
 
-        if (hasValidData) {
+        // if (hasValidData) {
           BNPLEmails.push({
             provider,
             subject,
@@ -186,23 +188,40 @@ router.get('/oauth2callback', async (req, res) => {
             items,
             snippet: bodyText.substring(0, 300),
           });
-        }
+        // }
       }
     }
 
-    await Payment.insertMany(
-      BNPLEmails.map(email => ({
-        ...email,
-        user: user._id,
-        userEmail: profile.data.emailAddress, // for identifying the user
-      }))
-      );
-    // res.json({
-    //   message: 'Klarna email fetch complete!',
-    //   email: profile.data.emailAddress,
-    //   tokens,
-    //   BNPLEmails,
-    // });
+    // const user = await User.findOne({ email: profile.data.emailAddress });
+    // res.json('Found user:', user);
+
+    // if (!user) {
+    //   throw new Error('User not found in database');
+    // }
+    const state = req.query.state;
+    let userId;
+    if(state) {
+      try {
+        userId = JSON.parse(state).userId;
+      } catch(e) {
+        console.error('Invalid OAuth state', e);
+      }
+    }
+
+    // await Payment.insertMany(
+    //   BNPLEmails.map(email => ({
+    //     ...email,
+    //     user: userId,
+    //     userEmail: profile.data.emailAddress, // for identifying the user
+    //   }))
+    //   );
+    res.json({
+      message: 'Klarna email fetch complete!',
+      email: profile.data.emailAddress,
+      user: userId,
+      tokens,
+      BNPLEmails,
+    });
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
