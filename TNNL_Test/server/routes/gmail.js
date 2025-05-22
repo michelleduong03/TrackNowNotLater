@@ -188,17 +188,12 @@ router.get('/oauth2callback', async (req, res) => {
           });
         }
       }
-      // await Payment.insertMany(
-      // BNPLEmails.map(email => ({
-      //   ...email,
-      //   userEmail: profile.data.emailAddress, // for identifying the user
-      // }))
-      // );
     }
 
     await Payment.insertMany(
       BNPLEmails.map(email => ({
         ...email,
+        user: user._id,
         userEmail: profile.data.emailAddress, // for identifying the user
       }))
       );
