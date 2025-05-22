@@ -24,6 +24,29 @@ router.get('/auth/google', (req, res) => {
   res.redirect(authUrl);
 });
 
+function extractEmailBody(payload) {
+  if (!payload) return '';
+
+  if (payload.mimeType === 'text/plain' || payload.mimeType === 'text/html') {
+    const data = payload.body?.data;
+    if (data) {
+      const decoded = Buffer.from(data, 'base64').toString('utf-8');
+      return payload.mimeType === 'text/html'
+        ? decoded.replace(/<[^>]+>/g, '') // strip HTML tags
+        : decoded;
+    }
+  }
+
+  if (payload.parts && Array.isArray(payload.parts)) {
+    for (const part of payload.parts) {
+      const result = extractEmailBody(part);
+      if (result) return result; // return first found non-empty body
+    }
+  }
+
+  return '';
+}
+
 // Step 2: Callback and parse Klarna emails with prices
 router.get('/oauth2callback', async (req, res) => {
   const code = req.query.code;
@@ -54,18 +77,26 @@ router.get('/oauth2callback', async (req, res) => {
         id: msg.id,
         format: 'full',
       });
-
+       
       const headers = fullMsg.data.payload.headers;
       const subject = headers.find(h => h.name === 'Subject')?.value || 'No subject';
       const date = headers.find(h => h.name === 'Date')?.value || 'No date';
 
-      const bodyData = fullMsg.data.payload.parts?.find(
+      let bodyData = fullMsg.data.payload.parts?.find( // const prev
         (part) => part.mimeType === 'text/plain'
       )?.body?.data;
 
-      const bodyText = bodyData
-        ? Buffer.from(bodyData, 'base64').toString('utf-8')
-        : fullMsg.data.snippet;
+      if (!bodyData) {
+        bodyData = fullMsg.data.payload.parts?.find(
+          (part) => part.mimeType === 'text/html'
+        )?.body?.data;
+      }
+
+      // const bodyText = bodyData
+      //   ? Buffer.from(bodyData, 'base64').toString('utf-8').replace(/<[^>]+>/g, '')
+      //   : fullMsg.data.snippet;
+      const bodyText = extractEmailBody(fullMsg.data.payload) || fullMsg.data.snippet;
+
 
       const merchantMatch = bodyText.match(/Summary\s*([\s\S]*?)\s*Merchant order reference/i);
       const merchantName = merchantMatch ? merchantMatch[1].trim().split('\n')[0].trim() : 'Unknown merchant';
@@ -108,6 +139,10 @@ router.get('/oauth2callback', async (req, res) => {
 
       const statusMatch = bodyText.match(/Status\s+([A-Za-z]+)/i);
       const status = statusMatch ? statusMatch[1].trim() : 'Unknown';
+
+      // const merchantOrderMatch = bodyText.match(/Merchant order reference\s+([A-Za-z0-9\-]+)/i);
+      const merchantOrderMatch = bodyText.match(/Merchant order reference\s*[:\-]?\s*([\w\-]+)/i);
+      const merchantOrder = merchantOrderMatch ? merchantOrderMatch[1].trim() : 'Unknown';
 
       const itemsMatch = bodyText.match(/Order details([\s\S]*?)\n\s*\n/i);
       let items = [];
@@ -165,6 +200,16 @@ router.get('/oauth2callback', async (req, res) => {
       const hasKeyInfo = installmentAmount !== 'Not found' && klarnaOrderId !== 'Unknown' && paymentPlan !== 'Not found';
       const hasFollowUpInfo = nextPaymentDate !== 'Not found' || nextPaymentAmount !== 'Not found';
 
+      const state = req.query.state;
+      let userId;
+      if(state) {
+        try {
+          userId = JSON.parse(state).userId;
+        } catch(e) {
+          console.error('Invalid OAuth state', e);
+        }
+      }
+
       if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
         const hasValidData = totalAmount !== 'Not found';
 
@@ -174,6 +219,7 @@ router.get('/oauth2callback', async (req, res) => {
             subject,
             date,
             merchantName,
+            merchantOrder,
             klarnaOrderId,
             totalAmount,
             installmentAmount,
@@ -189,57 +235,42 @@ router.get('/oauth2callback', async (req, res) => {
             snippet: bodyText.substring(0, 300),
           });
         // }
+        
+        for (const emailPayment of BNPLEmails) {
+          try {
+            await Payment.findOneAndUpdate(
+              { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
+              {
+                user: userId,
+                userEmail: profile.data.emailAddress,
+                provider: emailPayment.provider,
+                subject: emailPayment.subject,
+                date: new Date(emailPayment.date),
+                merchantName: emailPayment.merchantName,
+                merchantOrder: emailPayment.merchantOrder,
+                klarnaOrderId: emailPayment.klarnaOrderId,
+                totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g,"")) || 0,
+                installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g,"")) || 0,
+                isFirstPayment: emailPayment.isFirstPayment,
+                paymentPlan: emailPayment.paymentPlan,
+                orderDate: emailPayment.orderDate,
+                cardUsed: emailPayment.cardUsed,
+                discount: emailPayment.discount,
+                status: emailPayment.status,
+                nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+                nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g,"")) || 0,
+                items: emailPayment.items || [],
+                snippet: emailPayment.snippet,
+              },
+              { upsert: true, new: true }
+            );
+          } catch (err) {
+            console.error('Error upserting payment:', err);
+          }
+        }
       }
     }
-
-    // const user = await User.findOne({ email: profile.data.emailAddress });
-    // res.json('Found user:', user);
-
-    // if (!user) {
-    //   throw new Error('User not found in database');
-    // }
-    const state = req.query.state;
-    let userId;
-    if(state) {
-      try {
-        userId = JSON.parse(state).userId;
-      } catch(e) {
-        console.error('Invalid OAuth state', e);
-      }
-    }
-
-    for (const emailPayment of BNPLEmails) {
-      try {
-        await Payment.findOneAndUpdate(
-          { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
-          {
-            user: userId,
-            userEmail: profile.data.emailAddress,
-            provider: emailPayment.provider,
-            subject: emailPayment.subject,
-            date: new Date(emailPayment.date),
-            merchantName: emailPayment.merchantName,
-            klarnaOrderId: emailPayment.klarnaOrderId,
-            totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g,"")) || 0,
-            installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g,"")) || 0,
-            isFirstPayment: emailPayment.isFirstPayment,
-            paymentPlan: emailPayment.paymentPlan,
-            orderDate: emailPayment.orderDate,
-            cardUsed: emailPayment.cardUsed,
-            discount: emailPayment.discount,
-            status: emailPayment.status,
-            nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
-            nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g,"")) || 0,
-            items: emailPayment.items || [],
-            snippet: emailPayment.snippet,
-          },
-          { upsert: true, new: true }
-        );
-      } catch (err) {
-        console.error('Error upserting payment:', err);
-      }
-    }
-
+    
     // await Payment.insertMany(
     //   BNPLEmails.map(email => ({
     //     ...email,
@@ -247,13 +278,22 @@ router.get('/oauth2callback', async (req, res) => {
     //     userEmail: profile.data.emailAddress, // for identifying the user
     //   }))
     //   );
-    // res.json({
-    //   message: 'Klarna email fetch complete!',
-    //   email: profile.data.emailAddress,
-    //   user: userId,
-    //   tokens,
-    //   BNPLEmails,
-    // });
+    const state = req.query.state;
+      let userId;
+      if(state) {
+        try {
+          userId = JSON.parse(state).userId;
+        } catch(e) {
+          console.error('Invalid OAuth state', e);
+        }
+      }
+    res.json({
+      message: 'Klarna email fetch complete!',
+      email: profile.data.emailAddress,
+      user: userId,
+      tokens,
+      BNPLEmails,
+    });
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
