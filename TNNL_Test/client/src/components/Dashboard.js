@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
+import BNPLTable from './BNPLTable';
 
 const BNPL_SERVICES = ['Klarna', 'Afterpay', 'Affirm'];
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
@@ -115,6 +116,10 @@ export default function DashboardApp() {
     return dates.length ? dates[0].toLocaleDateString() : 'N/A';
   };
 
+  const params = new URLSearchParams(window.location.search);
+  const showBNPLImport = params.has('data');
+  const uniqueProviders = [...new Set(payments.map(p => p.provider))].filter(Boolean);
+
   // Simple placeholder pages for demonstration:
   const renderContent = () => {
     if (page === 'dashboard') {
@@ -167,9 +172,22 @@ export default function DashboardApp() {
           </button>
 
           {/* Show Gmail parsed purchases */}
-          <BNPLCallback />
+          {/* <BNPLCallback /> */}
+          
+          {showBNPLImport && <BNPLCallback />}
 
-          <h3 style={{ marginTop: '2rem' }}>Purchases</h3>
+            <BNPLTable
+              payments={getFilteredPayments()}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              notes={notes}
+              setNotes={setNotes}
+              confirmed={confirmed}
+              setConfirmed={setConfirmed}
+              BNPL_SERVICES={uniqueProviders}
+            />
+
+          {/* <h3 style={{ marginTop: '2rem' }}>Purchases</h3>
           <div style={{ marginBottom: '1rem' }}>
             {['All', ...BNPL_SERVICES].map(tab => (
               <button
@@ -187,9 +205,9 @@ export default function DashboardApp() {
                 {tab}
               </button>
             ))}
-          </div>
+          </div> */}
 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          {/* <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#eee' }}>
                 <th style={{ border: '1px solid #ccc', padding: '8px' }}>Provider</th>
@@ -248,7 +266,7 @@ export default function DashboardApp() {
                 );
               })}
             </tbody>
-          </table>
+          </table> */}
         </>
       );
     }
