@@ -196,15 +196,15 @@ router.get('/oauth2callback', async (req, res) => {
       const hasKeyInfo = installmentAmount !== 'Not found' && klarnaOrderId !== 'Unknown' && paymentPlan !== 'Not found';
       const hasFollowUpInfo = nextPaymentDate !== 'Not found' || nextPaymentAmount !== 'Not found';
 
-      const state = req.query.state;
-      let userId;
-      if(state) {
-        try {
-          userId = JSON.parse(state).userId;
-        } catch(e) {
-          console.error('Invalid OAuth state', e);
-        }
-      }
+      // const state = req.query.state;
+      // let userId;
+      // if(state) {
+      //   try {
+      //     userId = JSON.parse(state).userId;
+      //   } catch(e) {
+      //     console.error('Invalid OAuth state', e);
+      //   }
+      // }
 
       if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
         const hasValidData = totalAmount !== 'Not found';
@@ -231,9 +231,15 @@ router.get('/oauth2callback', async (req, res) => {
         };
 
         BNPLEmails.push(emailPayment);
-
+      }
+    }
+ 
     try {
-      const compositeId = `${klarnaOrderId}|${merchantOrder}|${subject}`.toLowerCase();
+      let userId;
+      const stateStr = req.query.state || '{}';
+      const state = JSON.parse(stateStr);
+      userId = state.userId;
+  
       await Payment.findOneAndUpdate(
         { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
           {
@@ -262,19 +268,6 @@ router.get('/oauth2callback', async (req, res) => {
       );
       } catch (err) {
         console.error('Error upserting payment:', err);
-      }
-      }
-      
-    }
-
-    const state = req.query.state;
-      let userId;
-      if(state) {
-        try {
-          userId = JSON.parse(state).userId;
-        } catch(e) {
-          console.error('Invalid OAuth state', e);
-        }
       }
     // res.json({
     //   message: 'Klarna email fetch complete!',
