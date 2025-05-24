@@ -92,9 +92,6 @@ router.get('/oauth2callback', async (req, res) => {
         )?.body?.data;
       }
 
-      // const bodyText = bodyData
-      //   ? Buffer.from(bodyData, 'base64').toString('utf-8').replace(/<[^>]+>/g, '')
-      //   : fullMsg.data.snippet;
       const bodyText = extractEmailBody(fullMsg.data.payload) || fullMsg.data.snippet;
 
 
@@ -140,7 +137,6 @@ router.get('/oauth2callback', async (req, res) => {
       const statusMatch = bodyText.match(/Status\s+([A-Za-z]+)/i);
       const status = statusMatch ? statusMatch[1].trim() : 'Unknown';
 
-      // const merchantOrderMatch = bodyText.match(/Merchant order reference\s+([A-Za-z0-9\-]+)/i);
       const merchantOrderMatch = bodyText.match(/Merchant order reference\s*[:\-]?\s*([\w\-]+)/i);
       const merchantOrder = merchantOrderMatch ? merchantOrderMatch[1].trim() : 'Unknown';
 
@@ -236,46 +232,41 @@ router.get('/oauth2callback', async (req, res) => {
 
         BNPLEmails.push(emailPayment);
 
-        try {
-          await Payment.findOneAndUpdate(
-            { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
-            {
-              user: userId,
-              userEmail: profile.data.emailAddress,
-              provider: emailPayment.provider,
-              subject: emailPayment.subject,
-              date: new Date(emailPayment.date),
-              merchantName: emailPayment.merchantName,
-              merchantOrder: emailPayment.merchantOrder,
-              klarnaOrderId: emailPayment.klarnaOrderId,
-              totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
-              installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-              isFirstPayment: emailPayment.isFirstPayment,
-              paymentPlan: emailPayment.paymentPlan,
-              orderDate: emailPayment.orderDate,
-              cardUsed: emailPayment.cardUsed,
-              discount: emailPayment.discount,
-              status: emailPayment.status,
-              nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
-              nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-              items: emailPayment.items || [],
-              snippet: emailPayment.snippet,
-            },
-            { upsert: true, new: true }
-          );
-        } catch (err) {
-          console.error('Error upserting payment:', err);
-        }
+    try {
+      const compositeId = `${klarnaOrderId}|${merchantOrder}|${subject}`.toLowerCase();
+      await Payment.findOneAndUpdate(
+        { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
+          {
+            user: userId,
+            userEmail: profile.data.emailAddress,
+            provider: emailPayment.provider,
+            subject: emailPayment.subject,
+            date: new Date(emailPayment.date),
+            merchantName: emailPayment.merchantName,
+            merchantOrder: emailPayment.merchantOrder,
+            klarnaOrderId: emailPayment.klarnaOrderId,
+            totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            isFirstPayment: emailPayment.isFirstPayment,
+            paymentPlan: emailPayment.paymentPlan,
+            orderDate: emailPayment.orderDate,
+            cardUsed: emailPayment.cardUsed,
+            discount: emailPayment.discount,
+            status: emailPayment.status,
+            nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+            nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            items: emailPayment.items || [],
+            snippet: emailPayment.snippet,
+          },
+        { upsert: true, new: true }
+      );
+      } catch (err) {
+        console.error('Error upserting payment:', err);
       }
+      }
+      
     }
-    
-    // await Payment.insertMany(
-    //   BNPLEmails.map(email => ({
-    //     ...email,
-    //     user: userId,
-    //     userEmail: profile.data.emailAddress, // for identifying the user
-    //   }))
-    //   );
+
     const state = req.query.state;
       let userId;
       if(state) {
