@@ -23,14 +23,7 @@ router.post('/', authMiddleware, async (req, res) => {
   console.log('User ID from token:', req.userId);
   try {
     console.log('Payment data received:', req.body);
-    // const paymentData = {
-    //   user: req.userId,
-    //   provider: req.body.merchantName,
-    //   purchaseAmount: Number(req.body.totalAmount),
-    //   installments: Number(req.body.paymentPlan),
-    //   firstDueDate: new Date(req.body.orderDate),
-    //   description: req.body.description || '',
-    // };
+
     const paymentData = {
       user: req.userId,
       provider: req.body.provider,
