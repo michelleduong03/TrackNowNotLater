@@ -4,9 +4,12 @@ import { jwtDecode } from 'jwt-decode';
 const BNPLCallback = ({ 
   payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed 
 }) => {
+  // const token = localStorage.getItem('token');
+  // const decoded = token ? jwtDecode(token) : null;
+  // const userId = decoded?.id;
   const token = localStorage.getItem('token');
-  const decoded = token ? jwtDecode(token) : null;
-  const userId = decoded?.id;
+  const userId = localStorage.getItem('userId');
+  console.log (`user id is ${userId}`)
   const processedKey = `gmailProcessed_${userId}`;
 
   useEffect(() => {
@@ -30,6 +33,7 @@ const BNPLCallback = ({
               body: JSON.stringify({ userId, ...purchase }),
             })
           ));
+          console.log("Parsed Gmail data:", parsed);
 
           sessionStorage.setItem(processedKey, 'true');
 
@@ -42,12 +46,12 @@ const BNPLCallback = ({
     }
   }, [token, userId, processedKey]);
 
-  return (
-    <div>
-      <h3>Purchases</h3>
-      {/* Table rendering like before, using props */}
-    </div>
-  );
+  // return (
+  //   <div>
+  //     <h3>Purchases</h3>
+  //     {/* Table rendering like before, using props */}
+  //   </div>
+  // );
 };
 
 export default BNPLCallback;
