@@ -172,7 +172,6 @@ export default function DashboardApp() {
           </button>
 
           {/* Show Gmail parsed purchases */}
-          {/* <BNPLCallback /> */}
           
           {showBNPLImport && <BNPLCallback />}
 
@@ -186,87 +185,6 @@ export default function DashboardApp() {
               setConfirmed={setConfirmed}
               BNPL_SERVICES={uniqueProviders}
             />
-
-          {/* <h3 style={{ marginTop: '2rem' }}>Purchases</h3>
-          <div style={{ marginBottom: '1rem' }}>
-            {['All', ...BNPL_SERVICES].map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  marginRight: '10px',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '15px',
-                  border: activeTab === tab ? '2px solid #333' : '1px solid #ccc',
-                  backgroundColor: activeTab === tab ? '#f0f0f0' : '#fff',
-                  fontWeight: activeTab === tab ? 'bold' : 'normal'
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div> */}
-
-          {/* <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#eee' }}>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Provider</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Installments</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Amount</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Next Due Date</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Billing Cycle</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Total Remaining</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Note</th>
-                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Confirmation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getFilteredPayments().map(p => {
-                const purchaseAmount = parseAmount(p.purchaseAmount);
-                const installments = parseInt(p.installments) || 1; // fallback 1 to avoid div by zero
-                const paidCount = 1; // update as needed
-                const remaining = purchaseAmount - (purchaseAmount / installments * paidCount);
-                const firstDueDate = parseDate(p.firstDueDate);
-
-                return (
-                  <tr key={p._id} style={{ borderBottom: '1px solid #ccc' }}>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{p.provider}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>{paidCount} of {installments}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>${purchaseAmount.toFixed(2)}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                      {firstDueDate ? firstDueDate.toLocaleDateString() : '—'}
-                    </td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>Every 2 weeks</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>${remaining.toFixed(2)}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                      <input
-                        type="text"
-                        placeholder="..."
-                        value={notes[p._id] || ''}
-                        onChange={e => setNotes(prev => ({ ...prev, [p._id]: e.target.value }))}
-                        style={{ width: '100%', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
-                      />
-                    </td>
-                    <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
-                      <span
-                        onClick={() => setConfirmed(prev => ({ ...prev, [p._id]: !prev[p._id] }))}
-                        style={{
-                          display: 'inline-block',
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: confirmed[p._id] ? 'green' : 'yellow',
-                          cursor: 'pointer',
-                          margin: '0 auto'
-                        }}
-                        title="Click to confirm"
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table> */}
         </>
       );
     }
@@ -316,7 +234,7 @@ export default function DashboardApp() {
             cursor: 'pointer'
           }}
         >
-          Bank Accounts
+          Account Info
         </button>
         <button
           onClick={() => setPage('profile')}
