@@ -4,8 +4,8 @@ import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
 import BNPLTable from './BNPLTable';
+import { jwtDecode } from 'jwt-decode';
 
-const BNPL_SERVICES = ['Klarna', 'Afterpay', 'Affirm'];
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 export default function DashboardApp() {
@@ -15,8 +15,10 @@ export default function DashboardApp() {
   const [notes, setNotes] = useState({});
   const [confirmed, setConfirmed] = useState({});
   const [page, setPage] = useState('dashboard'); 
+
   const userId = localStorage.getItem('userId');
-  console.log('userId from localStorage:', userId);
+
+  console.log('userId:', userId);
 
   const handleConnect = async (service) => {
     try {
@@ -49,17 +51,6 @@ export default function DashboardApp() {
     }
   };
 
-  const parseAmount = (amount) => {
-  if (!amount) return 0;
-  if (typeof amount === 'number') return amount;
-  const num = parseFloat(amount.toString().replace(/[$,]/g, ''));
-  return isNaN(num) ? 0 : num;
-  };
-
-  const parseDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? null : d;
-  };
 
   useEffect(() => {
     fetchPayments();
@@ -111,6 +102,7 @@ export default function DashboardApp() {
       ? sum + p.purchaseAmount / p.installments
       : sum;
   }, 0);
+
   const getNextDueDate = () => {
     const dates = payments.map(p => new Date(p.firstDueDate)).sort((a, b) => a - b);
     return dates.length ? dates[0].toLocaleDateString() : 'N/A';
@@ -119,8 +111,9 @@ export default function DashboardApp() {
   const params = new URLSearchParams(window.location.search);
   const showBNPLImport = params.has('data');
   const uniqueProviders = [...new Set(payments.map(p => p.provider))].filter(Boolean);
+ 
+  const state = encodeURIComponent(JSON.stringify({ userId }));
 
-  // Simple placeholder pages for demonstration:
   const renderContent = () => {
     if (page === 'dashboard') {
       console.log(payments)
@@ -157,7 +150,8 @@ export default function DashboardApp() {
           )}
 
           <button
-            onClick={() => window.open('http://localhost:5001/api/gmail/auth/google', '_blank')}
+            onClick={() => { const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
+              window.open(gmailAuthUrl, '_blank'); }}
             style={{
               marginTop: '1rem',
               padding: '0.5rem 1rem',
