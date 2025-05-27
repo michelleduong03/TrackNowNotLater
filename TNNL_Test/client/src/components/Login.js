@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from '../api';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -12,6 +13,15 @@ export default function Login() {
       const res = await axios.post('/auth/login', form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userId', res.data.user._id);
+      // const token = res.data.token;
+      // localStorage.setItem('token', token);
+      // const decoded = jwtDecode(token);
+      // localStorage.setItem('userId', decoded.id);
+      // const res = await axios.post('/auth/login', form);
+      // const token = res.data.token;
+      // localStorage.setItem('token', token);
+      // const decoded = jwtDecode(token);
+      // localStorage.setItem('userId', decoded.id);
       navigate('/dashboard');
     } catch (err) {
       const message = err.response?.data?.message || err.message || 'Login failed';
