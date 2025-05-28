@@ -2,6 +2,9 @@ const express = require('express');
 const { google } = require('googleapis');
 const Payment = require('../models/Payment');
 const User = require('../models/User');
+const { extractEmailBody } = require('../utils/emailBodyExtraction');
+const { parseUpcomingPayments } = require('../utils/parseUpcomingPayments');
+
 
 const router = express.Router();
 
@@ -24,30 +27,6 @@ router.get('/auth/google', (req, res) => {
   });
   res.redirect(authUrl);
 });
-
-
-function extractEmailBody(payload) {
-  if (!payload) return '';
-
-  if (payload.mimeType === 'text/plain' || payload.mimeType === 'text/html') {
-    const data = payload.body?.data;
-    if (data) {
-      const decoded = Buffer.from(data, 'base64').toString('utf-8');
-      return payload.mimeType === 'text/html'
-        ? decoded.replace(/<[^>]+>/g, '') // strip HTML tags
-        : decoded;
-    }
-  }
-
-  if (payload.parts && Array.isArray(payload.parts)) {
-    for (const part of payload.parts) {
-      const result = extractEmailBody(part);
-      if (result) return result; // return first found non-empty body
-    }
-  }
-
-  return '';
-}
 
 // Step 2: Callback and parse Klarna emails with prices
 router.get('/oauth2callback', async (req, res) => {
@@ -96,6 +75,11 @@ router.get('/oauth2callback', async (req, res) => {
 
       const bodyText = extractEmailBody(fullMsg.data.payload) || fullMsg.data.snippet;
 
+      // //parsing for upcoming payments
+      // const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+      // if (upcomingPayments.length > 0) {
+      //   console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
+      // }
 
       const merchantMatch = bodyText.match(/Summary\s*([\s\S]*?)\s*Merchant order reference/i);
       const merchantName = merchantMatch ? merchantMatch[1].trim().split('\n')[0].trim() : 'Unknown merchant';
@@ -224,7 +208,7 @@ router.get('/oauth2callback', async (req, res) => {
 
         BNPLEmails.push(emailPayment);
 
-         try {
+        try {
           let userId;
           const stateStr = req.query.state || '{}';
           const state = JSON.parse(stateStr);
@@ -264,10 +248,6 @@ router.get('/oauth2callback', async (req, res) => {
           }
       }
     }
-    // let userId;
-    //       const stateStr = req.query.state || '{}';
-    //       const state = JSON.parse(stateStr);
-    //       userId = state.userId;
     // res.json({
     //   message: 'Klarna email fetch complete!',
     //   email: profile.data.emailAddress,
