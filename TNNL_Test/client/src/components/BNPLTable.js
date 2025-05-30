@@ -41,6 +41,7 @@ const BNPLTable = ({
             <th>Total Amount</th>
             <th>Discount</th>
             <th>Payment Plan</th>
+            <th>Payment Dates</th>
             <th>Order Date</th>
             <th>Next Payment</th>
             <th>Card Used</th>
@@ -57,6 +58,7 @@ const BNPLTable = ({
               <td>{p.totalAmount || '—'}</td>
               <td>{p.discount || '—'}</td>
               <td>{p.paymentPlan || '—'}</td>
+              <td>{p.paymentDates || '—'}</td>
               <td>{p.orderDate || '—'}</td>
               <td>{p.nextPaymentDate ? `${p.nextPaymentDate} (${p.nextPaymentAmount || '—'})` : '—'}</td>
               <td>{p.cardUsed || '—'}</td>
