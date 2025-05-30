@@ -5,6 +5,7 @@ const PaymentSchema = new mongoose.Schema({
   provider: String,
   subject: String,
   date: String,
+  paymentDates: [Date],
   merchantName: String,
   merchantOrder: String,
   klarnaOrderId: String,
