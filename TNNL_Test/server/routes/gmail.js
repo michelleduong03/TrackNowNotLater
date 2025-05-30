@@ -75,7 +75,7 @@ router.get('/oauth2callback', async (req, res) => {
 
       const bodyText = extractEmailBody(fullMsg.data.payload) || fullMsg.data.snippet;
 
-      // //parsing for upcoming payments
+      // parsing for upcoming payments
       // const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
       // if (upcomingPayments.length > 0) {
       //   console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
@@ -185,10 +185,16 @@ router.get('/oauth2callback', async (req, res) => {
      if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
         const hasValidData = totalAmount !== 'Not found';
 
+        const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+        if (upcomingPayments.length > 0) {
+          console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
+        }
+
         const emailPayment = {
           provider,
           subject,
           date,
+          upcomingPayments,
           merchantName,
           merchantOrder,
           klarnaOrderId,
@@ -208,53 +214,110 @@ router.get('/oauth2callback', async (req, res) => {
 
         BNPLEmails.push(emailPayment);
 
+
         try {
           let userId;
           const stateStr = req.query.state || '{}';
           const state = JSON.parse(stateStr);
           userId = state.userId;
 
-          console.log (` USER ID IS ${userId}`)
+          const identifier = klarnaOrderId !== 'Unknown' ? klarnaOrderId : merchantOrder;
+
+          const existing = await Payment.findOne({
+            user: userId,
+            $or: [
+              { klarnaOrderId },
+              { merchantOrder }
+            ]
+          });
+
+          const paymentData = {
+            user: userId,
+            userEmail: profile.data.emailAddress,
+            provider: emailPayment.provider,
+            subject: emailPayment.subject,
+            date: new Date(emailPayment.date),
+            paymentDates: emailPayment.upcomingPayments || [],
+            merchantName: emailPayment.merchantName,
+            merchantOrder: emailPayment.merchantOrder,
+            klarnaOrderId: emailPayment.klarnaOrderId,
+            totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            isFirstPayment: emailPayment.isFirstPayment,
+            paymentPlan: emailPayment.paymentPlan,
+            orderDate: emailPayment.orderDate,
+            cardUsed: emailPayment.cardUsed,
+            discount: emailPayment.discount,
+            status: emailPayment.status,
+            nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+            nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            items: emailPayment.items || [],
+            snippet: emailPayment.snippet,
+            ...(upcomingPayments.length > 0 && { upcomingPayments })
+          };
+
+          // if (existing) {
+          //   await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
+          //   console.log(`Updated payment for ${identifier}`);
+          // } else {
+            // await Payment.create(paymentData);
+            // console.log(`Created payment for ${identifier}`);
+        //   }
+        } catch (err) {
+          console.error('Error upserting payment:', err);
+        }
+
+        // try {
+        //   let userId;
+        //   const stateStr = req.query.state || '{}';
+        //   const state = JSON.parse(stateStr);
+        //   userId = state.userId;
+
+        //   console.log (` USER ID IS ${userId}`)
       
-          // findOneAndUpdate merges
-          await Payment.create(
-            // { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
-              {
-                user: userId,
-                userEmail: profile.data.emailAddress,
-                provider: emailPayment.provider,
-                subject: emailPayment.subject,
-                date: new Date(emailPayment.date),
-                merchantName: emailPayment.merchantName,
-                merchantOrder: emailPayment.merchantOrder,
-                klarnaOrderId: emailPayment.klarnaOrderId,
-                totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
-                installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-                isFirstPayment: emailPayment.isFirstPayment,
-                paymentPlan: emailPayment.paymentPlan,
-                orderDate: emailPayment.orderDate,
-                cardUsed: emailPayment.cardUsed,
-                discount: emailPayment.discount,
-                status: emailPayment.status,
-                nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
-                nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-                items: emailPayment.items || [],
-                snippet: emailPayment.snippet,
-              },
-            { upsert: true, new: true }
-          );
-          } catch (err) {
-            console.error('Error upserting payment:', err);
-          }
+        //   // findOneAndUpdate merges
+        //   await Payment.create(
+        //     // { user: userId, klarnaOrderId: emailPayment.klarnaOrderId },
+        //       {
+        //         user: userId,
+        //         userEmail: profile.data.emailAddress,
+        //         provider: emailPayment.provider,
+        //         subject: emailPayment.subject,
+        //         date: new Date(emailPayment.date),
+        //         merchantName: emailPayment.merchantName,
+        //         merchantOrder: emailPayment.merchantOrder,
+        //         klarnaOrderId: emailPayment.klarnaOrderId,
+        //         totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //         installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //         isFirstPayment: emailPayment.isFirstPayment,
+        //         paymentPlan: emailPayment.paymentPlan,
+        //         orderDate: emailPayment.orderDate,
+        //         cardUsed: emailPayment.cardUsed,
+        //         discount: emailPayment.discount,
+        //         status: emailPayment.status,
+        //         nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+        //         nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //         items: emailPayment.items || [],
+        //         snippet: emailPayment.snippet,
+        //       },
+        //     { upsert: true, new: true }
+        //   );
+        //   } catch (err) {
+        //     console.error('Error upserting payment:', err);
+        //   }
       }
     }
-    // res.json({
-    //   message: 'Klarna email fetch complete!',
-    //   email: profile.data.emailAddress,
-    //   user: userId,
-    //   tokens,
-    //   BNPLEmails,
-    // });
+    let userId;
+          const stateStr = req.query.state || '{}';
+          const state = JSON.parse(stateStr);
+          userId = state.userId;
+    res.json({
+      message: 'Klarna email fetch complete!',
+      email: profile.data.emailAddress,
+      user: userId,
+      tokens,
+      BNPLEmails,
+    });
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
