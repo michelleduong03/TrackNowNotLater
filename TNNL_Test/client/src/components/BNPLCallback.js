@@ -4,9 +4,6 @@ import { jwtDecode } from 'jwt-decode';
 const BNPLCallback = ({ 
   payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed 
 }) => {
-  // const token = localStorage.getItem('token');
-  // const decoded = token ? jwtDecode(token) : null;
-  // const userId = decoded?.id;
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
   console.log (`user id is ${userId}`)
@@ -29,7 +26,6 @@ const BNPLCallback = ({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
               },
-              // body: JSON.stringify(purchase),
               body: JSON.stringify({ userId, ...purchase }),
             })
           ));
@@ -37,7 +33,6 @@ const BNPLCallback = ({
 
           sessionStorage.setItem(processedKey, 'true');
 
-          // Optional: redirect user to dashboard after import
           window.location.href = '/dashboard';
         } catch (err) {
           console.error('Failed to process Gmail import', err);
@@ -45,13 +40,6 @@ const BNPLCallback = ({
       })();
     }
   }, [token, userId, processedKey]);
-
-  // return (
-  //   <div>
-  //     <h3>Purchases</h3>
-  //     {/* Table rendering like before, using props */}
-  //   </div>
-  // );
 };
 
 export default BNPLCallback;
