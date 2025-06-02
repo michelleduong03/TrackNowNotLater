@@ -259,8 +259,14 @@ router.get('/oauth2callback', async (req, res) => {
           };
 
           if (existing) {
+            // const shouldUpdate =
+            //   (paymentData.paymentDates?.length || 0) > (existing.paymentDates?.length || 0);
             const shouldUpdate =
-              (paymentData.paymentDates?.length || 0) > (existing.paymentDates?.length || 0);
+              (paymentData.paymentDates?.length || 0) > (existing.paymentDates?.length || 0) ||
+              (!existing.nextPaymentDate && paymentData.nextPaymentDate) ||
+              (!existing.installmentAmount && paymentData.installmentAmount) ||
+              ((existing.items?.length || 0) < (paymentData.items?.length || 0));
+
 
             if (shouldUpdate) {
               await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
