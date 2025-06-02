@@ -1,16 +1,14 @@
 import { useEffect, useState} from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
 import BNPLTable from './BNPLTable';
-import { jwtDecode } from 'jwt-decode';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
-  const [connectedServices, setConnectedServices] = useState([]);
+  // const [connectedServices, setConnectedServices] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [notes, setNotes] = useState({});
   const [confirmed, setConfirmed] = useState({});
@@ -19,21 +17,6 @@ export default function DashboardApp() {
   const userId = localStorage.getItem('userId');
 
   console.log('userId:', userId);
-
-  const handleConnect = async (service) => {
-    try {
-      if (!connectedServices.includes(service)) {
-        setConnectedServices(prev => [...prev, service]);
-
-        // await axios.post(`/gmail/parse?service=${service}`);
-        window.location.href = `/gmail/auth/google`;
-        fetchPayments();
-      }
-    } catch (err) {
-      alert(`Failed to connect to ${service}`);
-      console.error(err);
-    }
-  };
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
@@ -51,11 +34,9 @@ export default function DashboardApp() {
     }
   };
 
-
   useEffect(() => {
     fetchPayments();
   }, []);
-  const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
     const fetchSavedPurchases = async () => {
@@ -72,7 +53,7 @@ export default function DashboardApp() {
         });
 
         const data = await res.json();
-        setPurchases(data);
+        // setPurchases(data);
         setPayments(data);
       } catch (err) {
         console.error('Failed to fetch saved purchases', err);
@@ -108,12 +89,22 @@ export default function DashboardApp() {
     return dates.length ? dates[0].toLocaleDateString() : 'N/A';
   };
 
-  const params = new URLSearchParams(window.location.search);
-  const showBNPLImport = params.has('data');
+  // removing data after processing from url
+  const [showBNPLImport, setShowBNPLImport] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.has('data');
+  });
+
+  useEffect(() => {
+    if (showBNPLImport) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState(null, '', cleanUrl);
+      setShowBNPLImport(false); // hide BNPLCallback after cleaning
+    }
+  }, [showBNPLImport]);
+
   const uniqueProviders = [...new Set(payments.map(p => p.provider))].filter(Boolean);
  
-  const state = encodeURIComponent(JSON.stringify({ userId }));
-
   const renderContent = () => {
     if (page === 'dashboard') {
       console.log(payments)
@@ -122,7 +113,7 @@ export default function DashboardApp() {
           <h2>TrackNowNotLater Dashboard</h2>
 
           {payments.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="dashboard-container">
               <PieChart width={400} height={300}>
                 <Pie
                   data={getChartData()}
