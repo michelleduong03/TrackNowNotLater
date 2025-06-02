@@ -47,7 +47,7 @@ const BNPLTable = ({
             <th>Card Used</th>
             <th>Note</th>
             <th>Confirmation</th>
-            <th>Email Snippet</th>
+            {/* <th>Email Snippet</th> */}
           </tr>
         </thead>
         <tbody>
@@ -93,9 +93,9 @@ const BNPLTable = ({
                   title="Click to confirm"
                 />
               </td>
-              <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {/* <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {p.snippet ? p.snippet.substring(0, 100) + (p.snippet.length > 100 ? '...' : '') : '—'}
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
