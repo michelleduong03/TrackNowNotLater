@@ -142,7 +142,7 @@ export default function DashboardApp() {
 
           <button
             onClick={() => { const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
-              window.open(gmailAuthUrl, '_blank'); }}
+              window.location.href = gmailAuthUrl; }}
             style={{
               marginTop: '1rem',
               padding: '0.5rem 1rem',
