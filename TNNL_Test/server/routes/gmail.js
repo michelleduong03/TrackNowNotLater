@@ -134,8 +134,8 @@ router.get('/oauth2callback', async (req, res) => {
       }
 
       // New parsing for payment confirmation email with payments and schedule
-      let paymentConfirmed = false;
-      let confirmedAmount = 'Not found';
+      // let paymentConfirmed = false;
+      // let confirmedAmount = 'Not found';
       let nextPaymentAmount = 'Not found';
       let nextPaymentDate = 'Not found';
       let paymentSchedule = [];
@@ -183,7 +183,6 @@ router.get('/oauth2callback', async (req, res) => {
       const hasFollowUpInfo = nextPaymentDate !== 'Not found' || nextPaymentAmount !== 'Not found';
 
      if (!isForwarded && (hasKeyInfo || hasFollowUpInfo)) {
-      const hasValidData = totalAmount !== 'Not found';
 
       let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
       if (upcomingPayments.length > 0) {
@@ -259,8 +258,6 @@ router.get('/oauth2callback', async (req, res) => {
           };
 
           if (existing) {
-            // const shouldUpdate =
-            //   (paymentData.paymentDates?.length || 0) > (existing.paymentDates?.length || 0);
             const shouldUpdate =
               (paymentData.paymentDates?.length || 0) > (existing.paymentDates?.length || 0) ||
               (!existing.nextPaymentDate && paymentData.nextPaymentDate) ||
