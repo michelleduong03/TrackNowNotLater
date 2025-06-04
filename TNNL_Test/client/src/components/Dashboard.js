@@ -363,26 +363,6 @@ const getNextDueDate = () => {
         <>
           <h2>TrackNowNotLater Dashboard</h2>
 
-          {/* Tabs for filtering providers */}
-          {/* <div style={{ marginBottom: '1rem' }}>
-            {BNPL_SERVICES.map(service => (
-              <button
-                key={service}
-                onClick={() => setActiveTab(service)}
-                style={{
-                  marginRight: '0.5rem',
-                  padding: '0.3rem 0.7rem',
-                  backgroundColor: activeTab === service ? '#61dafb' : '#eee',
-                  border: 'none',
-                  borderRadius: '15px',
-                  cursor: 'pointer',
-                }}
-              >
-                {service}
-              </button>
-            ))}
-          </div> */}
-
           {filteredPayments.length > 0 ? (
             <>
               {/* Pie Chart */}
@@ -390,8 +370,8 @@ const getNextDueDate = () => {
                 className="dashboard-container"
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',   // stack vertically
-                  alignItems: 'center',      // center horizontally
+                  flexDirection: 'column',   
+                  alignItems: 'center',   
                   marginBottom: '1rem',
                 }}
               >
