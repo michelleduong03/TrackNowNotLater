@@ -358,19 +358,27 @@ router.get('/oauth2callback', async (req, res) => {
 
       merchantName = extractMerchantName(merchantMatchBody) || 'Unknown merchant';
 
-      merchantName = extractMerchantName(merchantMatchSubject) || extractMerchantName(merchantMatchBody) || 'Unknown merchant';
+      // merchantName = extractMerchantName(merchantMatchSubject) || extractMerchantName(merchantMatchBody) || 'Unknown merchant';
 
-      const orderIdMatch = bodyText.match(/(Order|Reference)\s*(ID|Number|):\s*([A-Z0-9\-]+)/i);
-      const orderId = orderIdMatch ? orderIdMatch[3].trim() : 'Unknown';
-
+      const orderIdMatch = bodyText.match(
+        /(?:Klarna order reference|Your purchase ID is|Loan ID:)\s*[:\-]?\s*([A-Z0-9\-]+)/i
+      );
+      const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
+      
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
       const totalAmount = totalMatch ? totalMatch[2].trim() : 'Not found';
 
-      const installmentMatch = bodyText.match(/(?:installment|payment)\s*(amount|):?\s*\$([\d,.]+)/i);
-      const installmentAmount = installmentMatch ? `$${installmentMatch[2].trim()}` : 'Not found';
+      const installmentMatch =
+        bodyText.match(/(?:installment|payment)\s*(amount|):?\s*\$([\d,.]+)/i) ||
+        bodyText.match(/your payment of\s*\$([\d,.]+)/i);
+      const installmentAmount = installmentMatch
+        ? `$${(installmentMatch[2] || installmentMatch[1]).trim()}`
+        : 'Not found';
+
+      // const installmentAmount = installmentMatch ? `$${installmentMatch[2].trim()}` : 'Not found';
 
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
-      const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Not found';
+      const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
       const nextPaymentMatch = bodyText.match(/next payment.*?\$([\d,.]+).*?on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
       const nextPaymentAmount = nextPaymentMatch ? `$${nextPaymentMatch[1]}` : 'Not found';
