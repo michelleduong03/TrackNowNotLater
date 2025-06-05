@@ -383,7 +383,8 @@ router.get('/oauth2callback', async (req, res) => {
       // const nextPaymentMatch = bodyText.match(/next payment.*?\$([\d,.]+).*?on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
       // const nextPaymentAmount = nextPaymentMatch ? `$${nextPaymentMatch[1]}` : 'Not found';
       // const nextPaymentDate = nextPaymentMatch ? nextPaymentMatch[2] : 'Not found';
-      // Klarna: "Your next payment of $18.54 will be charged on June 2, 2025"
+
+      const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
 
       let nextPaymentAmount = 'Not found';
       let nextPaymentDate = 'Not found';
@@ -400,9 +401,6 @@ router.get('/oauth2callback', async (req, res) => {
         const d = new Date(upcoming.date);
         nextPaymentDate = `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}, ${d.getFullYear()}`;
       }
-
-
-      const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
 
       const emailPayment = {
         provider,
@@ -425,6 +423,63 @@ router.get('/oauth2callback', async (req, res) => {
       const hasUsefulData = installmentAmount !== 'Not found' || upcomingPayments.length > 0;
       if (!isForwarded && hasUsefulData) {
         BNPLEmails.push(emailPayment);
+
+        // const identifier = emailPayment.klarnaOrderId !== 'Unknown' ? emailPayment.klarnaOrderId : emailPayment.merchantOrder;
+
+        // try {
+        //   const existing = await Payment.findOne({
+        //     user: userId,
+        //     $or: [
+        //       { klarnaOrderId: emailPayment.klarnaOrderId },
+        //       { merchantOrder: emailPayment.merchantOrder }
+        //     ]
+        //   });
+
+        //   const paymentData = {
+        //     user: userId,
+        //     userEmail: profile.data.emailAddress,
+        //     provider: emailPayment.provider,
+        //     subject: emailPayment.subject,
+        //     date: new Date(emailPayment.date),
+        //     paymentDates: emailPayment.upcomingPayments,
+        //     merchantName: emailPayment.merchantName,
+        //     merchantOrder: emailPayment.merchantOrder,
+        //     klarnaOrderId: emailPayment.klarnaOrderId,
+        //     totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //     installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //     isFirstPayment: emailPayment.isFirstPayment,
+        //     paymentPlan: emailPayment.paymentPlan,
+        //     orderDate: emailPayment.orderDate,
+        //     cardUsed: emailPayment.cardUsed,
+        //     discount: emailPayment.discount,
+        //     status: emailPayment.status,
+        //     nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+        //     nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+        //     items: emailPayment.items || [],
+        //     snippet: emailPayment.snippet,
+        //   };
+
+        //   const shouldUpdate =
+        //     (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
+        //     (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
+        //     (!existing?.installmentAmount && paymentData.installmentAmount) ||
+        //     ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
+
+        //   if (existing) {
+        //     if (shouldUpdate) {
+        //       await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
+        //       console.log(`Updated payment for ${identifier}`);
+        //     } else {
+        //       console.log(`Skipped update for ${identifier} – existing data is more complete`);
+        //     }
+        //   } else {
+        //     await Payment.create(paymentData);
+        //     console.log(`Created payment for ${identifier}`);
+        //   }
+
+        // } catch (err) {
+        //   console.error('Error upserting payment:', err);
+        // }
       }
     }
 
