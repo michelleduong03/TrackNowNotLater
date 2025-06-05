@@ -331,38 +331,34 @@ router.get('/oauth2callback', async (req, res) => {
       const provider = providers.find(p => fromHeader.toLowerCase().includes(p)) || (fromHeader.match(/@([\w.-]+)\.com/)?.[1] || 'Unknown');
 
       // Try matching merchant in subject first
-const merchantMatchSubject = subject.match(
-  /(Merchant|Store)\s*(Name|):\s*(.+)|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+([^\n.,]+)/i
-);
+      const merchantMatchSubject = subject.match(
+        /(Merchant|Store)\s*(Name|):\s*(.+)|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+([^\n.,]+)/i
+      );
 
-// Try matching merchant in body text as fallback
-const merchantMatchBody = bodyText.match(
-  /(Merchant|Store)\s*(Name|):\s*(.+?)$|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+(.+?)(?=[.,!\n]|$)/im
-);
+      // Try matching merchant in body text as fallback
+      const merchantMatchBody = bodyText.match(
+        /(Merchant|Store)\s*(Name|):\s*(.+?)$|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+(.+?)(?=[.,!\n]|$)/im
+      );
 
-let merchantName = 'Unknown merchant';
+      let merchantName = 'Unknown merchant';
 
-function extractMerchantName(match) {
-  if (!match) return null;
-  let name = null;
-  if (match[3]) {
-    name = match[3].trim().split('\n')[0];
-  } else if (match[4]) {
-    name = match[4].trim();
-    if (name.toLowerCase().startsWith('for ')) {
-      name = name.slice(4).trim();
-    }
-  }
-  return name;
-}
+      function extractMerchantName(match) {
+        if (!match) return null;
+        let name = null;
+        if (match[3]) {
+          name = match[3].trim().split('\n')[0];
+        } else if (match[4]) {
+          name = match[4].trim();
+          if (name.toLowerCase().startsWith('for ')) {
+            name = name.slice(4).trim();
+          }
+        }
+        return name;
+      }
 
+      merchantName = extractMerchantName(merchantMatchBody) || 'Unknown merchant';
 
-merchantName = extractMerchantName(merchantMatchBody) || 'Unknown merchant';
-
-
-
-merchantName = extractMerchantName(merchantMatchSubject) || extractMerchantName(merchantMatchBody) || 'Unknown merchant';
-
+      merchantName = extractMerchantName(merchantMatchSubject) || extractMerchantName(merchantMatchBody) || 'Unknown merchant';
 
       const orderIdMatch = bodyText.match(/(Order|Reference)\s*(ID|Number|):\s*([A-Z0-9\-]+)/i);
       const orderId = orderIdMatch ? orderIdMatch[3].trim() : 'Unknown';
