@@ -380,9 +380,27 @@ router.get('/oauth2callback', async (req, res) => {
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
       const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
-      const nextPaymentMatch = bodyText.match(/next payment.*?\$([\d,.]+).*?on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
-      const nextPaymentAmount = nextPaymentMatch ? `$${nextPaymentMatch[1]}` : 'Not found';
-      const nextPaymentDate = nextPaymentMatch ? nextPaymentMatch[2] : 'Not found';
+      // const nextPaymentMatch = bodyText.match(/next payment.*?\$([\d,.]+).*?on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
+      // const nextPaymentAmount = nextPaymentMatch ? `$${nextPaymentMatch[1]}` : 'Not found';
+      // const nextPaymentDate = nextPaymentMatch ? nextPaymentMatch[2] : 'Not found';
+      // Klarna: "Your next payment of $18.54 will be charged on June 2, 2025"
+
+      let nextPaymentAmount = 'Not found';
+      let nextPaymentDate = 'Not found';
+
+      // Try Klarna-style match first
+      const klarnaNextMatch = bodyText.match(/next payment of\s*\$([\d,.]+).*?on\s*([A-Za-z]+\s\d{1,2},?\s?\d{0,4})/i);
+      if (klarnaNextMatch) {
+        nextPaymentAmount = `$${klarnaNextMatch[1]}`;
+        nextPaymentDate = klarnaNextMatch[2];
+      } else if (upcomingPayments.length > 0) {
+        // Fallback to earliest upcoming payment
+        const upcoming = upcomingPayments[0];
+        nextPaymentAmount = `$${upcoming.amount}`;
+        const d = new Date(upcoming.date);
+        nextPaymentDate = `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}, ${d.getFullYear()}`;
+      }
+
 
       const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
 
