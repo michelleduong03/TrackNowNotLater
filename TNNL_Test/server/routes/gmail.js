@@ -304,11 +304,7 @@ router.get('/oauth2callback', async (req, res) => {
 
     const resMessages = await gmail.users.messages.list({
       userId: 'me',
-      q: `(
-  from:(klarna OR affirm OR afterpay OR zip OR sezzle)
-  OR subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received")
-) newer_than:30d`,
-
+      q: 'newer_than:60d (from:(klarna OR affirm OR afterpay OR zip OR sezzle) OR subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received"))',
       maxResults: 100,
     });
 
