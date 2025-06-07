@@ -3,7 +3,7 @@ import axios from '../api';
 import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ fname: '', lname: '', email: '', password: '' });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -44,19 +44,28 @@ export default function Register() {
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Create Account</h2>
 
         <input
+          type="text"
+          placeholder="First Name"
+          value={form.fname}
+          onChange={e => setForm({ ...form, fname: e.target.value })}
+          required
+          style={inputStyle}
+        />
+        <input
+          type="text"
+          placeholder="Last Name"
+          value={form.lname}
+          onChange={e => setForm({ ...form, lname: e.target.value })}
+          required
+          style={inputStyle}
+        />
+        <input
           type="email"
           placeholder="Email"
           value={form.email}
           onChange={e => setForm({ ...form, email: e.target.value })}
           required
-          style={{
-            width: '100%',
-            padding: '0.75rem 1rem',
-            marginBottom: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            fontSize: '1rem'
-          }}
+          style={inputStyle}
         />
         <input
           type="password"
@@ -64,30 +73,12 @@ export default function Register() {
           value={form.password}
           onChange={e => setForm({ ...form, password: e.target.value })}
           required
-          style={{
-            width: '100%',
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            fontSize: '1rem'
-          }}
+          style={{ ...inputStyle, marginBottom: '1.5rem' }}
         />
+
         <button
           type="submit"
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            borderRadius: '9999px',
-            border: 'none',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.39)',
-            transition: 'background-color 0.3s ease'
-          }}
+          style={buttonStyle}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1d4ed8'}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
         >
@@ -117,3 +108,26 @@ export default function Register() {
     </div>
   );
 }
+
+const inputStyle = {
+  width: '100%',
+  padding: '0.75rem 1rem',
+  marginBottom: '1rem',
+  borderRadius: '8px',
+  border: '1px solid #ccc',
+  fontSize: '1rem'
+};
+
+const buttonStyle = {
+  width: '100%',
+  padding: '0.75rem',
+  borderRadius: '9999px',
+  border: 'none',
+  backgroundColor: '#2563eb',
+  color: 'white',
+  fontWeight: '600',
+  fontSize: '1.1rem',
+  cursor: 'pointer',
+  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.39)',
+  transition: 'background-color 0.3s ease'
+};
