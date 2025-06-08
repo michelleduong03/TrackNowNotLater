@@ -130,7 +130,7 @@ const BNPLTable = ({
 
       {/* Tabs */}
       <div style={{ marginBottom: '1rem' }}>
-        {['All', ...BNPL_SERVICES].map((tab) => (
+        {[ ...BNPL_SERVICES].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -173,7 +173,8 @@ const BNPLTable = ({
             <div><strong>Provider:</strong> {p.provider || '—'}</div>
             <div><strong>Merchant:</strong> {p.merchantName || '—'}</div>
             <div><strong>Plan:</strong> {p.paymentPlan || '—'}</div>
-            <div><strong>Order Date:</strong> {p.orderDate || '—'}</div>
+            {/* <div><strong>Order Date:</strong> {p.orderDate || '—'}</div> */}
+            <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
             <div><strong>Next:</strong> {p.nextPaymentDate ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})` : '—'}</div>
             <div>
               <input
