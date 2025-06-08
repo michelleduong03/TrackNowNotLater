@@ -368,6 +368,9 @@ router.get('/oauth2callback', async (req, res) => {
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
       const totalAmount = totalMatch ? totalMatch[2].trim() : 'Not found';
 
+      const orderDateMatch = bodyText.match(/Order placed\s+([A-Za-z]+\s\d{1,2},\s\d{4})/i);
+      const orderDate = orderDateMatch ? orderDateMatch[1].trim() : 'Not found';
+
       const installmentMatch =
         bodyText.match(/(?:installment|payment)\s*(amount|):?\s*\$([\d,.]+)/i) ||
         bodyText.match(/your payment of\s*\$([\d,.]+)/i);
@@ -380,7 +383,14 @@ router.get('/oauth2callback', async (req, res) => {
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
       const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
-      const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+      // const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+      let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+      if (upcomingPayments.length > 0) {
+        console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
+      }
+      if (typeof upcomingPayments === 'string') {
+        upcomingPayments = JSON.parse(upcomingPayments);
+      }
 
       let nextPaymentAmount = 'Not found';
       let nextPaymentDate = 'Not found';
@@ -400,6 +410,7 @@ router.get('/oauth2callback', async (req, res) => {
         provider,
         subject,
         date,
+        orderDate,
         merchantName,
         klarnaOrderId: orderId, // kept name for frontend compatibility
         merchantOrder: orderId,
@@ -418,75 +429,77 @@ router.get('/oauth2callback', async (req, res) => {
       if (!isForwarded && hasUsefulData) {
         BNPLEmails.push(emailPayment);
 
-        // const identifier = emailPayment.klarnaOrderId !== 'Unknown' ? emailPayment.klarnaOrderId : emailPayment.merchantOrder;
+        const identifier = emailPayment.klarnaOrderId !== 'Unknown' ? emailPayment.klarnaOrderId : emailPayment.merchantOrder;
 
-        // try {
-        //   const existing = await Payment.findOne({
-        //     user: userId,
-        //     $or: [
-        //       { klarnaOrderId: emailPayment.klarnaOrderId },
-        //       { merchantOrder: emailPayment.merchantOrder }
-        //     ]
-        //   });
+        try {
+          const stateStr = req.query.state || '{}';
+          const userId = JSON.parse(stateStr).userId;
+          const existing = await Payment.findOne({
+            user: userId,
+            $or: [
+              { klarnaOrderId: emailPayment.klarnaOrderId },
+              { merchantOrder: emailPayment.merchantOrder }
+            ]
+          });
 
-        //   const paymentData = {
-        //     user: userId,
-        //     userEmail: profile.data.emailAddress,
-        //     provider: emailPayment.provider,
-        //     subject: emailPayment.subject,
-        //     date: new Date(emailPayment.date),
-        //     paymentDates: emailPayment.upcomingPayments,
-        //     merchantName: emailPayment.merchantName,
-        //     merchantOrder: emailPayment.merchantOrder,
-        //     klarnaOrderId: emailPayment.klarnaOrderId,
-        //     totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
-        //     installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-        //     isFirstPayment: emailPayment.isFirstPayment,
-        //     paymentPlan: emailPayment.paymentPlan,
-        //     orderDate: emailPayment.orderDate,
-        //     cardUsed: emailPayment.cardUsed,
-        //     discount: emailPayment.discount,
-        //     status: emailPayment.status,
-        //     nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
-        //     nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
-        //     items: emailPayment.items || [],
-        //     snippet: emailPayment.snippet,
-        //   };
+          const paymentData = {
+            user: userId,
+            userEmail: profile.data.emailAddress,
+            provider: emailPayment.provider,
+            subject: emailPayment.subject,
+            date: new Date(emailPayment.date),
+            paymentDates: emailPayment.upcomingPayments,
+            merchantName: emailPayment.merchantName,
+            merchantOrder: emailPayment.merchantOrder,
+            klarnaOrderId: emailPayment.klarnaOrderId,
+            totalAmount: parseFloat(emailPayment.totalAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            installmentAmount: parseFloat(emailPayment.installmentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            isFirstPayment: emailPayment.isFirstPayment,
+            paymentPlan: emailPayment.paymentPlan,
+            orderDate: emailPayment.orderDate,
+            cardUsed: emailPayment.cardUsed,
+            discount: emailPayment.discount,
+            status: emailPayment.status,
+            nextPaymentDate: emailPayment.nextPaymentDate === 'Not found' ? null : new Date(emailPayment.nextPaymentDate),
+            nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
+            items: emailPayment.items || [],
+            snippet: emailPayment.snippet,
+          };
 
-        //   const shouldUpdate =
-        //     (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
-        //     (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
-        //     (!existing?.installmentAmount && paymentData.installmentAmount) ||
-        //     ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
+          const shouldUpdate =
+            (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
+            (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
+            (!existing?.installmentAmount && paymentData.installmentAmount) ||
+            ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
 
-        //   if (existing) {
-        //     if (shouldUpdate) {
-        //       await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
-        //       console.log(`Updated payment for ${identifier}`);
-        //     } else {
-        //       console.log(`Skipped update for ${identifier} – existing data is more complete`);
-        //     }
-        //   } else {
-        //     await Payment.create(paymentData);
-        //     console.log(`Created payment for ${identifier}`);
-        //   }
+          if (existing) {
+            if (shouldUpdate) {
+              await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
+              console.log(`Updated payment for ${identifier}`);
+            } else {
+              console.log(`Skipped update for ${identifier} – existing data is more complete`);
+            }
+          } else {
+            await Payment.create(paymentData);
+            console.log(`Created payment for ${identifier}`);
+          }
 
-        // } catch (err) {
-        //   console.error('Error upserting payment:', err);
-        // }
+        } catch (err) {
+          console.error('Error upserting payment:', err);
+        }
       }
     }
 
-    const stateStr = req.query.state || '{}';
-    const userId = JSON.parse(stateStr).userId;
+    // const stateStr = req.query.state || '{}';
+    // const userId = JSON.parse(stateStr).userId;
 
-    res.json({
-      message: 'BNPL email fetch complete!',
-      email: profile.data.emailAddress,
-      user: userId,
-      tokens,
-      BNPLEmails,
-    });
+    // res.json({
+    //   message: 'BNPL email fetch complete!',
+    //   email: profile.data.emailAddress,
+    //   user: userId,
+    //   tokens,
+    //   BNPLEmails,
+    // });
 
     // You can keep or remove this line based on where you want to redirect
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
