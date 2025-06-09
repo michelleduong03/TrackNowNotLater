@@ -314,6 +314,8 @@ router.get('/oauth2callback', async (req, res) => {
     const paymentKeywords = ['payment', 'due', 'amount', 'installment', 'balance', 'next payment', '1st payment', '$'];
     const providers = ['klarna', 'affirm', 'afterpay', 'zip', 'sezzle'];
 
+    const orderDateMap = {}; 
+
     for (const msg of messages) {
       const fullMsg = await gmail.users.messages.get({
         userId: 'me',
@@ -365,11 +367,47 @@ router.get('/oauth2callback', async (req, res) => {
       );
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
       
+      // const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
+      // const totalAmount = totalMatch ? totalMatch[2].trim() : 'Not found';
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
-      const totalAmount = totalMatch ? totalMatch[2].trim() : 'Not found';
+let totalAmount;
+
+if (totalMatch) {
+  totalAmount = totalMatch[2].trim();
+} else {
+  // Fallback: sum all dollar amounts from just this email
+  const allAmounts = [...bodyText.matchAll(/\$\s?[\d,.]+/g)];
+
+  const totalFromEmail = allAmounts.reduce((sum, match) => {
+    const amount = parseFloat(match[0].replace(/[^0-9.]/g, ''));
+    return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  totalAmount = totalFromEmail > 0 ? `$${totalFromEmail.toFixed(2)}` : 'Not found';
+}
+
+
+
+      // const orderDateMatch = bodyText.match(/Order placed\s+([A-Za-z]+\s\d{1,2},\s\d{4})/i);
+      // const orderDate = orderDateMatch ? orderDateMatch[1].trim() : 'Not found';
 
       const orderDateMatch = bodyText.match(/Order placed\s+([A-Za-z]+\s\d{1,2},\s\d{4})/i);
-      const orderDate = orderDateMatch ? orderDateMatch[1].trim() : 'Not found';
+      let orderDateCandidate = orderDateMatch ? orderDateMatch[1].trim() : null;
+
+      if (!orderDateCandidate) {
+        orderDateCandidate = new Date(date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+      }
+
+      const candidateDateObj = new Date(orderDateCandidate);
+      const idKey = orderId;
+
+      if (!orderDateMap[idKey] || candidateDateObj < orderDateMap[idKey]) {
+        orderDateMap[idKey] = candidateDateObj;
+      }
 
       const installmentMatch =
         bodyText.match(/(?:installment|payment)\s*(amount|):?\s*\$([\d,.]+)/i) ||
@@ -410,7 +448,10 @@ router.get('/oauth2callback', async (req, res) => {
         provider,
         subject,
         date,
-        orderDate,
+        // orderDate,
+        orderDate: orderDateMap[orderId]
+        ? orderDateMap[orderId].toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+        : orderDateCandidate,
         merchantName,
         klarnaOrderId: orderId, // kept name for frontend compatibility
         merchantOrder: orderId,
@@ -422,6 +463,26 @@ router.get('/oauth2callback', async (req, res) => {
         upcomingPayments,
         snippet: bodyText.substring(0, 300),
       };
+
+      console.log (`TOTAl AMOUNT ${totalAmount}`)
+
+      // Fix nextPaymentDate to be in the future if possible
+      const now = new Date();
+
+      if (emailPayment.nextPaymentDate && emailPayment.nextPaymentDate !== 'Not found') {
+        let nextDate = new Date(emailPayment.nextPaymentDate);
+        if (nextDate < now) {
+          // Looking for the next future payment in upcomingPayments
+          const futurePayment = emailPayment.upcomingPayments.find(p => new Date(p.date) > now);
+          if (futurePayment) {
+            emailPayment.nextPaymentDate = new Date(futurePayment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            emailPayment.nextPaymentAmount = `$${futurePayment.amount}`;
+          } else {
+            emailPayment.nextPaymentDate = null;
+            emailPayment.nextPaymentAmount = '0';
+          }
+        }
+      }
 
       // Only push if it's not a forwarded email and has useful info
       const isForwarded = subject.toLowerCase().startsWith('fwd:') || bodyText.toLowerCase().includes('forwarded message');
