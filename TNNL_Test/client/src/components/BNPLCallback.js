@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
 
 const BNPLCallback = ({ 
-  payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed 
+  onImportComplete, payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed 
 }) => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
@@ -33,7 +32,10 @@ const BNPLCallback = ({
 
           sessionStorage.setItem(processedKey, 'true');
 
-          window.location.href = '/dashboard';
+          // window.location.href = '/dashboard';
+          if (onImportComplete) {
+            onImportComplete();
+          }
         } catch (err) {
           console.error('Failed to process Gmail import', err);
         }
