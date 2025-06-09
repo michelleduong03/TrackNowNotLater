@@ -332,12 +332,10 @@ router.get('/oauth2callback', async (req, res) => {
 
       const provider = providers.find(p => fromHeader.toLowerCase().includes(p)) || (fromHeader.match(/@([\w.-]+)\.com/)?.[1] || 'Unknown');
 
-      // Try matching merchant in subject first
       const merchantMatchSubject = subject.match(
         /(Merchant|Store)\s*(Name|):\s*(.+)|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+([^\n.,]+)/i
       );
 
-      // Try matching merchant in body text as fallback
       const merchantMatchBody = bodyText.match(
         /(Merchant|Store)\s*(Name|):\s*(.+?)$|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+(.+?)(?=[.,!\n]|$)/im
       );
@@ -360,36 +358,26 @@ router.get('/oauth2callback', async (req, res) => {
 
       merchantName = extractMerchantName(merchantMatchBody) || extractMerchantName(merchantMatchSubject) || 'Unknown merchant';
 
-      // merchantName = extractMerchantName(merchantMatchSubject) || extractMerchantName(merchantMatchBody) || 'Unknown merchant';
-
       const orderIdMatch = bodyText.match(
         /(?:Klarna order reference|Your purchase ID is|Loan ID:)\s*[:\-]?\s*([A-Z0-9\-]+)/i
       );
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
-      
-      // const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
-      // const totalAmount = totalMatch ? totalMatch[2].trim() : 'Not found';
+ 
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
-let totalAmount;
+      let totalAmount;
 
-if (totalMatch) {
-  totalAmount = totalMatch[2].trim();
-} else {
-  // Fallback: sum all dollar amounts from just this email
-  const allAmounts = [...bodyText.matchAll(/\$\s?[\d,.]+/g)];
+      if (totalMatch) {
+        totalAmount = totalMatch[2].trim();
+      } else {
+        const allAmounts = [...bodyText.matchAll(/\$\s?[\d,.]+/g)];
 
-  const totalFromEmail = allAmounts.reduce((sum, match) => {
-    const amount = parseFloat(match[0].replace(/[^0-9.]/g, ''));
-    return sum + (isNaN(amount) ? 0 : amount);
-  }, 0);
+        const totalFromEmail = allAmounts.reduce((sum, match) => {
+          const amount = parseFloat(match[0].replace(/[^0-9.]/g, ''));
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
 
-  totalAmount = totalFromEmail > 0 ? `$${totalFromEmail.toFixed(2)}` : 'Not found';
-}
-
-
-
-      // const orderDateMatch = bodyText.match(/Order placed\s+([A-Za-z]+\s\d{1,2},\s\d{4})/i);
-      // const orderDate = orderDateMatch ? orderDateMatch[1].trim() : 'Not found';
+        totalAmount = totalFromEmail > 0 ? `$${totalFromEmail.toFixed(2)}` : 'Not found';
+      }
 
       const orderDateMatch = bodyText.match(/Order placed\s+([A-Za-z]+\s\d{1,2},\s\d{4})/i);
       let orderDateCandidate = orderDateMatch ? orderDateMatch[1].trim() : null;
@@ -416,12 +404,9 @@ if (totalMatch) {
         ? `$${(installmentMatch[2] || installmentMatch[1]).trim()}`
         : 'Not found';
 
-      // const installmentAmount = installmentMatch ? `$${installmentMatch[2].trim()}` : 'Not found';
-
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
       const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
-      // const upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
       let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
       if (upcomingPayments.length > 0) {
         console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
@@ -466,13 +451,11 @@ if (totalMatch) {
 
       console.log (`TOTAl AMOUNT ${totalAmount}`)
 
-      // Fix nextPaymentDate to be in the future if possible
       const now = new Date();
 
       if (emailPayment.nextPaymentDate && emailPayment.nextPaymentDate !== 'Not found') {
         let nextDate = new Date(emailPayment.nextPaymentDate);
         if (nextDate < now) {
-          // Looking for the next future payment in upcomingPayments
           const futurePayment = emailPayment.upcomingPayments.find(p => new Date(p.date) > now);
           if (futurePayment) {
             emailPayment.nextPaymentDate = new Date(futurePayment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -484,7 +467,6 @@ if (totalMatch) {
         }
       }
 
-      // Only push if it's not a forwarded email and has useful info
       const isForwarded = subject.toLowerCase().startsWith('fwd:') || bodyText.toLowerCase().includes('forwarded message');
       const hasUsefulData = installmentAmount !== 'Not found' || upcomingPayments.length > 0;
       if (!isForwarded && hasUsefulData) {
@@ -562,7 +544,6 @@ if (totalMatch) {
     //   BNPLEmails,
     // });
 
-    // You can keep or remove this line based on where you want to redirect
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
     console.error('Error during OAuth callback', err);
