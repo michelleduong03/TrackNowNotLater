@@ -276,6 +276,14 @@ export default function DashboardApp() {
     return params.has('data');
   });
 
+  // for refreshing emails for bnpl
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [refreshFlag]);
+
+
   const userId = localStorage.getItem('userId');
 
   const handleSignOut = () => {
@@ -305,8 +313,6 @@ export default function DashboardApp() {
     }
   }, [showBNPLImport]);
 
-  // Unique providers for tabs plus "All"
-  const BNPL_SERVICES = ['All', ...new Set(payments.map(p => p.provider).filter(Boolean))];
 
   // Filter payments by active tab (provider)
   const filteredPayments = activeTab === 'All'
@@ -314,42 +320,61 @@ export default function DashboardApp() {
     : payments.filter(p => p.provider === activeTab);
 
   // Chart data based on filtered payments
+  // Unique providers for tabs plus "All"
+  const BNPL_SERVICES = ['All', ...Array.from(new Set(payments.map(p => p.provider).filter(Boolean)))];
+
+  // Chart data based on all payments with original provider casing
   const getChartData = () => {
-  const summary = {};
-  payments.forEach(p => {
-    const amount = parseFloat(p.totalAmount) || 0;
-    if (p.provider) {
-      summary[p.provider] = (summary[p.provider] || 0) + amount;
-    }
-  });
-  return Object.entries(summary).map(([provider, value]) => ({ name: provider, value }));
-};
+    const summary = {};
+    payments.forEach(p => {
+      const cleanedAmount = parseFloat((p.totalAmount || '').toString().replace(/[^0-9.-]+/g, '')) || 0;
+      if (p.provider) {
+        summary[p.provider] = (summary[p.provider] || 0) + cleanedAmount;
+      }
+    });
+    // return array of { name: provider, value }
+    return Object.entries(summary).map(([provider, value]) => ({ name: provider, value }));
+  };
 
-const getTotalBalance = () => 
-  payments.reduce((sum, p) => sum + (parseFloat(p.totalAmount) || 0), 0);
+  const getTotalBalance = () => 
+    payments.reduce((sum, p) => sum + (parseFloat(p.totalAmount) || 0), 0);
 
-const getBalanceDueThisMonth = () => {
+
+  const getBalanceDueThisMonth = () => {
   const now = new Date();
   return payments.reduce((sum, p) => {
-    const dueDate = new Date(p.nextPaymentDate);
-    if (
-      dueDate.getMonth() === now.getMonth() &&
-      dueDate.getFullYear() === now.getFullYear()
-    ) {
-      return sum + (parseFloat(p.nextPaymentAmount) || 0);
+    let total = 0;
+
+    if (Array.isArray(p.upcomingPayments)) {
+      for (const payment of p.upcomingPayments) {
+        const dueDate = new Date(payment.date);
+        const isSameMonth = dueDate.getMonth() === now.getMonth() && dueDate.getFullYear() === now.getFullYear();
+        if (isSameMonth) {
+          const amount = parseFloat(payment.amount?.toString().replace(/[^0-9.]/g, '')) || 0;
+          total += amount;
+        }
+      }
+    } else if (p.nextPaymentDate) {
+      const dueDate = new Date(p.nextPaymentDate);
+      const isSameMonth = dueDate.getMonth() === now.getMonth() && dueDate.getFullYear() === now.getFullYear();
+      if (isSameMonth) {
+        const amount = parseFloat(p.nextPaymentAmount?.toString().replace(/[^0-9.]/g, '')) || 0;
+        total += amount;
+      }
     }
-    return sum;
+
+    return sum + total;
   }, 0);
 };
 
-const getNextDueDate = () => {
-  const dates = payments
-    .map(p => new Date(p.nextPaymentDate))
-    .filter(d => !isNaN(d.getTime()))
-    .sort((a, b) => a - b);
-  return dates.length ? dates[0].toLocaleDateString() : 'N/A';
-};
 
+  const getNextDueDate = () => {
+    const dates = payments
+      .map(p => new Date(p.nextPaymentDate))
+      .filter(d => !isNaN(d.getTime()))
+      .sort((a, b) => a - b);
+    return dates.length ? dates[0].toLocaleDateString() : 'N/A';
+  };
 
   const renderContent = () => {
     if (page === 'dashboard') {
@@ -375,7 +400,7 @@ const getNextDueDate = () => {
                   marginBottom: '1rem',
                 }}
               >
-                <PieChart width={400} height={300}>
+                {/* <PieChart width={400} height={300}>
                   <Pie
                     data={getChartData()}
                     dataKey="value"
@@ -388,6 +413,25 @@ const getNextDueDate = () => {
                     {getChartData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart> */}
+                <PieChart width={400} height={300}>
+                  <Pie
+                    data={getChartData()}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {getChartData().map((entry, index) => {
+                      const colorIndex = BNPL_SERVICES.slice(1).indexOf(entry.name);
+                      const fillColor = COLORS[colorIndex % COLORS.length] || '#8884d8';
+                      return <Cell key={`cell-${index}`} fill={fillColor} />;
+                    })}
                   </Pie>
                   <Tooltip />
                   <Legend />
@@ -448,7 +492,8 @@ const getNextDueDate = () => {
           </button>
 
           {/* Imported Gmail Data */}
-          {showBNPLImport && <BNPLCallback />}
+          {/* {showBNPLImport && <BNPLCallback />} */}
+          {showBNPLImport && <BNPLCallback onImportComplete={() => setRefreshFlag(flag => !flag)} />}
         </>
       );
     }
