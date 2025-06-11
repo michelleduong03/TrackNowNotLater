@@ -68,9 +68,7 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </div>
 
-      {/* Right side graphic or image */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        {/* Example abstract shape or placeholder */}
         <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" >
           <circle cx="150" cy="150" r="140" fill="#2563eb" fillOpacity="0.1"/>
           <circle cx="150" cy="150" r="100" fill="#2563eb" fillOpacity="0.2"/>
