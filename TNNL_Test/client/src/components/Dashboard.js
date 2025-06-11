@@ -3,6 +3,8 @@ import axios from '../api';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
 import BNPLTable from './BNPLTable';
+import ProfilePage from './ProfilePage';
+
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
@@ -289,7 +291,8 @@ export default function DashboardApp() {
     }
 
     if (page === 'profile') {
-      return <h2>Profile Page - User details and settings</h2>;
+      const userName = localStorage.getItem('fname'); 
+    return <ProfilePage userName={userName || 'there'} />;
     }
 
     return null;
