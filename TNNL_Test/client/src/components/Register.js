@@ -9,7 +9,9 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/auth/register', form);
+      // await axios.post('/auth/register', form);
+      const res = await axios.post('/auth/register', form);
+localStorage.setItem('fname', res.data.user.fname);
       alert('Registration successful!');
       navigate('/login'); 
     } catch (err) {
