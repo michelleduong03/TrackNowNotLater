@@ -5,6 +5,22 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
 router.post('/register', async (req, res) => {
   const { fname, lname, email, password } = req.body;
   if (!fname || !lname || !email || !password) {
@@ -19,13 +35,19 @@ router.post('/register', async (req, res) => {
     user = new User({ fname, lname, email, password: hashed });
     await user.save();
 
-    res.json({ message: 'User registered' });
+    res.json({ 
+      message: 'User registered', 
+      user: { 
+        fname: user.fname, 
+        lname: user.lname, 
+        email: user.email 
+      } 
+    });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -37,10 +59,48 @@ router.post('/login', async (req, res) => {
     if(!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { _id: user._id} });
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        fname: user.fname,
+        lname: user.lname,
+        email: user.email
+      }
+    });
+
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.get('/me', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  console.log('Auth Header:', authHeader);
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No token');
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded JWT:', decoded);
+    
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      console.log('User not found');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('User found:', user);
+    res.json(user);
+  } catch (err) {
+    console.error('Token verify failed:', err);
+    res.status(401).json({ message: 'Invalid token' });
+  }
+});
+
 
 module.exports = router;
