@@ -58,6 +58,9 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if(!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
+    user.lastLogin = new Date();
+    await user.save();
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.json({
       token,
@@ -99,6 +102,24 @@ router.get('/me', async (req, res) => {
   } catch (err) {
     console.error('Token verify failed:', err);
     res.status(401).json({ message: 'Invalid token' });
+  }
+});
+
+// delete user account
+router.delete('/delete', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await User.findByIdAndDelete(decoded.userId);
+    res.json({ message: 'Account deleted' });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    res.status(500).json({ message: 'Failed to delete account' });
   }
 });
 
