@@ -165,11 +165,27 @@ router.get('/oauth2callback', async (req, res) => {
         nextPaymentDate = `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}, ${d.getFullYear()}`;
       }
 
+      const refundKeywords = [
+        'refund issued',
+        'refunded',
+        'your refund',
+        'payment refund',
+        'return confirmed',
+        'refund processed',
+        'refund received',
+        'refund approved',
+        'refund',
+        'credit issued'
+      ];
+
+      const isRefunded = refundKeywords.some(keyword =>
+        subject.toLowerCase().includes(keyword) || bodyText.toLowerCase().includes(keyword)
+      );
+
       const emailPayment = {
         provider,
         subject,
         date,
-        // orderDate,
         orderDate: orderDateMap[orderId]
         ? orderDateMap[orderId].toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
         : orderDateCandidate,
@@ -184,6 +200,15 @@ router.get('/oauth2callback', async (req, res) => {
         upcomingPayments,
         snippet: bodyText.substring(0, 300),
       };
+
+      if (isRefunded) {
+        emailPayment.status = 'refunded';
+      } else {
+        const now = new Date();
+        const allPaymentsCompleted = emailPayment.upcomingPayments.length > 0 &&
+          emailPayment.upcomingPayments.every(p => new Date(p.date) < now);
+        emailPayment.status = allPaymentsCompleted ? 'completed' : 'active';
+      }
 
       console.log (`TOTAl AMOUNT ${totalAmount}`)
 
@@ -243,9 +268,13 @@ router.get('/oauth2callback', async (req, res) => {
             nextPaymentAmount: parseFloat(emailPayment.nextPaymentAmount.replace(/[^0-9.-]+/g, "")) || 0,
             items: emailPayment.items || [],
             snippet: emailPayment.snippet,
+            status: emailPayment.status,
           };
 
+          const statusChanged = existing?.status !== paymentData.status;
+
           const shouldUpdate =
+            statusChanged ||
             (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
             (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
             (!existing?.installmentAmount && paymentData.installmentAmount) ||
