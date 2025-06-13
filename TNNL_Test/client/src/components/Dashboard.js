@@ -69,6 +69,10 @@ export default function DashboardApp() {
     const now = new Date();
 
     return payments.reduce((sum, p) => {
+      if (p.status === 'refunded') {
+        return sum;
+      }
+
       let remaining = 0;
 
       if (Array.isArray(p.paymentDates)) {
@@ -101,6 +105,10 @@ export default function DashboardApp() {
     const summary = {};
 
     payments.forEach(p => {
+      if (p.status === 'refunded') {
+        return;
+      }
+
       let remaining = 0;
 
       if (Array.isArray(p.paymentDates)) {
@@ -138,6 +146,10 @@ export default function DashboardApp() {
     const now = new Date();
 
     const totalDue = payments.reduce((sum, p) => {
+      if (p.status === 'refunded') {
+        return sum;
+      }
+
       let total = 0;
 
       if (Array.isArray(p.paymentDates)) {
@@ -175,6 +187,7 @@ export default function DashboardApp() {
 
   const getNextDueDate = () => {
     const dates = payments
+      .filter(p => p.status !== 'refunded')
       .map(p => new Date(p.nextPaymentDate))
       .filter(d => !isNaN(d.getTime()))
       .sort((a, b) => a - b);
