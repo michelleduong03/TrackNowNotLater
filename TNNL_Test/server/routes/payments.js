@@ -54,14 +54,44 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// router.get('/', authMiddleware, async (req, res) => {
+//   try {
+//     const payments = await Payment.find({ user: req.userId });
+//     res.json(payments);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const payments = await Payment.find({ user: req.userId });
-    res.json(payments);
+
+    const uniqueMap = new Map();
+
+    for (const payment of payments) {
+      const key = payment.klarnaOrderId || payment.merchantOrder || payment._id.toString();
+      const existing = uniqueMap.get(key);
+
+      const isBetter =
+        !existing ||
+        (payment.paymentDates.length > (existing.paymentDates?.length || 0)) ||
+        (!existing.nextPaymentDate && payment.nextPaymentDate) ||
+        ((payment.items?.length || 0) > (existing.items?.length || 0));
+
+      if (isBetter) {
+        uniqueMap.set(key, payment);
+      }
+    }
+
+    const dedupedPayments = Array.from(uniqueMap.values());
+    dedupedPayments.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // optional
+
+    res.json(dedupedPayments);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // router.get('/:email', async (req, res) => {
 //   const userEmail = req.params.email;
