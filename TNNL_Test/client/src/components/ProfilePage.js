@@ -45,6 +45,39 @@ const ProfilePage = () => {
       ) : (
         <h2>Loading profile...</h2>
       )}
+      <button
+        onClick={async () => {
+            const confirmed = window.confirm('Are you sure you want to delete your account? This cannot be undone.');
+            if (!confirmed) return;
+
+            try {
+            const token = localStorage.getItem('token');
+            await axios.delete('/auth/delete', {
+                headers: {
+                Authorization: `Bearer ${token}`
+                }
+            });
+            localStorage.removeItem('token');
+            alert('Account deleted successfully.');
+            window.location.href = '/';
+            } catch (err) {
+            console.error('Delete error:', err);
+            alert('Error deleting account.');
+            }
+        }}
+        style={{
+            marginTop: '2rem',
+            padding: '0.6rem 1rem',
+            background: '#ff4d4f',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+        }}
+        >
+        Delete Account
+        </button>
+
     </div>
   );
 };
