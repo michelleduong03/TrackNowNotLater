@@ -38,11 +38,18 @@ router.get('/oauth2callback', async (req, res) => {
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
     const profile = await gmail.users.getProfile({ userId: 'me' });
 
+    // check for refund
+    // const resMessages = await gmail.users.messages.list({
+    //   userId: 'me',
+    //   q: 'newer_than:60d (from:(klarna OR affirm OR afterpay OR zip OR sezzle) OR subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received" OR refund))',
+    //   maxResults: 100,
+    // });
     const resMessages = await gmail.users.messages.list({
-      userId: 'me',
-      q: 'newer_than:60d (from:(klarna OR affirm OR afterpay OR zip OR sezzle) OR subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received"))',
-      maxResults: 100,
-    });
+  userId: 'me',
+  q: 'newer_than:60d from:(klarna OR affirm OR afterpay OR zip OR sezzle)',
+  maxResults: 200,
+});
+
 
     const messages = resMessages.data.messages || [];
     const BNPLEmails = [];
@@ -143,12 +150,35 @@ router.get('/oauth2callback', async (req, res) => {
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
       const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
+      // let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+      // if (upcomingPayments.length > 0) {
+      //   console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
+      // }
+      // if (typeof upcomingPayments === 'string') {
+      //   upcomingPayments = JSON.parse(upcomingPayments);
+      // }
       let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
+
+      if (typeof upcomingPayments === 'string') {
+        upcomingPayments = JSON.parse(upcomingPayments);
+      }
+
       if (upcomingPayments.length > 0) {
         console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
       }
-      if (typeof upcomingPayments === 'string') {
-        upcomingPayments = JSON.parse(upcomingPayments);
+
+      // Handle missing 1st payment for "Pay in 4"
+      if (paymentPlan.toLowerCase() === 'pay in 4' && upcomingPayments.length === 3) {
+        const totalAmountMatch = bodyText.match(/(?:total|order amount|purchase amount)[^\d]*([\d,.]+)/i);
+        const totalAmount = totalAmountMatch ? parseFloat(totalAmountMatch[1].replace(/,/g, '')) : null;
+
+        if (totalAmount && !upcomingPayments.some(p => new Date(p.date).getTime() === new Date(date).getTime())) {
+          const amountPerInstallment = +(totalAmount / 4).toFixed(2);
+          upcomingPayments.unshift({
+            date: date, // the original order date
+            amount: amountPerInstallment
+          });
+        }
       }
 
       let nextPaymentAmount = 'Not found';
@@ -170,17 +200,50 @@ router.get('/oauth2callback', async (req, res) => {
         'refunded',
         'your refund',
         'payment refund',
-        'return confirmed',
         'refund processed',
         'refund received',
         'refund approved',
-        'refund',
-        'credit issued'
-      ];
+        'refund'
+        ];
 
-      const isRefunded = refundKeywords.some(keyword =>
-        subject.toLowerCase().includes(keyword) || bodyText.toLowerCase().includes(keyword)
-      );
+      let refundSource = null;
+
+      // const isRefunded = refundKeywords.some(keyword =>
+      //   subject.toLowerCase().includes(keyword) || bodyText.toLowerCase().includes(keyword)
+      // );
+
+      let isRefunded = false;
+
+      for (const keyword of refundKeywords) {
+        const keywordLower = keyword.toLowerCase();
+
+        if (subject.toLowerCase().includes(keywordLower)) {
+          isRefunded = true;
+          console.log(`Refund detected in SUBJECT for ${merchantName} | Order ID: ${orderId} | Subject contains "${keyword}"`);
+          break;
+        }
+
+        if (bodyText.toLowerCase().includes(keywordLower)) {
+          const bodyLines = bodyText.split('\n');
+          for (const line of bodyLines) {
+            if (
+              line.toLowerCase().includes(keywordLower) &&
+              !line.toLowerCase().includes("klarna balance") &&
+              !line.toLowerCase().includes("cashback") &&
+              !line.toLowerCase().includes("unlock") &&
+              !line.toLowerCase().includes("gift card") &&
+              !line.toLowerCase().includes("download the app") &&
+              !line.toLowerCase().includes("view in browser")
+            ) {
+              isRefunded = true;
+              console.log(`Refund detected in BODY for ${merchantName} | Order ID: ${orderId} | Line: "${line.trim()}"`);
+              break;
+            }
+          }
+        }
+
+        if (isRefunded) break;
+      }
 
       const emailPayment = {
         provider,
@@ -203,6 +266,7 @@ router.get('/oauth2callback', async (req, res) => {
 
       if (isRefunded) {
         emailPayment.status = 'refunded';
+        console.log(`Refund detected for ${merchantName} | Order ID: ${orderId} | ${refundSource}`);
       } else {
         const now = new Date();
         const allPaymentsCompleted = emailPayment.upcomingPayments.length > 0 &&
