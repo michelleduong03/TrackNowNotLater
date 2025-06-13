@@ -48,7 +48,7 @@ router.get('/oauth2callback', async (req, res) => {
     const BNPLEmails = [];
 
     const paymentKeywords = ['payment', 'due', 'amount', 'installment', 'balance', 'next payment', '1st payment', '$'];
-    const providers = ['klarna', 'affirm', 'afterpay', 'zip', 'sezzle'];
+    const providers = ['Klarna', 'Affirm', 'Afterpay', 'Zip', 'Sezzle'];
 
     const orderDateMap = {}; 
 
@@ -66,7 +66,7 @@ router.get('/oauth2callback', async (req, res) => {
 
       const bodyText = extractEmailBody(fullMsg.data.payload) || fullMsg.data.snippet;
 
-      const provider = providers.find(p => fromHeader.toLowerCase().includes(p)) || (fromHeader.match(/@([\w.-]+)\.com/)?.[1] || 'Unknown');
+      const provider = providers.find(p => fromHeader.includes(p)) || (fromHeader.match(/@([\w.-]+)\.com/)?.[1] || 'Unknown');
 
       const merchantMatchSubject = subject.match(
         /(Merchant|Store)\s*(Name|):\s*(.+)|(?:payment plan|payment received|payment recived|your payment plan for|payment received for)\s+([^\n.,]+)/i
