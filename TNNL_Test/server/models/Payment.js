@@ -19,12 +19,16 @@ const PaymentSchema = new mongoose.Schema({
   orderDate: String,
   cardUsed: String,
   discount: String,
-  status: String,
   nextPaymentDate: String,
   nextPaymentAmount: String,
   items: [String],
   snippet: String,
   userEmail: String,
+  status: {
+    type: String,
+    enum: ['active', 'refunded', 'completed'],
+    default: 'active'
+  },
 });
 
 module.exports = mongoose.model('Payment', PaymentSchema);
