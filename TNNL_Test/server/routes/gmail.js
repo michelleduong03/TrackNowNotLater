@@ -220,10 +220,6 @@ router.get('/oauth2callback', async (req, res) => {
 
       let refundSource = null;
 
-      // const isRefunded = refundKeywords.some(keyword =>
-      //   subject.toLowerCase().includes(keyword) || bodyText.toLowerCase().includes(keyword)
-      // );
-
       let isRefunded = false;
 
       for (const keyword of refundKeywords) {
