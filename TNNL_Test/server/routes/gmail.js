@@ -105,7 +105,19 @@ router.get('/oauth2callback', async (req, res) => {
         /(?:Klarna order reference|Your purchase ID is|Loan ID:)\s*[:\-]?\s*([A-Z0-9\-]+)/i
       );
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
- 
+
+      const existing = await Payment.findOne({
+        $or: [
+          { klarnaOrderId: orderId },
+          { merchantOrder: orderId }
+        ]
+      });
+
+      // if (!existing) {
+      //   console.log(`Skipping email — order ID ${orderId} not found in DB`);
+      //   continue;
+      // }
+      
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
       let totalAmount;
 
@@ -167,7 +179,7 @@ router.get('/oauth2callback', async (req, res) => {
         console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
       }
 
-      // Handle missing 1st payment for "Pay in 4"
+      // handle missing 1st payment for "Pay in 4"
       if (paymentPlan.toLowerCase() === 'pay in 4' && upcomingPayments.length === 3) {
         const totalAmountMatch = bodyText.match(/(?:total|order amount|purchase amount)[^\d]*([\d,.]+)/i);
         const totalAmount = totalAmountMatch ? parseFloat(totalAmountMatch[1].replace(/,/g, '')) : null;
@@ -175,7 +187,7 @@ router.get('/oauth2callback', async (req, res) => {
         if (totalAmount && !upcomingPayments.some(p => new Date(p.date).getTime() === new Date(date).getTime())) {
           const amountPerInstallment = +(totalAmount / 4).toFixed(2);
           upcomingPayments.unshift({
-            date: date, // the original order date
+            date: date,
             amount: amountPerInstallment
           });
         }
@@ -263,11 +275,45 @@ router.get('/oauth2callback', async (req, res) => {
         upcomingPayments,
         snippet: bodyText.substring(0, 300),
       };
-
+      
       if (isRefunded) {
         emailPayment.status = 'refunded';
         console.log(`Refund detected for ${merchantName} | Order ID: ${orderId} | ${refundSource}`);
-      } else {
+
+        // Update existing matching payments to status "refunded"
+        const stateStr = req.query.state || '{}';
+        const userId = JSON.parse(stateStr).userId;
+
+        try {
+          const matchingPayments = await Payment.find({
+            user: userId,
+            $or: [
+              { klarnaOrderId: orderId },
+              { merchantOrder: orderId }
+            ],
+            status: { $ne: 'refunded' }
+          });
+
+          const currentEmailDate = new Date(date);
+
+          for (const oldPayment of matchingPayments) {
+            const oldDate = new Date(oldPayment.date);
+            if (oldDate < currentEmailDate) {
+              await Payment.findByIdAndUpdate(oldPayment._id, {
+                $set: {
+                  status: 'refunded',
+                  nextPaymentDate: null,
+                  nextPaymentAmount: 0
+                }
+              });
+              console.log(`Updated old payment ${oldPayment._id} to status 'refunded'`);
+            }
+          }
+        } catch (err) {
+          console.error('Error updating older payments to refunded:', err);
+        }
+      }
+      else {
         const now = new Date();
         const allPaymentsCompleted = emailPayment.upcomingPayments.length > 0 &&
           emailPayment.upcomingPayments.every(p => new Date(p.date) < now);
@@ -293,7 +339,7 @@ router.get('/oauth2callback', async (req, res) => {
       }
 
       const isForwarded = subject.toLowerCase().startsWith('fwd:') || bodyText.toLowerCase().includes('forwarded message');
-      const hasUsefulData = installmentAmount !== 'Not found' || upcomingPayments.length > 0;
+      const hasUsefulData = installmentAmount !== 'Not found' || upcomingPayments.length > 0 || isRefunded;
       if (!isForwarded && hasUsefulData) {
         BNPLEmails.push(emailPayment);
 
@@ -336,9 +382,10 @@ router.get('/oauth2callback', async (req, res) => {
           };
 
           const statusChanged = existing?.status !== paymentData.status;
+          const isNewerEmail = !existing?.date || (new Date(paymentData.date) > new Date(existing.date));
 
           const shouldUpdate =
-            statusChanged ||
+            (statusChanged && isNewerEmail) ||
             (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
             (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
             (!existing?.installmentAmount && paymentData.installmentAmount) ||
@@ -379,6 +426,5 @@ router.get('/oauth2callback', async (req, res) => {
     res.status(500).send('Authentication failed');
   }
 });
-
 
 module.exports = router;
