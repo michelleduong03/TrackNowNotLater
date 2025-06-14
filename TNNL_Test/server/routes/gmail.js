@@ -162,13 +162,6 @@ router.get('/oauth2callback', async (req, res) => {
       const paymentPlanMatch = bodyText.match(/Pay in\s+(\d+)/i);
       const paymentPlan = paymentPlanMatch ? `Pay in ${paymentPlanMatch[1]}` : 'Pay in 4';
 
-      // let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
-      // if (upcomingPayments.length > 0) {
-      //   console.log(`UPCOMING PAYMENTS ${JSON.stringify(upcomingPayments, null, 2)}`);
-      // }
-      // if (typeof upcomingPayments === 'string') {
-      //   upcomingPayments = JSON.parse(upcomingPayments);
-      // }
       let upcomingPayments = parseUpcomingPayments(bodyText, new Date(date).getFullYear());
 
       if (typeof upcomingPayments === 'string') {
