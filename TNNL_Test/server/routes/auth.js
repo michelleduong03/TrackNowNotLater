@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Payment = require('../models/Payment');
 
 const router = express.Router();
 
@@ -105,7 +106,7 @@ router.get('/me', async (req, res) => {
   }
 });
 
-// delete user account
+// delete user account and related data
 router.delete('/delete', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -115,12 +116,20 @@ router.delete('/delete', async (req, res) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    await User.findByIdAndDelete(decoded.userId);
-    res.json({ message: 'Account deleted' });
+    const userId = decoded.userId;
+
+    // Delete related payments
+    await Payment.deleteMany({ user: userId });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Account and related data deleted successfully' });
   } catch (err) {
     console.error('Delete account error:', err);
     res.status(500).json({ message: 'Failed to delete account' });
   }
 });
+
 
 module.exports = router;
