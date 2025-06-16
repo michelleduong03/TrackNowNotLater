@@ -64,13 +64,13 @@ export default function DashboardApp() {
 
   // Unique providers for tabs plus "All"
   const BNPL_SERVICES = ['All', ...Array.from(new Set(payments.map(p => p.provider).filter(Boolean)))];
- const COLORS = generatePastelColors(BNPL_SERVICES.length);
+  const COLORS = generatePastelColors(BNPL_SERVICES.length);
 
   const getTotalBalance = () => {
     const now = new Date();
 
     return payments.reduce((sum, p) => {
-      if (p.status === 'refunded') {
+      if (p.status === 'refunded' || p.status === 'completed') {
         return sum;
       }
 
@@ -100,13 +100,12 @@ export default function DashboardApp() {
     }, 0);
   };
 
-
   const getChartData = () => {
     const now = new Date();
     const summary = {};
 
     payments.forEach(p => {
-      if (p.status === 'refunded') {
+      if (p.status === 'refunded' || p.status === 'completed') {
         return;
       }
 
@@ -147,7 +146,7 @@ export default function DashboardApp() {
     const now = new Date();
 
     const totalDue = payments.reduce((sum, p) => {
-      if (p.status === 'refunded') {
+      if (p.status === 'refunded' || p.status === 'completed') {
         return sum;
       }
 
@@ -188,7 +187,7 @@ export default function DashboardApp() {
 
   const getNextDueDate = () => {
     const dates = payments
-      .filter(p => p.status !== 'refunded')
+      .filter(p => p.status !== 'refunded' || p.status !== 'completed')
       .map(p => new Date(p.nextPaymentDate))
       .filter(d => !isNaN(d.getTime()))
       .sort((a, b) => a - b);
@@ -300,9 +299,9 @@ export default function DashboardApp() {
       );
     }
 
-    if (page === 'bankAccounts') {
-      return <h2>Bank Accounts Page - Connected Accounts here</h2>;
-    }
+    // if (page === 'bankAccounts') {
+    //   return <h2>Bank Accounts Page - Connected Accounts here</h2>;
+    // }
 
     if (page === 'profile') {
       const userName = localStorage.getItem('fname'); 
@@ -344,7 +343,7 @@ export default function DashboardApp() {
         >
           Dashboard
         </button>
-        <button
+        {/* <button
           onClick={() => setPage('bankAccounts')}
           style={{
             background: 'none',
@@ -356,7 +355,7 @@ export default function DashboardApp() {
           }}
         >
           Account Info
-        </button>
+        </button> */}
         <button
           onClick={() => setPage('profile')}
           style={{
