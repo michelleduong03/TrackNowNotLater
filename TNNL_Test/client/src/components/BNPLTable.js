@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const BNPLTable = ({
   payments,
@@ -17,13 +17,27 @@ const BNPLTable = ({
       day: 'numeric'
     });
 
+  const statusColors = {
+    completed: '#28a745', 
+    refunded: '#ffc107', 
+    active: '#17a2b8'     
+  };
+
+  const [editRow, setEditRow] = useState(null);
+  const [localPayments, setLocalPayments] = useState(payments);
+
+  React.useEffect(() => {
+    setLocalPayments(payments);
+  }, [payments]);
+
+
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
       <h3>🧾 Purchases</h3>
 
       {/* Tabs */}
       <div style={{ marginBottom: '1rem' }}>
-        {[ ...BNPL_SERVICES].map((tab) => (
+        {[...BNPL_SERVICES].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -44,90 +58,264 @@ const BNPLTable = ({
       </div>
 
       {/* Header */}
-      <div style={{ display: 'flex', fontWeight: 'bold', borderBottom: '2px solid #ccc', paddingBottom: '8px' }}>
+      <div
+        style={{
+          display: 'flex',
+          fontWeight: 'bold',
+          borderBottom: '2px solid #ccc',
+          paddingBottom: '8px'
+        }}
+      >
         <div style={{ flex: 7 }}>Purchase Info</div>
         <div style={{ flex: 3 }}>Payment Dates</div>
       </div>
 
-      {/* Each row */}
-      {payments.map((p, idx) => (
-        <div
-          key={p._id}
-          style={{
-            display: 'flex',
-            padding: '1rem 0',
-            borderBottom: '1px solid #eee',
-            backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
-            alignItems: 'flex-start'
-          }}
-        >
-          {/* Purchase info (left) */}
-          <div style={{ flex: 7, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-            <div><strong>Provider:</strong> {p.provider || '—'}</div>
-            <div><strong>Merchant:</strong> {p.merchantName || '—'}</div>
-            <div><strong>Plan:</strong> {p.paymentPlan || '—'}</div>
-            <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
-            <div><strong>Next:</strong> {p.nextPaymentDate ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})` : '—'}</div>
-            <div>
-              <input
-                type="text"
-                placeholder="Add note"
-                value={notes[p._id] || ''}
-                onChange={(e) =>
-                  setNotes((prev) => ({ ...prev, [p._id]: e.target.value }))
-                }
-                style={{
-                  width: '100%',
-                  padding: '5px',
-                  borderRadius: '6px',
-                  border: '1px solid #ccc',
-                  fontSize: '0.85rem'
-                }}
-              />
-            </div>
-          </div>
+      {localPayments.map((p, idx) => {
+        const statusText =
+          p.status === 'completed'
+            ? 'Completed'
+            : p.status === 'refunded'
+            ? 'Refunded'
+            : 'Active';
 
-         {/* Payment bubbles (right) */}
+        return (
           <div
+            key={p._id}
             style={{
-              flex: 3,
-              paddingLeft: '1rem',
               display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
+              padding: '1rem 0',
+              borderBottom: '1px solid #eee',
+              backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
+              alignItems: 'flex-start'
             }}
           >
-            {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
-              p.paymentDates.map((pd) => {
-                const paymentDate = new Date(pd.date);
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                paymentDate.setHours(0, 0, 0, 0);
+            {/* Purchase info (left) */}
+            <div
+              style={{
+                flex: 7,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(6, 1fr)',
+                gap: '10px',
+                alignItems: 'center'
+              }}
+            >
+              <div>
+                <strong>Provider:</strong> {p.provider || '—'}
+              </div>
+              <div>
+                <strong>Merchant:</strong> {p.merchantName || '—'}
+              </div>
+              <div>
+                <strong>Plan:</strong> {p.paymentPlan || '—'}
+              </div>
+              <div>
+                <strong>Order Date:</strong>{' '}
+                {p.orderDate ? formatDate(p.orderDate) : '—'}
+              </div>
+              <div>
+                <strong>Next:</strong>{' '}
+                {p.nextPaymentDate
+                  ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
+                  : '—'}
+              </div>
 
-                const isPast = paymentDate < now;
+              {/* New Status field */}
+              <div
+                style={{
+                  fontWeight: 'bold',
+                  color: statusColors[p.status] || '#333',
+                  textTransform: 'capitalize',
+                  padding: '5px 10px',
+                  borderRadius: '12px',
+                  backgroundColor: `${statusColors[p.status]}33` 
+                }}
+              >
+                {statusText}
+              </div>
 
-                return (
-                  <div
-                    key={pd._id}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: '999px',
-                      backgroundColor: isPast ? '#ffdddd' : '#e1f5fe', 
-                      border: isPast ? '1px solid #f28b82' : '1px solid #81d4fa',
-                      fontSize: '0.8rem',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {formatDate(pd.date)} — ${pd.amount}
-                  </div>
-                );
-              })
-            ) : (
-              <span style={{ color: '#aaa' }}>No payments</span>
-            )}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <input
+                  type="text"
+                  placeholder="Add note"
+                  value={notes[p._id] || ''}
+                  onChange={(e) =>
+                    setNotes((prev) => ({ ...prev, [p._id]: e.target.value }))
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '5px',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    fontSize: '0.85rem',
+                    marginTop: '8px'
+                  }}
+                />
+              </div>
+              <button
+                onClick={() => setEditRow(p)}
+                style={{
+                  marginTop: '8px',
+                  fontSize: '0.75rem',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #999',
+                  backgroundColor: '#f0f0f0',
+                  cursor: 'pointer'
+                }}
+              >
+                Edit
+              </button>
+            </div>
+
+            {/* Payment bubbles (right) */}
+            <div
+              style={{
+                flex: 3,
+                paddingLeft: '1rem',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem'
+              }}
+            >
+              {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
+                p.paymentDates.map((pd) => {
+                  const paymentDate = new Date(pd.date);
+                  const now = new Date();
+                  now.setHours(0, 0, 0, 0);
+                  paymentDate.setHours(0, 0, 0, 0);
+
+                  const isPast = paymentDate <= now;
+
+                  return (
+                    <div
+                      key={pd._id}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '999px',
+                        backgroundColor: isPast ? '#ffdddd' : '#e1f5fe',
+                        border: isPast
+                          ? '1px solid #f28b82'
+                          : '1px solid #81d4fa',
+                        fontSize: '0.8rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {formatDate(pd.date)} — ${pd.amount}
+                    </div>
+                  );
+                })
+              ) : (
+                <span style={{ color: '#aaa' }}>No payments</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {editRow && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setEditRow(null)}
+        >
+          <div
+            style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '10px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Edit Purchase</h3>
+
+            <label>
+              Merchant:
+              <input
+                type="text"
+                value={editRow.merchantName}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, merchantName: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Payment Plan:
+              <input
+                type="text"
+                value={editRow.paymentPlan}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, paymentPlan: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Status:
+              <select
+                value={editRow.status}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, status: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              >
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </label>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button
+                onClick={() => {
+                  setLocalPayments((prev) =>
+                    prev.map((p) =>
+                      p._id === editRow._id ? { ...p, ...editRow } : p
+                    )
+                  );
+                  setEditRow(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#28a745',
+                  color: '#fff',
+                  border: 'none'
+                }}
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setEditRow(null)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#ccc',
+                  border: 'none'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-      ))}
+      )}
+
     </div>
   );
 };
