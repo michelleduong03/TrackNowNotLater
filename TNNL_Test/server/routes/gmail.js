@@ -105,12 +105,12 @@ router.get('/oauth2callback', async (req, res) => {
       );
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
 
-      const existing = await Payment.findOne({
-        $or: [
-          { klarnaOrderId: orderId },
-          { merchantOrder: orderId }
-        ]
-      });
+      // const existing = await Payment.findOne({
+      //   $or: [
+      //     { klarnaOrderId: orderId },
+      //     { merchantOrder: orderId }
+      //   ]
+      // });
 
       // if (!existing) {
       //   console.log(`Skipping email — order ID ${orderId} not found in DB`);
@@ -287,7 +287,6 @@ router.get('/oauth2callback', async (req, res) => {
         emailPayment.status = 'refunded';
         console.log(`Refund detected for ${merchantName} | Order ID: ${orderId} | ${refundSource}`);
 
-        // Update existing matching payments to status "refunded"
         const stateStr = req.query.state || '{}';
         const userId = JSON.parse(stateStr).userId;
 
