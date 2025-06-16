@@ -4,9 +4,9 @@ import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import BNPLCallback from './BNPLCallback';
 import BNPLTable from './BNPLTable';
 import ProfilePage from './ProfilePage';
+import { generatePastelColors } from '../utils/ColorGen';
 
-
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
+// const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
@@ -64,6 +64,7 @@ export default function DashboardApp() {
 
   // Unique providers for tabs plus "All"
   const BNPL_SERVICES = ['All', ...Array.from(new Set(payments.map(p => p.provider).filter(Boolean)))];
+ const COLORS = generatePastelColors(BNPL_SERVICES.length);
 
   const getTotalBalance = () => {
     const now = new Date();
