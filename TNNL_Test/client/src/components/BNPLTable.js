@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { updatePaymentOnServer } from '../utils/services';
 
 const BNPLTable = ({
   payments,
@@ -109,6 +110,9 @@ const BNPLTable = ({
                 <strong>Plan:</strong> {p.paymentPlan || '—'}
               </div>
               <div>
+                <strong>Order ID:</strong> {p.klarnaOrderId || '—'}
+              </div>
+              <div>
                 <strong>Order Date:</strong>{' '}
                 {p.orderDate ? formatDate(p.orderDate) : '—'}
               </div>
@@ -186,18 +190,34 @@ const BNPLTable = ({
 
                   const isPast = paymentDate <= now;
 
+                  const isRefunded = p.status === 'refunded';
+                  const isCompleted = p.status === 'completed';
+
+
                   return (
                     <div
                       key={pd._id}
                       style={{
                         padding: '6px 12px',
                         borderRadius: '999px',
-                        backgroundColor: isPast ? '#ffdddd' : '#e1f5fe',
-                        border: isPast
-                          ? '1px solid #f28b82'
-                          : '1px solid #81d4fa',
                         fontSize: '0.8rem',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        backgroundColor: isCompleted
+                          ? '#ffdddd' 
+                          : isRefunded
+                          ? '#bbb'    
+                          : isPast
+                          ? '#ffdddd'  
+                          : '#e1f5fe', 
+                        border: isCompleted
+                          ? '1px solid #f28b82' 
+                          : isRefunded
+                          ? '1px solid #888'    
+                          : isPast
+                          ? '1px solid #f28b82' 
+                          : '1px solid #81d4fa',
+                        color: isRefunded ? '#555' : undefined,
+                        opacity: isRefunded ? 0.8 : 1,
                       }}
                     >
                       {formatDate(pd.date)} — ${pd.amount}
@@ -282,13 +302,26 @@ const BNPLTable = ({
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
-                onClick={() => {
-                  setLocalPayments((prev) =>
-                    prev.map((p) =>
-                      p._id === editRow._id ? { ...p, ...editRow } : p
-                    )
-                  );
-                  setEditRow(null);
+                onClick={async () => {
+                  console.log('Save clicked with editRow:', editRow);
+                  const updatedPayment = { ...editRow };
+
+                  if (updatedPayment.status === 'refunded') {
+                    updatedPayment.nextPaymentDate = null;
+                  }
+
+                  try {
+                    const saved = await updatePaymentOnServer(updatedPayment);
+                    console.log('Server responded with:', saved);
+
+                    setLocalPayments((prev) =>
+                      prev.map((p) => (p._id === saved._id ? saved : p))
+                    );
+                    setEditRow(null);
+                  } catch (error) {
+                    console.error('Save failed:', error);
+                    alert('Could not save changes. Please try again.');
+                  }
                 }}
                 style={{
                   padding: '0.5rem 1rem',
