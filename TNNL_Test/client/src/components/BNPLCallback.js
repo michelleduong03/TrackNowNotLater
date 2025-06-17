@@ -32,7 +32,6 @@ const BNPLCallback = ({
 
           sessionStorage.setItem(processedKey, 'true');
 
-          // window.location.href = '/dashboard';
           if (onImportComplete) {
             onImportComplete();
           }
