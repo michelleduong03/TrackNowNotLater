@@ -31,6 +31,13 @@ const BNPLTable = ({
     setLocalPayments(payments);
   }, [payments]);
 
+  React.useEffect(() => {
+    const initialNotes = {};
+    payments.forEach((p) => {
+      initialNotes[p._id] = p.note || '';
+    });
+    setNotes(initialNotes);
+  }, [payments, setNotes]);
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
@@ -123,21 +130,21 @@ const BNPLTable = ({
                   : '—'}
               </div>
 
-              {/* New Status field */}
               <div
                 style={{
                   fontWeight: 'bold',
                   color: statusColors[p.status] || '#333',
                   textTransform: 'capitalize',
                   padding: '5px 10px',
-                  borderRadius: '12px',
-                  backgroundColor: `${statusColors[p.status]}33` 
+                  borderRadius: '10px',
+                  backgroundColor: `${statusColors[p.status]}33`, 
+                  textAlign: 'center',
                 }}
               >
                 {statusText}
               </div>
 
-              <div style={{ gridColumn: '1 / -1' }}>
+              {/* <div style={{ gridColumn: '1 / -1' }}>
                 <input
                   type="text"
                   placeholder="Add note"
@@ -154,6 +161,14 @@ const BNPLTable = ({
                     marginTop: '8px'
                   }}
                 />
+              </div> */}
+              <div style={{ 
+                gridColumn: '1 / -1', 
+                marginTop: '8px', 
+                fontStyle: notes[p._id] ? 'normal' : 'italic', 
+                color: notes[p._id] ? '#000' : '#888' 
+                }}>
+                {notes[p._id] || 'No note'}
               </div>
               <button
                 onClick={() => setEditRow(p)}
@@ -300,6 +315,18 @@ const BNPLTable = ({
               </select>
             </label>
 
+            <label>
+              Note:
+              <input
+                type="text"
+                value={editRow.note || ''}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, note: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
                 onClick={async () => {
@@ -317,6 +344,9 @@ const BNPLTable = ({
                     setLocalPayments((prev) =>
                       prev.map((p) => (p._id === saved._id ? saved : p))
                     );
+
+                    setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
+
                     setEditRow(null);
                   } catch (error) {
                     console.error('Save failed:', error);
