@@ -54,14 +54,6 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// router.get('/', authMiddleware, async (req, res) => {
-//   try {
-//     const payments = await Payment.find({ user: req.userId });
-//     res.json(payments);
-//   } catch (err) {
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const payments = await Payment.find({ user: req.userId });
@@ -92,17 +84,6 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-
-// router.get('/:email', async (req, res) => {
-//   const userEmail = req.params.email;
-//   try {
-//     const purchases = await Payment.find({ userEmail });
-//     res.json(purchases);
-//   } catch (err) {
-//     res.status(500).send('Error fetching purchases');
-//   }
-// });
-
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -112,6 +93,21 @@ router.get('/user/:userId', async (req, res) => {
     res.json(purchases);
   } catch (err) {
     res.status(500).send('Error fetching purchases');
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedPayment = await Payment.findByIdAndUpdate(id, updateData, { new: true });
+    if (!updatedPayment) {
+      return res.status(404).send({ error: 'Payment not found' });
+    }
+    res.json(updatedPayment);
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to update payment' });
   }
 });
 
