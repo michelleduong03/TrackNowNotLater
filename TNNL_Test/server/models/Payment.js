@@ -29,6 +29,7 @@ const PaymentSchema = new mongoose.Schema({
     enum: ['active', 'refunded', 'completed'],
     default: 'active'
   },
+  note: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('Payment', PaymentSchema);
