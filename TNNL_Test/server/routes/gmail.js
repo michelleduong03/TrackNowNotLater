@@ -393,12 +393,6 @@ router.get('/oauth2callback', async (req, res) => {
           const statusChanged = existing?.status !== paymentData.status;
           const isNewerEmail = !existing?.date || (new Date(paymentData.date) > new Date(existing.date));
 
-          // const shouldUpdate =
-          //   (statusChanged && isNewerEmail) ||
-          //   (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
-          //   (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
-          //   (!existing?.installmentAmount && paymentData.installmentAmount) ||
-          //   ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
           const shouldUpdate =
             (statusChanged && isNewerEmail) ||
             (paymentData.status === 'refunded' && existing?.status !== 'refunded' && isNewerEmail) ||
