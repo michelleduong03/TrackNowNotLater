@@ -38,7 +38,6 @@ router.get('/oauth2callback', async (req, res) => {
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
     const profile = await gmail.users.getProfile({ userId: 'me' });
 
-    // check for refund
     // const resMessages = await gmail.users.messages.list({
     //   userId: 'me',
     //   q: 'newer_than:60d (from:(klarna OR affirm OR afterpay OR zip OR sezzle) OR subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received" OR refund))',
@@ -46,15 +45,31 @@ router.get('/oauth2callback', async (req, res) => {
     // });
     const resMessages = await gmail.users.messages.list({
       userId: 'me',
-      q: 'newer_than:60d from:(klarna OR affirm OR afterpay OR zip OR sezzle)',
-      maxResults: 200,
+      q: 'newer_than:60d subject:("pay in 4" OR "payment due" OR installment OR "1st payment" OR "klarna order reference" OR "payment received" OR Autopay OR "payment plan" OR refund)',
+      maxResults: 100,
     });
 
 
     const messages = resMessages.data.messages || [];
     const BNPLEmails = [];
 
-    const providers = ['Klarna', 'Affirm', 'Afterpay', 'Zip', 'Sezzle'];
+    // const providers = ['Klarna', 'Affirm', 'Afterpay', 'Zip', 'Sezzle'];
+    const providers = [
+      'Klarna',
+      'Affirm',
+      'Afterpay',
+      'Zip',
+      'Sezzle',
+      'PayPal',
+      'Apple',
+      'Shop Pay',
+      'Quadpay',
+      'Perpay',
+      'ViaBill',
+      'Splitit',
+      'Zilch',
+      'Laybuy'
+    ];
 
     const orderDateMap = {}; 
 
@@ -105,17 +120,10 @@ router.get('/oauth2callback', async (req, res) => {
       );
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
 
-      // const existing = await Payment.findOne({
-      //   $or: [
-      //     { klarnaOrderId: orderId },
-      //     { merchantOrder: orderId }
-      //   ]
-      // });
-
-      // if (!existing) {
-      //   console.log(`Skipping email — order ID ${orderId} not found in DB`);
-      //   continue;
-      // }
+      if (orderId === 'Unknown') {
+      console.log(`Skipping email — missing valid order ID`);
+      continue;
+    }
       
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
       let totalAmount;
@@ -290,30 +298,28 @@ router.get('/oauth2callback', async (req, res) => {
         const userId = JSON.parse(stateStr).userId;
 
         try {
-          const matchingPayments = await Payment.find({
-            user: userId,
-            $or: [
-              { klarnaOrderId: orderId },
-              { merchantOrder: orderId }
-            ],
-            status: { $ne: 'refunded' }
-          });
-
-          const currentEmailDate = new Date(date);
-
-          for (const oldPayment of matchingPayments) {
-            const oldDate = new Date(oldPayment.date);
-            if (oldDate < currentEmailDate) {
-              await Payment.findByIdAndUpdate(oldPayment._id, {
-                $set: {
-                  status: 'refunded'
-                }
-              });
-              console.log(`Updated old payment ${oldPayment._id} to status 'refunded'`);
-            }
-          }
+          await Payment.findOneAndUpdate(
+            {
+              user: userId,
+              $or: [
+                { klarnaOrderId: orderId },
+                { merchantOrder: orderId }
+              ]
+            },
+            {
+              $set: {
+                ...emailPayment,
+                status: 'refunded',
+                nextPaymentDate: null,
+                nextPaymentAmount: 0,
+                installmentAmount: 0,
+              },
+            },
+            { upsert: true }
+          );
+          console.log(`Saved or updated refund email for ${merchantName} | Order ID: ${orderId}`);
         } catch (err) {
-          console.error('Error updating older payments to refunded:', err);
+          console.error('Error saving refund email:', err);
         }
       }
       else {
@@ -387,15 +393,23 @@ router.get('/oauth2callback', async (req, res) => {
           const statusChanged = existing?.status !== paymentData.status;
           const isNewerEmail = !existing?.date || (new Date(paymentData.date) > new Date(existing.date));
 
+          // const shouldUpdate =
+          //   (statusChanged && isNewerEmail) ||
+          //   (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
+          //   (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
+          //   (!existing?.installmentAmount && paymentData.installmentAmount) ||
+          //   ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
           const shouldUpdate =
             (statusChanged && isNewerEmail) ||
+            (paymentData.status === 'refunded' && existing?.status !== 'refunded' && isNewerEmail) ||
             (paymentData.paymentDates?.length || 0) > (existing?.paymentDates?.length || 0) ||
             (!existing?.nextPaymentDate && paymentData.nextPaymentDate) ||
             (!existing?.installmentAmount && paymentData.installmentAmount) ||
             ((existing?.items?.length || 0) < (paymentData.items?.length || 0));
 
+
           if (existing) {
-            if (shouldUpdate) {
+            if (paymentData.status === 'refunded' || shouldUpdate) {
               await Payment.findByIdAndUpdate(existing._id, { $set: paymentData });
               console.log(`Updated payment for ${identifier}`);
             } else {
@@ -412,16 +426,16 @@ router.get('/oauth2callback', async (req, res) => {
       }
     }
 
-    // const stateStr = req.query.state || '{}';
-    // const userId = JSON.parse(stateStr).userId;
+    const stateStr = req.query.state || '{}';
+    const userId = JSON.parse(stateStr).userId;
 
-    // res.json({
-    //   message: 'BNPL email fetch complete!',
-    //   email: profile.data.emailAddress,
-    //   user: userId,
-    //   tokens,
-    //   BNPLEmails,
-    // });
+    res.json({
+      message: 'BNPL email fetch complete!',
+      email: profile.data.emailAddress,
+      user: userId,
+      tokens,
+      BNPLEmails,
+    });
 
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
