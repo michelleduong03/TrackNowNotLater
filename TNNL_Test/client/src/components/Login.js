@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from '../api';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
