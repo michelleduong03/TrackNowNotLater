@@ -37,6 +37,7 @@ router.get('/oauth2callback', async (req, res) => {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
     const profile = await gmail.users.getProfile({ userId: 'me' });
+    const userGmail = profile.data.email;
 
     // const resMessages = await gmail.users.messages.list({
     //   userId: 'me',
@@ -367,7 +368,7 @@ router.get('/oauth2callback', async (req, res) => {
 
           const paymentData = {
             user: userId,
-            userEmail: profile.data.emailAddress,
+            // userEmail: profile.data.emailAddress,
             provider: emailPayment.provider,
             subject: emailPayment.subject,
             date: new Date(emailPayment.date),
@@ -420,16 +421,16 @@ router.get('/oauth2callback', async (req, res) => {
       }
     }
 
-    const stateStr = req.query.state || '{}';
-    const userId = JSON.parse(stateStr).userId;
+    // const stateStr = req.query.state || '{}';
+    // const userId = JSON.parse(stateStr).userId;
 
-    res.json({
-      message: 'BNPL email fetch complete!',
-      email: profile.data.emailAddress,
-      user: userId,
-      tokens,
-      BNPLEmails,
-    });
+    // res.json({
+    //   message: 'BNPL email fetch complete!',
+    //   email: profile.data.emailAddress,
+    //   user: userId,
+    //   tokens,
+    //   BNPLEmails,
+    // });
 
     res.redirect(`http://localhost:3000/dashboard?data=${encodeURIComponent(JSON.stringify(BNPLEmails))}`);
   } catch (err) {
