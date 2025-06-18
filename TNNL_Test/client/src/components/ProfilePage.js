@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from '../api';
+import AccountInfoWidget from './ProfileWidgets/AccountInfoWidget';
+import GmailWidget from './ProfileWidgets/GmailWidget';
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -29,7 +31,9 @@ const ProfilePage = () => {
       {user ? (
         <>
           <h2>Hello, {user.fname} {user.lname} 👋</h2>
-          <p>Email: {user.email}</p>
+          <AccountInfoWidget email={user.email} />
+          <GmailWidget gmailEmail={user.gmailEmail} />
+
           {user.lastLogin && (
             <div style={{
               position: 'absolute',
@@ -45,6 +49,31 @@ const ProfilePage = () => {
       ) : (
         <h2>Loading profile...</h2>
       )}
+
+      <br></br>
+      <br></br>
+      <br></br>
+
+      <button
+        onClick={() => {
+          window.location.href = `mailto:support@tnnl.app?subject=Feedback%20or%20Issue%20Report&body=Hi%20TNNL%20team,%0A%0AI%20have%20some%20feedback%20or%20an%20issue%20to%20report:%0A%0A[Write%20your%20message%20here]%0A%0AThanks!`;
+        }}
+        style={{
+          marginTop: '1rem',
+          marginBottom: '1rem',
+          padding: '0.6rem 1rem',
+          background: '#1677ff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        Feedback / Report Issue
+      </button>
+
+      {/* <br></br> */}
+
       <button
         onClick={async () => {
             const confirmed = window.confirm('Are you sure you want to delete your account? This cannot be undone.');
