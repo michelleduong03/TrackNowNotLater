@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
       user: { 
         fname: user.fname, 
         lname: user.lname, 
-        email: user.email 
+        email: user.email,
       } 
     });
   } catch (err) {
@@ -80,31 +80,42 @@ router.post('/login', async (req, res) => {
 
 router.get('/me', async (req, res) => {
   const authHeader = req.headers.authorization;
-  console.log('Auth Header:', authHeader);
-
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('No token');
     return res.status(401).json({ message: 'No token provided' });
   }
 
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded JWT:', decoded);
-    
+
     const user = await User.findById(decoded.userId).select('-password');
     if (!user) {
-      console.log('User not found');
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log('User found:', user);
-    res.json(user);
+    // Find payments for this user
+    const payments = await Payment.find({ user: user._id });
+
+    // If payments exist, get the email from one of the payments
+    let gmailEmail = null;
+    if (payments.length > 0) {
+      // assuming your Payment schema has an email field, adjust as needed
+      gmailEmail = payments[0].userEmail || payments[0].gmail || null;
+    }
+
+    // Combine user info with the Gmail email from payments
+    const userData = {
+      ...user.toObject(),
+      gmailEmail,
+    };
+
+    res.json(userData);
   } catch (err) {
     console.error('Token verify failed:', err);
     res.status(401).json({ message: 'Invalid token' });
   }
 });
+
 
 // delete user account and related data
 router.delete('/delete', async (req, res) => {
@@ -128,6 +139,37 @@ router.delete('/delete', async (req, res) => {
   } catch (err) {
     console.error('Delete account error:', err);
     res.status(500).json({ message: 'Failed to delete account' });
+  }
+});
+
+// change password
+router.post('/change-password', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const { currentPassword, newPassword } = req.body;
+
+    // check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Current password incorrect' });
+
+    // hash new password and save
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: 'Invalid token' });
   }
 });
 
