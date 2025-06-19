@@ -30,7 +30,7 @@ const ProfilePage = () => {
     <div style={{ padding: '2rem', position: 'relative', minHeight: '85vh' }}>
       {user ? (
         <>
-          <h2>Hello, {user.fname} {user.lname} 👋</h2>
+          <h1>Hello, {user.fname} {user.lname} 👋</h1>
           <AccountInfoWidget email={user.email} />
           <GmailWidget gmailEmail={user.gmailEmail} />
 
