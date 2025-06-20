@@ -53,7 +53,7 @@ export default function Login() {
           required
           style={{
             width: '100%',
-            padding: '0.75rem 1rem',
+            padding: '0.75rem 0.1rem',
             marginBottom: '1rem',
             borderRadius: '8px',
             border: '1px solid #ccc',
@@ -68,13 +68,14 @@ export default function Login() {
           required
           style={{
             width: '100%',
-            padding: '0.75rem 1rem',
+            padding: '0.75rem 0.1rem',
             marginBottom: '1.5rem',
             borderRadius: '8px',
             border: '1px solid #ccc',
             fontSize: '1rem'
           }}
         />
+        
         <button
           type="submit"
           style={{
