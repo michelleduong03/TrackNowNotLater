@@ -9,9 +9,8 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // await axios.post('/auth/register', form);
       const res = await axios.post('/auth/register', form);
-localStorage.setItem('fname', res.data.user.fname);
+      localStorage.setItem('fname', res.data.user.fname);
       alert('Registration successful!');
       navigate('/login'); 
     } catch (err) {
@@ -113,7 +112,7 @@ localStorage.setItem('fname', res.data.user.fname);
 
 const inputStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
+  padding: '0.75rem 0.1rem',
   marginBottom: '1rem',
   borderRadius: '8px',
   border: '1px solid #ccc',
