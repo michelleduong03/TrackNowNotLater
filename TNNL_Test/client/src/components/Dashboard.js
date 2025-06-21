@@ -5,6 +5,7 @@ import BNPLCallback from './BNPLCallback';
 import BNPLTable from './BNPLTable';
 import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
+import InfoToolTip from './InfoToolTip';
 
 // const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
@@ -205,6 +206,8 @@ export default function DashboardApp() {
       return (
         <>
           <h2>TrackNowNotLater Dashboard</h2>
+
+          <InfoTooltip />
 
           {filteredPayments.length > 0 ? (
             <>
