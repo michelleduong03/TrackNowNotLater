@@ -56,7 +56,7 @@ const ProfilePage = () => {
 
       <button
         onClick={() => {
-          window.location.href = `mailto:support@tnnl.app?subject=Feedback%20or%20Issue%20Report&body=Hi%20TNNL%20team,%0A%0AI%20have%20some%20feedback%20or%20an%20issue%20to%20report:%0A%0A[Write%20your%20message%20here]%0A%0AThanks!`;
+          window.location.href = `mailto:TrackNowNotLater@gmail.com?subject=Feedback%20or%20Issue%20Report&body=Hi%20TNNL%20team,%0A%0AI%20have%20some%20feedback%20or%20an%20issue%20to%20report:%0A%0A[Write%20your%20message%20here]%0A%0AThanks!`;
         }}
         style={{
           marginTop: '1rem',
