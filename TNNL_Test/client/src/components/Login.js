@@ -1,10 +1,27 @@
 import { useState } from 'react';
 import axios from '../api';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
+
+   const inputStyle = {
+    width: '100%',
+    padding: '0.75rem 0.1rem',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    fontSize: '1rem'
+  };
+
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPasswordValid = (password) => {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return regex.test(password);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,7 +77,7 @@ export default function Login() {
             fontSize: '1rem'
           }}
         />
-        <input
+        {/* <input
           type="password"
           placeholder="Password"
           value={form.password}
@@ -74,8 +91,36 @@ export default function Login() {
             border: '1px solid #ccc',
             fontSize: '1rem'
           }}
-        />
-        
+        /> */}
+        <div style={{ position: 'relative' }}>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
+            required
+            style={{ ...inputStyle, marginBottom: '1.5rem' }}
+          />
+          <span
+            onClick={() => setShowPassword(prev => !prev)}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-68%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              cursor: 'pointer',
+              color: '#6b7280',
+              fontSize: '1.2rem'
+            }}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
         <button
           type="submit"
           style={{
