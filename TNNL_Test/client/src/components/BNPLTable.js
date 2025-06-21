@@ -125,7 +125,9 @@ const BNPLTable = ({
               </div>
               <div>
                 <strong>Next:</strong>{' '}
-                {p.nextPaymentDate
+                {p.status === 'refunded'
+                  ? '—'
+                  : p.nextPaymentDate
                   ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
                   : '—'}
               </div>
@@ -333,9 +335,9 @@ const BNPLTable = ({
                   console.log('Save clicked with editRow:', editRow);
                   const updatedPayment = { ...editRow };
 
-                  if (updatedPayment.status === 'refunded') {
-                    updatedPayment.nextPaymentDate = null;
-                  }
+                  // if (updatedPayment.status === 'refunded') {
+                  //   updatedPayment.nextPaymentDate = null;
+                  // }
 
                   try {
                     const saved = await updatePaymentOnServer(updatedPayment);
@@ -348,7 +350,7 @@ const BNPLTable = ({
                     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
 
                     setEditRow(null);
-                    window.location.reload();
+                    // window.location.reload();
                   } catch (error) {
                     console.error('Save failed:', error);
                     alert('Could not save changes. Please try again.');
