@@ -1,22 +1,36 @@
 import { useState } from 'react';
 import axios from '../api';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function Register() {
   const [form, setForm] = useState({ fname: '', lname: '', email: '', password: '' });
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPasswordValid = (password) => {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return regex.test(password);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isPasswordValid(form.password)) {
+      alert('Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.');
+      return;
+    }
+
     try {
       const res = await axios.post('/auth/register', form);
       localStorage.setItem('fname', res.data.user.fname);
       alert('Registration successful!');
-      navigate('/login'); 
+      navigate('/login');
     } catch (err) {
       alert('Error: ' + (err.response?.data?.message || err.message));
     }
   };
+
 
   return (
     <div style={{
@@ -68,14 +82,43 @@ export default function Register() {
           required
           style={inputStyle}
         />
-        <input
+        {/* <input
           type="password"
           placeholder="Password"
           value={form.password}
           onChange={e => setForm({ ...form, password: e.target.value })}
           required
           style={{ ...inputStyle, marginBottom: '1.5rem' }}
-        />
+        /> */}
+        <div style={{ position: 'relative' }}>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
+            required
+            style={{ ...inputStyle, marginBottom: '1.5rem' }}
+          />
+         <span
+            onClick={() => setShowPassword(prev => !prev)}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-68%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              cursor: 'pointer',
+              color: '#6b7280',
+              fontSize: '1.2rem',
+            }}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
+
 
         <button
           type="submit"
