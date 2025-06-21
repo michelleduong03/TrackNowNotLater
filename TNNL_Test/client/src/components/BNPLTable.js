@@ -348,6 +348,7 @@ const BNPLTable = ({
                     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
 
                     setEditRow(null);
+                    window.location.reload();
                   } catch (error) {
                     console.error('Save failed:', error);
                     alert('Could not save changes. Please try again.');
