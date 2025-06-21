@@ -299,10 +299,6 @@ export default function DashboardApp() {
       );
     }
 
-    // if (page === 'bankAccounts') {
-    //   return <h2>Bank Accounts Page - Connected Accounts here</h2>;
-    // }
-
     if (page === 'profile') {
       const userName = localStorage.getItem('fname'); 
     return <ProfilePage userName={userName || 'there'} />;
@@ -343,19 +339,6 @@ export default function DashboardApp() {
         >
           Dashboard
         </button>
-        {/* <button
-          onClick={() => setPage('bankAccounts')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: page === 'bankAccounts' ? '#61dafb' : '#fff',
-            fontSize: '1.1rem',
-            textAlign: 'left',
-            cursor: 'pointer',
-          }}
-        >
-          Account Info
-        </button> */}
         <button
           onClick={() => setPage('profile')}
           style={{
