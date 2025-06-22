@@ -207,7 +207,7 @@ export default function DashboardApp() {
         <>
           <h2>TrackNowNotLater Dashboard</h2>
 
-          <InfoTooltip />
+          <InfoToolTip />
 
           {filteredPayments.length > 0 ? (
             <>
