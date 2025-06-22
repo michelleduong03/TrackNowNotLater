@@ -18,10 +18,6 @@ export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  const isPasswordValid = (password) => {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    return regex.test(password);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
