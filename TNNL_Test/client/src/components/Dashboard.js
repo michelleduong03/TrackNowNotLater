@@ -209,6 +209,26 @@ export default function DashboardApp() {
 
           <InfoToolTip />
 
+          {/* Gmail Connect Button */}
+          <div style={{ textAlign: 'right' }}>
+            <button
+              onClick={() => {
+                const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
+                window.location.href = gmailAuthUrl;
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '20px',
+                border: 'none',
+                backgroundColor: '#db4437',
+                color: 'white',
+                cursor: 'pointer',
+              }}
+            >
+              Connect Gmail
+            </button>
+          </div>
+
           {filteredPayments.length > 0 ? (
             <>
               {/* Pie Chart */}
@@ -277,7 +297,7 @@ export default function DashboardApp() {
           )}
 
           {/* Gmail Connect Button */}
-          <button
+          {/* <button
             onClick={() => {
               const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
               window.location.href = gmailAuthUrl;
@@ -293,7 +313,7 @@ export default function DashboardApp() {
             }}
           >
             Connect Gmail
-          </button>
+          </button> */}
 
           {/* Imported Gmail Data */}
           {/* {showBNPLImport && <BNPLCallback />} */}
