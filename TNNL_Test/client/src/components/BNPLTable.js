@@ -376,6 +376,61 @@ const BNPLTable = ({
               </select>
             </label>
 
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>Payment Dates:</strong>
+              {editRow.paymentDates?.map((pd, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                  <input
+                    type="date"
+                    value={pd.date?.slice(0, 10)}
+                    onChange={(e) => {
+                      const updated = [...editRow.paymentDates];
+                      updated[idx].date = e.target.value;
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={pd.amount}
+                    onChange={(e) => {
+                      const updated = [...editRow.paymentDates];
+                      updated[idx].amount = parseFloat(e.target.value);
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      const updated = [...editRow.paymentDates];
+                      updated.splice(idx, 1);
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
+                    style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() =>
+                  setEditRow({
+                    ...editRow,
+                    paymentDates: [...(editRow.paymentDates || []), { date: '', amount: '' }]
+                  })
+                }
+                style={{
+                  marginTop: '10px',
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#ddd',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Payment
+              </button>
+            </div>
+
             <label>
               Note:
               <input
@@ -387,6 +442,7 @@ const BNPLTable = ({
                 style={{ width: '100%', marginBottom: '1rem' }}
               />
             </label>
+
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               
@@ -441,6 +497,7 @@ const BNPLTable = ({
           </div>
         </div>
       )}
+      {/* NEW PAYMENTS MANUAL INPUT */}
       {createRow && (
         <div
           style={{
