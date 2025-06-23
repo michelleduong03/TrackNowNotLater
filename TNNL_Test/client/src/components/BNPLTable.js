@@ -443,7 +443,6 @@ const BNPLTable = ({
               />
             </label>
 
-
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               
               <button
@@ -493,6 +492,32 @@ const BNPLTable = ({
               >
                 Cancel
               </button>
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Are you sure you want to delete this purchase?')) return;
+                  try {
+                    const token = localStorage.getItem('token');
+                    await axios.delete(`/payments/${editRow._id}`, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setLocalPayments((prev) => prev.filter((p) => p._id !== editRow._id));
+                    setEditRow(null);
+                  } catch (err) {
+                    console.error('Delete failed:', err);
+                    alert('Could not delete. Try again.');
+                  }
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#dc3545',
+                  color: '#fff',
+                  border: 'none'
+                }}
+              >
+                Delete
+              </button>
+
             </div>
           </div>
         </div>
@@ -692,6 +717,7 @@ const BNPLTable = ({
               >
                 Cancel
               </button>
+              
             </div>
           </div>
         </div>
