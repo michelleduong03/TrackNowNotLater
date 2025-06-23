@@ -7,7 +7,6 @@ import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
 import InfoToolTip from './InfoToolTip';
 
-// const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
