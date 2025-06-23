@@ -115,22 +115,16 @@ router.put('/:id', async (req, res) => {
 });
 
 // delete payments
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
-
-    if (!payment) {
-      return res.status(404).json({ error: 'Payment not found' });
-    }
-
-    if (payment.user.toString() !== req.user.id) {
+    if (!payment) return res.status(404).json({ error: 'Payment not found' });
+    if (payment.user.toString() !== req.userId)
       return res.status(403).json({ error: 'Unauthorized' });
-    }
 
     await payment.deleteOne();
     res.json({ message: 'Payment deleted successfully' });
   } catch (err) {
-    console.error('Delete failed:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
