@@ -31,6 +31,7 @@ router.post('/', authMiddleware, async (req, res) => {
       date: req.body.date,
       merchantName: req.body.merchantName,
       klarnaOrderId: req.body.klarnaOrderId,
+      merchantOrder: req.body.merchantOrder,
       totalAmount: req.body.totalAmount,
       installmentAmount: req.body.installmentAmount,
       isFirstPayment: req.body.isFirstPayment,
@@ -44,6 +45,8 @@ router.post('/', authMiddleware, async (req, res) => {
       items: req.body.items,
       snippet: req.body.snippet,
       userEmail: req.body.userEmail,
+      note: req.body.note || '',
+      paymentDates: req.body.paymentDates || []
     };
 
     const payment = new Payment(paymentData);
@@ -111,5 +114,25 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// delete payments
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id);
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    if (payment.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    await payment.deleteOne();
+    res.json({ message: 'Payment deleted successfully' });
+  } catch (err) {
+    console.error('Delete failed:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;
