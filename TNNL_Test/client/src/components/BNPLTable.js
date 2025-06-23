@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { updatePaymentOnServer } from '../utils/services';
+import axios from '../api';
 
 const BNPLTable = ({
   payments,
@@ -387,30 +388,57 @@ const BNPLTable = ({
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
-                onClick={async () => {
-                  console.log('Save clicked with editRow:', editRow);
-                  const updatedPayment = { ...editRow };
+              onClick={async () => {
+                const paymentData = { ...editRow };
 
-                  // if (updatedPayment.status === 'refunded') {
-                  //   updatedPayment.nextPaymentDate = null;
-                  // }
-
-                  try {
-                    const saved = await updatePaymentOnServer(updatedPayment);
-                    console.log('Server responded with:', saved);
-
+                try {
+                  let saved;
+                  if (paymentData._id.startsWith('new-')) {
+                    // Add logic for creating a new payment
+                    const token = localStorage.getItem('token');
+                    const res = await axios.post('/payments', paymentData, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    saved = res.data;
+                    setLocalPayments((prev) => [...prev, saved]);
+                  } else {
+                    // Update existing payment
+                    saved = await updatePaymentOnServer(paymentData);
                     setLocalPayments((prev) =>
                       prev.map((p) => (p._id === saved._id ? saved : p))
                     );
-
-                    setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
-
-                    setEditRow(null);
-                    // window.location.reload();
-                  } catch (error) {
-                    console.error('Save failed:', error);
-                    alert('Could not save changes. Please try again.');
                   }
+
+                  setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
+                  setEditRow(null);
+                } catch (err) {
+                  console.error('Save failed:', err);
+                  alert('Could not save changes. Please try again.');
+                }
+                // onClick={async () => {
+                //   console.log('Save clicked with editRow:', editRow);
+                //   const updatedPayment = { ...editRow };
+
+                //   // if (updatedPayment.status === 'refunded') {
+                //   //   updatedPayment.nextPaymentDate = null;
+                //   // }
+
+                //   try {
+                //     const saved = await updatePaymentOnServer(updatedPayment);
+                //     console.log('Server responded with:', saved);
+
+                //     setLocalPayments((prev) =>
+                //       prev.map((p) => (p._id === saved._id ? saved : p))
+                //     );
+
+                //     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
+
+                //     setEditRow(null);
+                //     // window.location.reload();
+                //   } catch (error) {
+                //     console.error('Save failed:', error);
+                //     alert('Could not save changes. Please try again.');
+                //   }
                 }}
                 style={{
                   padding: '0.5rem 1rem',
