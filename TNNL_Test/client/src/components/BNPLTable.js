@@ -27,6 +27,7 @@ const BNPLTable = ({
 
   const [editRow, setEditRow] = useState(null);
   const [localPayments, setLocalPayments] = useState(payments);
+  const [createRow, setCreateRow] = useState(null);
 
   React.useEffect(() => {
     setLocalPayments(payments);
@@ -96,7 +97,7 @@ const BNPLTable = ({
           Payment Dates
           <button
             onClick={() =>
-              setEditRow({
+              setCreateRow({
                 _id: `new-${Date.now()}`,
                 provider: '',
                 merchantName: '',
@@ -335,6 +336,7 @@ const BNPLTable = ({
           >
             <h3>Edit Purchase</h3>
 
+
             <label>
               Merchant:
               <input
@@ -387,14 +389,13 @@ const BNPLTable = ({
             </label>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              
               <button
               onClick={async () => {
                 const paymentData = { ...editRow };
-
                 try {
                   let saved;
                   if (paymentData._id.startsWith('new-')) {
-                    // Add logic for creating a new payment
                     const token = localStorage.getItem('token');
                     const res = await axios.post('/payments', paymentData, {
                       headers: { Authorization: `Bearer ${token}` }
@@ -402,7 +403,6 @@ const BNPLTable = ({
                     saved = res.data;
                     setLocalPayments((prev) => [...prev, saved]);
                   } else {
-                    // Update existing payment
                     saved = await updatePaymentOnServer(paymentData);
                     setLocalPayments((prev) =>
                       prev.map((p) => (p._id === saved._id ? saved : p))
@@ -415,30 +415,6 @@ const BNPLTable = ({
                   console.error('Save failed:', err);
                   alert('Could not save changes. Please try again.');
                 }
-                // onClick={async () => {
-                //   console.log('Save clicked with editRow:', editRow);
-                //   const updatedPayment = { ...editRow };
-
-                //   // if (updatedPayment.status === 'refunded') {
-                //   //   updatedPayment.nextPaymentDate = null;
-                //   // }
-
-                //   try {
-                //     const saved = await updatePaymentOnServer(updatedPayment);
-                //     console.log('Server responded with:', saved);
-
-                //     setLocalPayments((prev) =>
-                //       prev.map((p) => (p._id === saved._id ? saved : p))
-                //     );
-
-                //     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
-
-                //     setEditRow(null);
-                //     // window.location.reload();
-                //   } catch (error) {
-                //     console.error('Save failed:', error);
-                //     alert('Could not save changes. Please try again.');
-                //   }
                 }}
                 style={{
                   padding: '0.5rem 1rem',
@@ -465,8 +441,208 @@ const BNPLTable = ({
           </div>
         </div>
       )}
+      {createRow && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setCreateRow(null)}
+        >
+          <div
+            style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '10px',
+              width: '500px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Add New Purchase</h3>
+
+            <label>
+              Provider:
+              <input
+                type="text"
+                value={createRow.provider}
+                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Merchant:
+              <input
+                type="text"
+                value={createRow.merchantName}
+                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Plan:
+              <input
+                type="text"
+                value={createRow.paymentPlan}
+                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Order ID:
+              <input
+                type="text"
+                value={createRow.klarnaOrderId}
+                onChange={(e) => setCreateRow({ ...createRow, klarnaOrderId: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Order Date:
+              <input
+                type="date"
+                value={createRow.orderDate}
+                onChange={(e) => setCreateRow({ ...createRow, orderDate: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Next Payment Date:
+              <input
+                type="date"
+                value={createRow.nextPaymentDate}
+                onChange={(e) => setCreateRow({ ...createRow, nextPaymentDate: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Next Payment Amount:
+              <input
+                type="number"
+                value={createRow.nextPaymentAmount}
+                onChange={(e) => setCreateRow({ ...createRow, nextPaymentAmount: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            {/* Payment Dates */}
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>Payment Dates:</strong>
+              {createRow.paymentDates.map((pd, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                  <input
+                    type="date"
+                    value={pd.date}
+                    onChange={(e) => {
+                      const updated = [...createRow.paymentDates];
+                      updated[idx].date = e.target.value;
+                      setCreateRow({ ...createRow, paymentDates: updated });
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={pd.amount}
+                    onChange={(e) => {
+                      const updated = [...createRow.paymentDates];
+                      updated[idx].amount = parseFloat(e.target.value);
+                      setCreateRow({ ...createRow, paymentDates: updated });
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      const updated = [...createRow.paymentDates];
+                      updated.splice(idx, 1);
+                      setCreateRow({ ...createRow, paymentDates: updated });
+                    }}
+                    style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() =>
+                  setCreateRow({
+                    ...createRow,
+                    paymentDates: [...createRow.paymentDates, { date: '', amount: '' }]
+                  })
+                }
+                style={{
+                  marginTop: '10px',
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#ddd',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                + Add Payment
+              </button>
+            </div>
+
+            {/* Submit buttons */}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('token');
+                    const res = await axios.post('/payments', createRow, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const saved = res.data;
+                    setLocalPayments((prev) => [...prev, saved]);
+                    setCreateRow(null);
+                  } catch (err) {
+                    console.error('Save failed:', err);
+                    alert('Could not save new row. Try again.');
+                  }
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#28a745',
+                  color: '#fff',
+                  border: 'none'
+                }}
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setCreateRow(null)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#ccc',
+                  border: 'none'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
     </div>
+    
   );
 };
 
