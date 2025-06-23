@@ -362,6 +362,50 @@ const BNPLTable = ({
             </label>
 
             <label>
+              OrderId:
+              <input
+                type="text"
+                value={editRow.paymentPlan}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, klarnaOrderId: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Order Date:
+              <input
+                type="text"
+                value={editRow.paymentPlan}
+                onChange={(e) =>
+                  setEditRow({ ...editRow, orderDate: e.target.value })
+                }
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Next Payment Date:
+              <input
+                type="date"
+                value={editRow.nextPaymentDate}
+                onChange={(e) => setCreateRow({ ...editRow, nextPaymentDate: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
+              Next Payment Amount:
+              <input
+                type="number"
+                value={editRow.nextPaymentAmount}
+                onChange={(e) => setCreateRow({ ...editRow, nextPaymentAmount: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
+
+            <label>
               Status:
               <select
                 value={editRow.status}
@@ -466,6 +510,7 @@ const BNPLTable = ({
 
                   setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
                   setEditRow(null);
+                  window.href.reload()
                 } catch (err) {
                   console.error('Save failed:', err);
                   alert('Could not save changes. Please try again.');
@@ -568,7 +613,7 @@ const BNPLTable = ({
               <input
                 type="text"
                 value={createRow.merchantName}
-                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
+                onChange={(e) => setCreateRow({ ...createRow, merchantName: e.target.value })}
                 style={{ width: '100%', marginBottom: '1rem' }}
               />
             </label>
@@ -578,7 +623,7 @@ const BNPLTable = ({
               <input
                 type="text"
                 value={createRow.paymentPlan}
-                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
+                onChange={(e) => setCreateRow({ ...createRow, paymentPlan: e.target.value })}
                 style={{ width: '100%', marginBottom: '1rem' }}
               />
             </label>
