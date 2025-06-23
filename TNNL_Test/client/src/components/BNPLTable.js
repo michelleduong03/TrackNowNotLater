@@ -365,7 +365,7 @@ const BNPLTable = ({
               OrderId:
               <input
                 type="text"
-                value={editRow.paymentPlan}
+                value={editRow.klarnaOrderId}
                 onChange={(e) =>
                   setEditRow({ ...editRow, klarnaOrderId: e.target.value })
                 }
@@ -377,7 +377,7 @@ const BNPLTable = ({
               Order Date:
               <input
                 type="text"
-                value={editRow.paymentPlan}
+                value={editRow.orderDate}
                 onChange={(e) =>
                   setEditRow({ ...editRow, orderDate: e.target.value })
                 }
@@ -390,7 +390,7 @@ const BNPLTable = ({
               <input
                 type="date"
                 value={editRow.nextPaymentDate}
-                onChange={(e) => setCreateRow({ ...editRow, nextPaymentDate: e.target.value })}
+                onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
                 style={{ width: '100%', marginBottom: '1rem' }}
               />
             </label>
@@ -400,7 +400,7 @@ const BNPLTable = ({
               <input
                 type="number"
                 value={editRow.nextPaymentAmount}
-                onChange={(e) => setCreateRow({ ...editRow, nextPaymentAmount: e.target.value })}
+                onChange={(e) => setEditRow({ ...editRow, nextPaymentAmount: e.target.value })}
                 style={{ width: '100%', marginBottom: '1rem' }}
               />
             </label>
@@ -510,7 +510,7 @@ const BNPLTable = ({
 
                   setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
                   setEditRow(null);
-                  window.href.reload()
+                  window.location.reload()
                 } catch (err) {
                   console.error('Save failed:', err);
                   alert('Could not save changes. Please try again.');
@@ -736,6 +736,7 @@ const BNPLTable = ({
                     const saved = res.data;
                     setLocalPayments((prev) => [...prev, saved]);
                     setCreateRow(null);
+                    window.location.reload()
                   } catch (err) {
                     console.error('Save failed:', err);
                     alert('Could not save new row. Try again.');
