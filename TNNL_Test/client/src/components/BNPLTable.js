@@ -39,6 +39,9 @@ const BNPLTable = ({
     setNotes(initialNotes);
   }, [payments, setNotes]);
 
+  const userId = localStorage.getItem('userId');
+
+
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
       <h3>🧾 Purchases</h3>
@@ -66,7 +69,7 @@ const BNPLTable = ({
       </div>
 
       {/* Header */}
-      <div
+      {/* <div
         style={{
           display: 'flex',
           fontWeight: 'bold',
@@ -76,7 +79,60 @@ const BNPLTable = ({
       >
         <div style={{ flex: 7 }}>Purchase Info</div>
         <div style={{ flex: 3 }}>Payment Dates</div>
+      </div> */}
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          fontWeight: 'bold',
+          borderBottom: '2px solid #ccc',
+          paddingBottom: '8px',
+          position: 'relative'
+        }}
+      >
+        <div style={{ flex: 7 }}>Purchase Info</div>
+        <div style={{ flex: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          Payment Dates
+          <button
+            onClick={() =>
+              setEditRow({
+                _id: `new-${Date.now()}`,
+                provider: '',
+                merchantName: '',
+                paymentPlan: '',
+                klarnaOrderId: '',
+                orderDate: '',
+                nextPaymentDate: '',
+                nextPaymentAmount: '',
+                status: 'active',
+                note: '',
+                paymentDates: [],
+                user: userId
+              })
+            }
+            style={{
+              marginLeft: '10px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              lineHeight: '0',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+            title="Add New Purchase"
+          >
+            +
+          </button>
+        </div>
       </div>
+
 
       {localPayments.map((p, idx) => {
         const statusText =
