@@ -93,17 +93,23 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Find payments for this user
-    const payments = await Payment.find({ user: user._id });
+    // // Find payments for this user
+    // const payments = await Payment.find({ user: user._id });
 
-    // If payments exist, get the email from one of the payments
-    let gmailEmail = null;
-    if (payments.length > 0) {
-      // assuming your Payment schema has an email field, adjust as needed
-      gmailEmail = payments[0].userEmail || payments[0].gmail || null;
-    }
+    // // If payments exist, get the email from one of the payments
+    // let gmailEmail = null;
+    // if (payments.length > 0) {
+    //   // assuming your Payment schema has an email field, adjust as needed
+    //   gmailEmail = payments[0].userEmail || payments[0].gmail || null;
+    // }
 
-    // Combine user info with the Gmail email from payments
+    const paymentWithEmail = await Payment.findOne({
+      user: user._id,
+      userEmail: { $exists: true, $ne: null }
+    }).sort({ date: -1 });
+
+    const gmailEmail = paymentWithEmail ? paymentWithEmail.userEmail : null;
+
     const userData = {
       ...user.toObject(),
       gmailEmail,
@@ -115,7 +121,6 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ message: 'Invalid token' });
   }
 });
-
 
 // delete user account and related data
 router.delete('/delete', async (req, res) => {
