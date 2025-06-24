@@ -6,7 +6,7 @@ import BNPLTable from './BNPLTable';
 import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
 import InfoToolTip from './InfoToolTip';
-
+import PrivacyPolicy from './PrivacyPolicy';
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
@@ -323,7 +323,11 @@ export default function DashboardApp() {
 
     if (page === 'profile') {
       const userName = localStorage.getItem('fname'); 
-    return <ProfilePage userName={userName || 'there'} />;
+      return <ProfilePage userName={userName || 'there'} />;
+    }
+
+    if (page === 'privacy policy') {
+      return <PrivacyPolicy />;
     }
 
     return null;
@@ -373,6 +377,20 @@ export default function DashboardApp() {
           }}
         >
           Profile
+        </button>
+
+        <button
+          onClick={() => setPage('privacy policy')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: page === 'privacy policy' ? '#61dafb' : '#fff',
+            fontSize: '1.1rem',
+            textAlign: 'left',
+            cursor: 'pointer',
+          }}
+        >
+          Privacy Policy
         </button>
 
         <button
