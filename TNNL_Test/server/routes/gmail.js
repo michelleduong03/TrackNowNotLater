@@ -368,7 +368,7 @@ router.get('/oauth2callback', async (req, res) => {
 
           const paymentData = {
             user: userId,
-            // userEmail: profile.data.emailAddress,
+            userEmail: profile.data.emailAddress,
             provider: emailPayment.provider,
             subject: emailPayment.subject,
             date: new Date(emailPayment.date),
