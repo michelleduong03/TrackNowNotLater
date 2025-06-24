@@ -34,7 +34,6 @@ const ProfilePage = () => {
           <AccountInfoWidget email={user.email} />
           <GmailWidget gmailEmail={user.gmailEmail} />
 
-
           {user.lastLogin && (
             <div style={{
               position: 'absolute',
