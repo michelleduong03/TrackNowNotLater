@@ -295,27 +295,7 @@ export default function DashboardApp() {
             <p>No payments found for selected provider.</p>
           )}
 
-          {/* Gmail Connect Button */}
-          {/* <button
-            onClick={() => {
-              const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
-              window.location.href = gmailAuthUrl;
-            }}
-            style={{
-              marginTop: '1rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              border: 'none',
-              backgroundColor: '#db4437',
-              color: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            Connect Gmail
-          </button> */}
-
           {/* Imported Gmail Data */}
-          {/* {showBNPLImport && <BNPLCallback />} */}
           {showBNPLImport && <BNPLCallback onImportComplete={() => setRefreshFlag(flag => !flag)} />}
         </>
       );
