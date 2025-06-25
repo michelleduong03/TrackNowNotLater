@@ -40,7 +40,8 @@ const ProfilePage = () => {
               bottom: '10px',
               left: '10px',
               fontSize: '0.9rem',
-              color: '#555'
+              color: '#555',
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
             }}>
               Last logged in: {new Date(user.lastLogin).toLocaleString()}
             </div>
