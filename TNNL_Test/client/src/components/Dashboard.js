@@ -7,6 +7,7 @@ import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
 import InfoToolTip from './InfoToolTip';
 import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfUse from './TermsOfUse'
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
@@ -310,6 +311,10 @@ export default function DashboardApp() {
       return <PrivacyPolicy />;
     }
 
+    if (page === 'terms of use') {
+      return <TermsOfUse />;
+    }
+
     return null;
   };
 
@@ -371,6 +376,20 @@ export default function DashboardApp() {
           }}
         >
           Privacy Policy
+        </button>
+
+        <button
+          onClick={() => setPage('terms of use')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: page === 'terms of use' ? '#61dafb' : '#fff',
+            fontSize: '1.1rem',
+            textAlign: 'left',
+            cursor: 'pointer',
+          }}
+        >
+          Terms of Use
         </button>
 
         <button
