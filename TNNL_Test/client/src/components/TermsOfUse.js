@@ -2,60 +2,54 @@ import React from 'react';
 
 const TermsOfUse = () => {
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Terms of Use</h2>
-      <p><strong>Last updated:</strong> June 25, 2025</p>
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: 'auto', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", lineHeight: '1.7', color: '#333' }}>
+      <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: '#222' }}>Terms of Use</h2>
+      <p style={{ fontSize: '0.95rem', color: '#666', marginBottom: '1.5rem' }}><em>Last updated: June 25, 2025</em></p>
 
       <p>
-        Welcome to TrackNowNotLater. By accessing or using our app, you agree to be bound by these Terms of Use.
-        Please read them carefully. If you do not agree with these terms, do not use the app.
+        Welcome to <strong>TrackNowNotLater</strong>. By using our app, you agree to the following terms. If you do not agree, please do not use the app.
       </p>
 
-      <h3>Use of Our Service</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Use of Our Service</h3>
       <p>
-        TrackNowNotLater helps users track their Buy Now, Pay Later (BNPL) purchases by extracting payment details from connected Gmail accounts or through manual input. You must be at least 13 years old to use our services.
+        TrackNowNotLater allows users to track Buy Now, Pay Later (BNPL) purchases by extracting payment details from Gmail (with permission) or through manual input. You must be at least 13 years old to use the app.
       </p>
 
-      <h3>User Responsibilities</h3>
-      <ul>
-        <li>You are responsible for keeping your login credentials secure.</li>
-        <li>You agree not to use the app for any illegal or unauthorized purposes.</li>
-        <li>Any data you provide, including manual entries, must be accurate and lawful.</li>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>User Responsibilities</h3>
+      <ul style={{ paddingLeft: '1.2rem' }}>
+        <li>Keep your login credentials private and secure.</li>
+        <li>Do not use the app for illegal or unauthorized purposes.</li>
+        <li>Ensure any manually entered data is truthful and lawful.</li>
       </ul>
 
-      <h3>Google Account Connection</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Google Account Connection</h3>
       <p>
-        If you choose to connect your Gmail account, you grant us permission to access emails that relate to BNPL transactions.
-        This is done via secure OAuth authorization. We only use this access to help you track your purchases.
+        When you connect your Gmail account, you authorize us (via secure OAuth) to read only BNPL-related emails. We do not store full email contents unless explicitly saved by you, and your data is used only to enhance your experience.
       </p>
 
-      <h3>Account Termination</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Account Termination</h3>
       <p>
-        You may delete your account at any time from your profile. We reserve the right to suspend or terminate accounts that
-        violate these terms or are involved in malicious behavior.
+        You can delete your account at any time from your profile page. We reserve the right to suspend or terminate accounts that violate these terms or misuse the app.
       </p>
 
-      <h3>Intellectual Property</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Intellectual Property</h3>
       <p>
-        All content, branding, and technology associated with TrackNowNotLater are the property of their respective owners.
-        You may not copy, modify, or redistribute any part of the service without permission.
+        The TrackNowNotLater name, logo, features, and source code are protected intellectual property. You may not reproduce or repurpose any part of the app without written permission.
       </p>
 
-      <h3>Limitation of Liability</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Limitation of Liability</h3>
       <p>
-        We strive to provide accurate and helpful data, but we do not guarantee the completeness or accuracy of third-party information.
-        You use the app at your own risk. We are not liable for any financial loss or missed payments due to reliance on the app.
+        We work hard to provide accurate data, but we can’t guarantee every detail. You are responsible for managing your own finances. We are not liable for missed payments, financial loss, or reliance on automated data.
       </p>
 
-      <h3>Changes to These Terms</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Updates to These Terms</h3>
       <p>
-        We may update these Terms of Use from time to time. If changes are significant, we’ll notify users. Your continued use of
-        the service means you accept the revised terms.
+        These Terms may change as our app evolves. We will notify you of major updates. Continued use of the app after changes indicates your acceptance.
       </p>
 
-      <h3>Contact</h3>
+      <h3 style={{ marginTop: '2rem', color: '#444' }}>Contact Us</h3>
       <p>
-        If you have any questions about these terms, please reach out to us at <a href="mailto:TrackNowNotLater@gmail.com">TrackNowNotLater@gmail.com</a>.
+        Have questions? Email us at <a href="mailto:TrackNowNotLater@gmail.com">TrackNowNotLater@gmail.com</a>.
       </p>
     </div>
   );
