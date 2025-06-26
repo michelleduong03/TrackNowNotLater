@@ -826,103 +826,70 @@ const BNPLTable = ({
             left: 0,
             width: '100vw',
             height: '100vh',
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000
+            zIndex: 1000,
           }}
           onClick={() => setCreateRow(null)}
         >
           <div
             style={{
-              background: 'white',
+              background: '#fff',
               padding: '2rem',
-              borderRadius: '10px',
+              borderRadius: '12px',
               width: '500px',
-              maxHeight: '80vh',
+              maxHeight: '85vh',
               overflowY: 'auto',
-              position: 'relative'
+              position: 'relative',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+              fontFamily: 'Arial, sans-serif',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3>Add New Purchase</h3>
+            <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Add New Purchase</h2>
 
-            <label>
-              Provider:
-              <input
-                type="text"
-                value={createRow.provider}
-                onChange={(e) => setCreateRow({ ...createRow, provider: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Merchant:
-              <input
-                type="text"
-                value={createRow.merchantName}
-                onChange={(e) => setCreateRow({ ...createRow, merchantName: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Plan:
-              <input
-                type="text"
-                value={createRow.paymentPlan}
-                onChange={(e) => setCreateRow({ ...createRow, paymentPlan: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Order ID:
-              <input
-                type="text"
-                value={createRow.klarnaOrderId}
-                onChange={(e) => setCreateRow({ ...createRow, klarnaOrderId: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Order Date:
-              <input
-                type="date"
-                value={createRow.orderDate}
-                onChange={(e) => setCreateRow({ ...createRow, orderDate: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Next Payment Date:
-              <input
-                type="date"
-                value={createRow.nextPaymentDate}
-                onChange={(e) => setCreateRow({ ...createRow, nextPaymentDate: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Next Payment Amount:
-              <input
-                type="number"
-                value={createRow.nextPaymentAmount}
-                onChange={(e) => setCreateRow({ ...createRow, nextPaymentAmount: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
+            {[
+              { label: 'Provider', key: 'provider', type: 'text' },
+              { label: 'Merchant', key: 'merchantName', type: 'text' },
+              { label: 'Plan', key: 'paymentPlan', type: 'text' },
+              { label: 'Order ID', key: 'klarnaOrderId', type: 'text' },
+              { label: 'Order Date', key: 'orderDate', type: 'date' },
+              { label: 'Next Payment Date', key: 'nextPaymentDate', type: 'date' },
+              { label: 'Next Payment Amount', key: 'nextPaymentAmount', type: 'number' },
+            ].map(({ label, key, type }) => (
+              <div key={key} style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>{label}</label>
+                <input
+                  type={type}
+                  value={createRow[key] || ''}
+                  onChange={(e) => setCreateRow({ ...createRow, [key]: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
+            ))}
 
             {/* Payment Dates */}
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Payment Dates:</strong>
+              <label style={{ fontWeight: 'bold' }}>Payment Dates:</label>
               {createRow.paymentDates.map((pd, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    marginTop: '0.5rem',
+                    alignItems: 'center',
+                  }}
+                >
                   <input
                     type="date"
                     value={pd.date}
@@ -930,6 +897,14 @@ const BNPLTable = ({
                       const updated = [...createRow.paymentDates];
                       updated[idx].date = e.target.value;
                       setCreateRow({ ...createRow, paymentDates: updated });
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '0.4rem',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                      fontSize: '14px',
+                      fontFamily: 'inherit',
                     }}
                   />
                   <input
@@ -941,6 +916,14 @@ const BNPLTable = ({
                       updated[idx].amount = parseFloat(e.target.value);
                       setCreateRow({ ...createRow, paymentDates: updated });
                     }}
+                    style={{
+                      width: '100px',
+                      padding: '0.4rem',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                      fontSize: '14px',
+                      fontFamily: 'inherit',
+                    }}
                   />
                   <button
                     onClick={() => {
@@ -948,56 +931,109 @@ const BNPLTable = ({
                       updated.splice(idx, 1);
                       setCreateRow({ ...createRow, paymentDates: updated });
                     }}
-                    style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}
+                    style={{
+                      backgroundColor: '#f56565',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      padding: '0.3rem 0.6rem',
+                      fontSize: '16px',
+                      lineHeight: '1',
+                    }}
                   >
                     ✕
                   </button>
                 </div>
               ))}
+
               <button
                 onClick={() =>
                   setCreateRow({
                     ...createRow,
-                    paymentDates: [...createRow.paymentDates, { date: '', amount: '' }]
+                    paymentDates: [...createRow.paymentDates, { date: '', amount: '' }],
                   })
                 }
                 style={{
                   marginTop: '10px',
-                  padding: '0.3rem 0.6rem',
+                  padding: '0.4rem 0.7rem',
                   borderRadius: '6px',
-                  backgroundColor: '#ddd',
-                  border: 'none',
-                  cursor: 'pointer'
+                  backgroundColor: '#e2e8f0',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
                 }}
               >
                 + Add Payment
               </button>
             </div>
 
-            {/* Submit buttons */}
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {/* Note field */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Note</label>
+              <textarea
+                rows={3}
+                placeholder="Optional note about this purchase"
+                value={createRow.note || ''}
+                onChange={(e) => setCreateRow({ ...createRow, note: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '12px',
+                marginTop: '1.5rem',
+                justifyContent: 'flex-end',
+              }}
+            >
               <button
                 onClick={async () => {
                   try {
                     const token = localStorage.getItem('token');
                     const res = await axios.post('/payments', createRow, {
-                      headers: { Authorization: `Bearer ${token}` }
+                      headers: { Authorization: `Bearer ${token}` },
                     });
                     const saved = res.data;
                     setLocalPayments((prev) => [...prev, saved]);
                     setCreateRow(null);
-                    window.location.reload()
+                    window.location.reload();
                   } catch (err) {
                     console.error('Save failed:', err);
                     alert('Could not save new row. Try again.');
                   }
                 }}
                 style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
-                  backgroundColor: '#28a745',
+                  padding: '10px 24px',
+                  borderRadius: '8px',
+                  backgroundColor: '#3b82f6',
                   color: '#fff',
-                  border: 'none'
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)',
+                  transition: 'background-color 0.25s ease, box-shadow 0.25s ease',
+                  fontSize: '15px',
+                  minWidth: '90px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.3)';
                 }}
               >
                 Save
@@ -1005,19 +1041,33 @@ const BNPLTable = ({
               <button
                 onClick={() => setCreateRow(null)}
                 style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
-                  backgroundColor: '#ccc',
-                  border: 'none'
+                  padding: '10px 24px',
+                  borderRadius: '8px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.25s ease, border-color 0.25s ease',
+                  fontSize: '15px',
+                  minWidth: '90px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.borderColor = '#d1d5db';
                 }}
               >
                 Cancel
               </button>
-              
             </div>
           </div>
         </div>
       )}
+
 
 
     </div>
