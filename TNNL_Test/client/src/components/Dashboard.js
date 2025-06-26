@@ -20,6 +20,16 @@ export default function DashboardApp() {
     return params.has('data');
   });
 
+  // for when user in gmail + linking, auto oAuth
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('importGmail') === 'true') {
+      const userId = localStorage.getItem('userId');
+      const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
+      window.location.href = gmailAuthUrl;
+    }
+  }, []);
+
   // for refreshing emails for bnpl
   const [refreshFlag, setRefreshFlag] = useState(false);
 
