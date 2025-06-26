@@ -3,21 +3,10 @@ import axios from '../api';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
-
-   const inputStyle = {
-    width: '100%',
-    padding: '0.75rem 0.1rem',
-    borderRadius: '8px',
-    border: '1px solid #ccc',
-    fontSize: '1rem'
-  };
-
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,66 +25,68 @@ export default function Login() {
     <div style={{
       minHeight: '100vh',
       display: 'flex',
-      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       fontFamily: '"Inter", sans-serif',
       background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-      color: '#1f2937',
-      padding: '2rem',
-      boxSizing: 'border-box'
+      padding: '2rem'
     }}>
       <form
         onSubmit={handleSubmit}
         style={{
           width: '100%',
-          maxWidth: '400px',
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          maxWidth: '420px',
+          backgroundColor: '#ffffff',
+          padding: '2.5rem',
+          borderRadius: '16px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
         }}
       >
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Log In</h2>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '1.75rem',
+          fontWeight: '700',
+          marginBottom: '2rem',
+          color: '#1f2937'
+        }}>
+          Welcome back
+        </h2>
 
+        <label style={{ fontWeight: '600', color: '#374151', fontSize: '0.95rem' }}>Email</label>
         <input
           type="email"
-          placeholder="Email"
+          placeholder="you@example.com"
           value={form.email}
           onChange={e => setForm({ ...form, email: e.target.value })}
           required
           style={{
             width: '100%',
-            padding: '0.75rem 0.1rem',
-            marginBottom: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
+            padding: '0.75rem 0.2rem',
+            marginTop: '0.25rem',
+            marginBottom: '1.5rem',
+            borderRadius: '10px',
+            border: '1px solid #d1d5db',
             fontSize: '1rem'
           }}
         />
-        {/* <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={e => setForm({ ...form, password: e.target.value })}
-          required
-          style={{
-            width: '100%',
-            padding: '0.75rem 0.1rem',
-            marginBottom: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #ccc',
-            fontSize: '1rem'
-          }}
-        /> */}
+
+        <label style={{ fontWeight: '600', color: '#374151', fontSize: '0.95rem' }}>Password</label>
         <div style={{ position: 'relative' }}>
           <input
             type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
+            placeholder="••••••••"
             value={form.password}
             onChange={e => setForm({ ...form, password: e.target.value })}
             required
-            style={{ ...inputStyle, marginBottom: '1.5rem' }}
+            style={{
+              width: '100%',
+              padding: '0.75rem 0.2rem',
+              marginTop: '0.25rem',
+              marginBottom: '1.5rem',
+              borderRadius: '10px',
+              border: '1px solid #d1d5db',
+              fontSize: '1rem'
+            }}
           />
           <span
             onClick={() => setShowPassword(prev => !prev)}
@@ -103,14 +94,9 @@ export default function Login() {
               position: 'absolute',
               right: '12px',
               top: '50%',
-              transform: 'translateY(-68%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
+              transform: 'translateY(-80%)',
               cursor: 'pointer',
-              color: '#6b7280',
-              fontSize: '1.2rem'
+              color: '#9ca3af'
             }}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -125,11 +111,11 @@ export default function Login() {
             borderRadius: '9999px',
             border: 'none',
             backgroundColor: '#2563eb',
-            color: 'white',
+            color: '#ffffff',
             fontWeight: '600',
-            fontSize: '1.1rem',
+            fontSize: '1.05rem',
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.39)',
+            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
             transition: 'background-color 0.3s ease'
           }}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1d4ed8'}
@@ -138,7 +124,7 @@ export default function Login() {
           Log In
         </button>
 
-        <div style={{ marginTop: '1.5rem', textAlign: 'center', color: '#4b5563' }}>
+        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.95rem', color: '#6b7280' }}>
           <p>
             Don’t have an account?{' '}
             <span
@@ -148,7 +134,7 @@ export default function Login() {
               Register
             </span>
           </p>
-          <p>
+          <p style={{ marginTop: '0.5rem' }}>
             <span
               onClick={() => navigate('/')}
               style={{ color: '#2563eb', cursor: 'pointer', fontWeight: '600' }}
@@ -161,3 +147,4 @@ export default function Login() {
     </div>
   );
 }
+
