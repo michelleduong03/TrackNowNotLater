@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from '../../api';
 
 const widgetStyle = {
   border: '1px solid #e0e0e0',
@@ -40,24 +41,46 @@ const buttonHoverStyle = {
 };
 
 class GmailWidget extends React.Component {
-  state = { hover: false };
+  state = {
+    hover: false,
+    localGmailEmail: this.props.gmailEmail || null,
+  };
 
   toggleHover = () => this.setState({ hover: !this.state.hover });
 
+  handleUnlink = async () => {
+    if (!window.confirm('Are you sure you want to unlink Gmail and delete all purchase data?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete('/auth/unlink-gmail', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      alert('Gmail unlinked and data deleted.');
+      this.setState({ localGmailEmail: null }); // 👈 update email to disappear from widget
+    } catch (err) {
+      console.error('Unlink failed', err);
+      alert('Something went wrong. Please try again.');
+    }
+  };
+
   render() {
-    const { gmailEmail } = this.props;
-    const { hover } = this.state;
+    const { hover, localGmailEmail } = this.state;
 
     return (
       <div style={widgetStyle}>
         <h3 style={headingStyle}>Gmail Connection</h3>
-        <p style={textStyle}>Gmail: {gmailEmail || 'Not linked'}</p>
-        {!gmailEmail ? (
+        <p style={textStyle}>Gmail: {localGmailEmail || 'Not linked'}</p>
+        {!localGmailEmail ? (
           <button
             style={hover ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
             onMouseEnter={this.toggleHover}
             onMouseLeave={this.toggleHover}
-            onClick={() => alert('Start Gmail linking flow')}
+            onClick={() => {
+              const userId = this.props.userId; 
+              window.location.href = `http://localhost:3000/dashboard?importGmail=true&userId=${userId}`;
+              // window.location.href = gmailAuthUrl;
+            }}
           >
             Link Gmail
           </button>
@@ -66,7 +89,7 @@ class GmailWidget extends React.Component {
             style={hover ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
             onMouseEnter={this.toggleHover}
             onMouseLeave={this.toggleHover}
-            onClick={() => alert('Unlink Gmail')}
+            onClick={this.handleUnlink}
           >
             Unlink Gmail
           </button>
