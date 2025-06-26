@@ -46,7 +46,7 @@ const BNPLTable = ({
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
-      <h3>🧾 Purchases</h3>
+      <h3>Your Purchases</h3>
 
       {/* Tabs */}
       <div style={{ marginBottom: '1rem' }}>
@@ -336,6 +336,15 @@ const BNPLTable = ({
           >
             <h3>Edit Purchase</h3>
 
+            <label>
+              Provider:
+              <input
+                type="text"
+                value={editRow.provider}
+                onChange={(e) => setEditRow({ ...editRow, provider: e.target.value })}
+                style={{ width: '100%', marginBottom: '1rem' }}
+              />
+            </label>
 
             <label>
               Merchant:
@@ -547,6 +556,7 @@ const BNPLTable = ({
                     });
                     setLocalPayments((prev) => prev.filter((p) => p._id !== editRow._id));
                     setEditRow(null);
+                    window.location.reload();
                   } catch (err) {
                     console.error('Delete failed:', err);
                     alert('Could not delete. Try again.');
