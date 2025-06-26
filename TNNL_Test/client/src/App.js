@@ -3,6 +3,8 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfUse from './components/TermsOfUse'
 
 function LandingWrapper() {
   const navigate = useNavigate();
@@ -22,6 +24,8 @@ function App() {
         <Route path="/" element={<LandingWrapper />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
