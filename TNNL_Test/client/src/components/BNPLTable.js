@@ -43,7 +43,6 @@ const BNPLTable = ({
 
   const userId = localStorage.getItem('userId');
 
-
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
       <h3>Your Purchases</h3>
@@ -70,18 +69,6 @@ const BNPLTable = ({
         ))}
       </div>
 
-      {/* Header */}
-      {/* <div
-        style={{
-          display: 'flex',
-          fontWeight: 'bold',
-          borderBottom: '2px solid #ccc',
-          paddingBottom: '8px'
-        }}
-      >
-        <div style={{ flex: 7 }}>Purchase Info</div>
-        <div style={{ flex: 3 }}>Payment Dates</div>
-      </div> */}
       {/* Header */}
       <div
         style={{
@@ -288,183 +275,6 @@ const BNPLTable = ({
           </div>
         );
       })}
-      {/* {editRow && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000
-          }}
-          onClick={() => setEditRow(null)}
-        >
-          <div
-            style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '10px',
-              width: '500px',
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              position: 'relative'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Edit Purchase</h3>
-
-            <label>
-              Provider:
-              <input
-                type="text"
-                value={editRow.provider}
-                onChange={(e) => setEditRow({ ...editRow, provider: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Merchant:
-              <input
-                type="text"
-                value={editRow.merchantName}
-                onChange={(e) =>
-                  setEditRow({ ...editRow, merchantName: e.target.value })
-                }
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Payment Plan:
-              <input
-                type="text"
-                value={editRow.paymentPlan}
-                onChange={(e) =>
-                  setEditRow({ ...editRow, paymentPlan: e.target.value })
-                }
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              OrderId:
-              <input
-                type="text"
-                value={editRow.klarnaOrderId}
-                onChange={(e) =>
-                  setEditRow({ ...editRow, klarnaOrderId: e.target.value })
-                }
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Order Date:
-              <input
-                type="text"
-                value={editRow.orderDate}
-                onChange={(e) =>
-                  setEditRow({ ...editRow, orderDate: e.target.value })
-                }
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Next Payment Date:
-              <input
-                type="date"
-                value={editRow.nextPaymentDate}
-                onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Next Payment Amount:
-              <input
-                type="number"
-                value={editRow.nextPaymentAmount}
-                onChange={(e) => setEditRow({ ...editRow, nextPaymentAmount: e.target.value })}
-                style={{ width: '100%', marginBottom: '1rem' }}
-              />
-            </label>
-
-            <label>
-              Status:
-              <select
-                value={editRow.status}
-                onChange={(e) =>
-                  setEditRow({ ...editRow, status: e.target.value })
-                }
-                style={{ width: '100%', marginBottom: '1rem' }}
-              >
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="refunded">Refunded</option>
-              </select>
-            </label>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Payment Dates:</strong>
-              {editRow.paymentDates?.map((pd, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  <input
-                    type="date"
-                    value={pd.date?.slice(0, 10)}
-                    onChange={(e) => {
-                      const updated = [...editRow.paymentDates];
-                      updated[idx].date = e.target.value;
-                      setEditRow({ ...editRow, paymentDates: updated });
-                    }}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Amount"
-                    value={pd.amount}
-                    onChange={(e) => {
-                      const updated = [...editRow.paymentDates];
-                      updated[idx].amount = parseFloat(e.target.value);
-                      setEditRow({ ...editRow, paymentDates: updated });
-                    }}
-                  />
-                  <button
-                    onClick={() => {
-                      const updated = [...editRow.paymentDates];
-                      updated.splice(idx, 1);
-                      setEditRow({ ...editRow, paymentDates: updated });
-                    }}
-                    style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() =>
-                  setEditRow({
-                    ...editRow,
-                    paymentDates: [...(editRow.paymentDates || []), { date: '', amount: '' }]
-                  })
-                }
-                style={{
-                  marginTop: '10px',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '6px',
-                  backgroundColor: '#ddd',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                + Add Payment
-              </button>
-            </div> */}
         {editRow && (
           <div
             style={{
@@ -1067,9 +877,6 @@ const BNPLTable = ({
           </div>
         </div>
       )}
-
-
-
     </div>
     
   );
