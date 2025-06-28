@@ -123,158 +123,159 @@ const BNPLTable = ({
       </div>
 
 
-      {localPayments.map((p, idx) => {
-        const statusText =
-          p.status === 'completed'
-            ? 'Completed'
-            : p.status === 'refunded'
-            ? 'Refunded'
-            : 'Active';
+      {localPayments.length === 0 ? (
+        <div
+          style={{
+            padding: '2rem',
+            textAlign: 'center',
+            color: '#666',
+            fontStyle: 'italic',
+            border: '1px dashed #ccc',
+            borderRadius: '10px',
+            marginTop: '1rem',
+          }}
+        >
+          No purchases found.<br />
+          Click the <strong>+</strong> button above to add a new purchase manually.
+        </div>
+      ) : (
+        localPayments.map((p, idx) => {
+          const statusText =
+            p.status === 'completed'
+              ? 'Completed'
+              : p.status === 'refunded'
+              ? 'Refunded'
+              : 'Active';
 
-        return (
+    return (
+      <div
+        key={p._id}
+        style={{
+          display: 'flex',
+          padding: '1rem 0',
+          borderBottom: '1px solid #eee',
+          backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
+          alignItems: 'flex-start'
+        }}
+      >
+        {/* Purchase info */}
+        <div
+          style={{
+            flex: 7,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(6, 1fr)',
+            gap: '10px',
+            alignItems: 'center'
+          }}
+        >
+          <div><strong>Provider:</strong> {p.provider || '—'}</div>
+          <div><strong>Merchant:</strong> {p.merchantName || '—'}</div>
+          <div><strong>Plan:</strong> {p.paymentPlan || '—'}</div>
+          <div><strong>Order ID:</strong> {p.klarnaOrderId || '—'}</div>
+          <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
+          <div>
+            <strong>Next:</strong> {p.status === 'refunded' ? '—' : p.nextPaymentDate ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})` : '—'}
+          </div>
+
           <div
-            key={p._id}
             style={{
-              display: 'flex',
-              padding: '1rem 0',
-              borderBottom: '1px solid #eee',
-              backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
-              alignItems: 'flex-start'
+              fontWeight: 'bold',
+              color: statusColors[p.status] || '#333',
+              textTransform: 'capitalize',
+              padding: '5px 10px',
+              borderRadius: '10px',
+              backgroundColor: `${statusColors[p.status]}33`,
+              textAlign: 'center',
             }}
           >
-            {/* Purchase info (left) */}
-            <div
-              style={{
-                flex: 7,
-                display: 'grid',
-                gridTemplateColumns: 'repeat(6, 1fr)',
-                gap: '10px',
-                alignItems: 'center'
-              }}
-            >
-              <div>
-                <strong>Provider:</strong> {p.provider || '—'}
-              </div>
-              <div>
-                <strong>Merchant:</strong> {p.merchantName || '—'}
-              </div>
-              <div>
-                <strong>Plan:</strong> {p.paymentPlan || '—'}
-              </div>
-              <div>
-                <strong>Order ID:</strong> {p.klarnaOrderId || '—'}
-              </div>
-              <div>
-                <strong>Order Date:</strong>{' '}
-                {p.orderDate ? formatDate(p.orderDate) : '—'}
-              </div>
-              <div>
-                <strong>Next:</strong>{' '}
-                {p.status === 'refunded'
-                  ? '—'
-                  : p.nextPaymentDate
-                  ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
-                  : '—'}
-              </div>
-
-              <div
-                style={{
-                  fontWeight: 'bold',
-                  color: statusColors[p.status] || '#333',
-                  textTransform: 'capitalize',
-                  padding: '5px 10px',
-                  borderRadius: '10px',
-                  backgroundColor: `${statusColors[p.status]}33`, 
-                  textAlign: 'center',
-                }}
-              >
-                {statusText}
-              </div>
-
-              <div style={{ 
-                gridColumn: '1 / -1', 
-                marginTop: '8px', 
-                fontStyle: notes[p._id] ? 'normal' : 'italic', 
-                color: notes[p._id] ? '#000' : '#888' 
-                }}>
-                {notes[p._id] || 'No note'}
-              </div>
-              <button
-                onClick={() => setEditRow(p)}
-                style={{
-                  marginTop: '8px',
-                  fontSize: '0.75rem',
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #999',
-                  backgroundColor: '#f0f0f0',
-                  cursor: 'pointer'
-                }}
-              >
-                Edit
-              </button>
-            </div>
-
-            {/* Payment bubbles (right) */}
-            <div
-              style={{
-                flex: 3,
-                paddingLeft: '1rem',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '0.5rem'
-              }}
-            >
-              {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
-                p.paymentDates.map((pd) => {
-                  const paymentDate = new Date(pd.date);
-                  const now = new Date();
-                  now.setHours(0, 0, 0, 0);
-                  paymentDate.setHours(0, 0, 0, 0);
-
-                  const isPast = paymentDate <= now;
-
-                  const isRefunded = p.status === 'refunded';
-                  const isCompleted = p.status === 'completed';
-
-
-                  return (
-                    <div
-                      key={pd._id}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '999px',
-                        fontSize: '0.8rem',
-                        whiteSpace: 'nowrap',
-                        backgroundColor: isCompleted
-                          ? '#ffdddd' 
-                          : isRefunded
-                          ? '#bbb'    
-                          : isPast
-                          ? '#ffdddd'  
-                          : '#e1f5fe', 
-                        border: isCompleted
-                          ? '1px solid #f28b82' 
-                          : isRefunded
-                          ? '1px solid #888'    
-                          : isPast
-                          ? '1px solid #f28b82' 
-                          : '1px solid #81d4fa',
-                        color: isRefunded ? '#555' : undefined,
-                        opacity: isRefunded ? 0.8 : 1,
-                      }}
-                    >
-                      {formatDate(pd.date)} — ${pd.amount}
-                    </div>
-                  );
-                })
-              ) : (
-                <span style={{ color: '#aaa' }}>No payments</span>
-              )}
-            </div>
+            {statusText}
           </div>
-        );
-      })}
+
+          <div style={{
+            gridColumn: '1 / -1',
+            marginTop: '8px',
+            fontStyle: notes[p._id] ? 'normal' : 'italic',
+            color: notes[p._id] ? '#000' : '#888'
+          }}>
+            {notes[p._id] || 'No note'}
+          </div>
+
+          <button
+            onClick={() => setEditRow(p)}
+            style={{
+              marginTop: '8px',
+              fontSize: '0.75rem',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              border: '1px solid #999',
+              backgroundColor: '#f0f0f0',
+              cursor: 'pointer'
+            }}
+          >
+            Edit
+          </button>
+        </div>
+
+        {/* Payment bubbles */}
+        <div
+          style={{
+            flex: 3,
+            paddingLeft: '1rem',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
+          }}
+        >
+          {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
+            p.paymentDates.map((pd) => {
+              const paymentDate = new Date(pd.date);
+              const now = new Date();
+              now.setHours(0, 0, 0, 0);
+              paymentDate.setHours(0, 0, 0, 0);
+
+              const isPast = paymentDate <= now;
+              const isRefunded = p.status === 'refunded';
+              const isCompleted = p.status === 'completed';
+
+              return (
+                <div
+                  key={pd._id}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '999px',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
+                    backgroundColor: isCompleted
+                      ? '#ffdddd'
+                      : isRefunded
+                      ? '#bbb'
+                      : isPast
+                      ? '#ffdddd'
+                      : '#e1f5fe',
+                    border: isCompleted
+                      ? '1px solid #f28b82'
+                      : isRefunded
+                      ? '1px solid #888'
+                      : isPast
+                      ? '1px solid #f28b82'
+                      : '1px solid #81d4fa',
+                    color: isRefunded ? '#555' : undefined,
+                    opacity: isRefunded ? 0.8 : 1,
+                  }}
+                >
+                  {formatDate(pd.date)} — ${pd.amount}
+                </div>
+              );
+            })
+          ) : (
+            <span style={{ color: '#aaa' }}>No payments</span>
+          )}
+        </div>
+      </div>
+    );
+  })
+)}
+
         {editRow && (
           <div
             style={{
@@ -350,7 +351,11 @@ const BNPLTable = ({
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Date</label>
                 <input
                   type="date"
-                  value={editRow.nextPaymentDate}
+                  value={
+                    editRow.nextPaymentDate
+                      ? new Date(editRow.nextPaymentDate).toISOString().split('T')[0]
+                      : ''
+                  }
                   onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
                   style={{
                     width: '100%',
