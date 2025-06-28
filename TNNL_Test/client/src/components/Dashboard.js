@@ -239,72 +239,68 @@ export default function DashboardApp() {
             </button>
           </div>
 
-          {filteredPayments.length > 0 ? (
-            <>
-              {/* Pie Chart */}
+          {/* Conditionally show Pie Chart + Metrics */}
+          {filteredPayments.length > 0 && (
+            <div
+              className="dashboard-container"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: '1rem',
+              }}
+            >
+              <PieChart width={400} height={300}>
+                <Pie
+                  data={getChartData()}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {getChartData().map((entry, index) => {
+                    const colorIndex = BNPL_SERVICES.slice(1).indexOf(entry.name);
+                    const fillColor = COLORS[colorIndex % COLORS.length] || '#8884d8';
+                    return <Cell key={`cell-${index}`} fill={fillColor} />;
+                  })}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+
+              {/* Metrics */}
               <div
-                className="dashboard-container"
                 style={{
+                  marginTop: '1rem',
                   display: 'flex',
-                  flexDirection: 'column',   
-                  alignItems: 'center',   
-                  marginBottom: '1rem',
+                  gap: '2rem',
+                  justifyContent: 'center',
+                  width: '100%',
+                  maxWidth: '400px',
                 }}
               >
-                <PieChart width={400} height={300}>
-                  <Pie
-                    data={getChartData()}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {getChartData().map((entry, index) => {
-                      const colorIndex = BNPL_SERVICES.slice(1).indexOf(entry.name);
-                      const fillColor = COLORS[colorIndex % COLORS.length] || '#8884d8';
-                      return <Cell key={`cell-${index}`} fill={fillColor} />;
-                    })}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-
-                {/* Metrics */}
-                <div
-                  style={{
-                    marginTop: '1rem',
-                    display: 'flex',
-                    gap: '2rem',
-                    justifyContent: 'center',
-                    width: '100%', 
-                    maxWidth: '400px',
-                  }}
-                >
-                  <div><strong>Total Owed:</strong> ${getTotalBalance().toFixed(2)}</div>
-                  <div><strong>Due This Month:</strong> ${getBalanceDueThisMonth().toFixed(2)}</div>
-                  <div><strong>Next Due:</strong> {getNextDueDate()}</div>
-                </div>
+                <div><strong>Total Owed:</strong> ${getTotalBalance().toFixed(2)}</div>
+                <div><strong>Due This Month:</strong> ${getBalanceDueThisMonth().toFixed(2)}</div>
+                <div><strong>Next Due:</strong> {getNextDueDate()}</div>
               </div>
-
-              {/* Table */}
-              <div style={{ marginTop: '2rem' }}>
-                <BNPLTable
-                  payments={filteredPayments}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  notes={notes}
-                  setNotes={setNotes}
-                  confirmed={confirmed}
-                  setConfirmed={setConfirmed}
-                  BNPL_SERVICES={BNPL_SERVICES}
-                />
-              </div>
-            </>
-          ) : (
-            <p>No payments found for selected provider.</p>
+            </div>
           )}
+
+          {/* Table always shown */}
+          <div style={{ marginTop: '2rem' }}>
+            <BNPLTable
+              payments={filteredPayments}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              notes={notes}
+              setNotes={setNotes}
+              confirmed={confirmed}
+              setConfirmed={setConfirmed}
+              BNPL_SERVICES={BNPL_SERVICES}
+            />
+          </div>
 
           {/* Imported Gmail Data */}
           {showBNPLImport && <BNPLCallback onImportComplete={() => setRefreshFlag(flag => !flag)} />}
@@ -313,7 +309,7 @@ export default function DashboardApp() {
     }
 
     if (page === 'profile') {
-      const userName = localStorage.getItem('fname'); 
+      const userName = localStorage.getItem('fname');
       return <ProfilePage userName={userName || 'there'} />;
     }
 
@@ -327,6 +323,7 @@ export default function DashboardApp() {
 
     return null;
   };
+
 
   return (
     <div
