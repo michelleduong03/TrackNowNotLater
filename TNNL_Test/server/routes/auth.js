@@ -178,5 +178,26 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
+router.delete('/unlink-gmail', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    await User.findByIdAndUpdate(userId, { $unset: { gmailEmail: "", gmailToken: "" } });
+
+    await Payment.deleteMany({ user: userId });
+
+    res.json({ message: 'Gmail unlinked and all payments deleted.' });
+  } catch (err) {
+    console.error('Unlink failed:', err);
+    res.status(500).json({ message: 'Server error while unlinking Gmail' });
+  }
+});
 
 module.exports = router;
