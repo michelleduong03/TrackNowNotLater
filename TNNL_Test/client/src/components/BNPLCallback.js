@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
-const BNPLCallback = ({ 
-  onImportComplete, payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed 
+const BNPLCallback = ({
+  onImportComplete, payments, activeTab, setActiveTab, notes, setNotes, confirmed, setConfirmed
 }) => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
-  console.log (`user id is ${userId}`)
+  console.log(`user id is ${userId}`)
   const processedKey = `gmailProcessed_${userId}`;
 
   useEffect(() => {
