@@ -20,9 +20,9 @@ const BNPLTable = ({
     });
 
   const statusColors = {
-    completed: '#28a745', 
-    refunded: '#ffc107', 
-    active: '#17a2b8'     
+    completed: '#28a745',
+    refunded: '#ffc107',
+    active: '#17a2b8'
   };
 
   const [editRow, setEditRow] = useState(null);
@@ -45,18 +45,31 @@ const BNPLTable = ({
 
   const normalizeDate = (dateStr) => {
     if (!dateStr) return "";
-    const [year, month, day] = dateStr.split('-').map(Number);
-    return new Date(year, month - 1, day).toISOString();
+    // If dateStr is '2025-07-12T00:00:00.000Z', just split at 'T' and take the date part
+    return dateStr.split('T')[0];
   };
 
- const toLocalDateInput = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+  const toLocalDateInput = (dateStr) => {
+    if (!dateStr) return '';
+    // Just validate and return YYYY-MM-DD directly, no timezone shifts
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) {
+      console.warn("Invalid date format in toLocalDateInput:", dateStr);
+      return '';
+    }
+    return dateStr; // already in YYYY-MM-DD format
+  };
+
+  const addOneDay = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
 
 
   return (
@@ -160,273 +173,273 @@ const BNPLTable = ({
             p.status === 'completed'
               ? 'Completed'
               : p.status === 'refunded'
-              ? 'Refunded'
-              : 'Active';
+                ? 'Refunded'
+                : 'Active';
 
-    return (
-      <div
-        key={p._id}
-        style={{
-          display: 'flex',
-          padding: '1rem 0',
-          borderBottom: '1px solid #eee',
-          backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
-          alignItems: 'flex-start'
-        }}
-      >
-        {/* Purchase info */}
-        <div
-          style={{
-            flex: 7,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(6, 1fr)',
-            gap: '10px',
-            alignItems: 'center'
-          }}
-        >
-          <div><strong>Provider:</strong> {p.provider || '—'}</div>
-          <div><strong>Merchant:</strong> {p.merchantName || '—'}</div>
-          <div><strong>Plan:</strong> {p.paymentPlan || '—'}</div>
-          <div><strong>Order ID:</strong> {p.klarnaOrderId || '—'}</div>
-          <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
-          <div>
-            <strong>Next:</strong>{' '}
-              {['completed', 'refunded'].includes(p.status)
-                ? '—'
-                : p.nextPaymentDate
-                ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
-                : '—'}
-          </div>
-
-          <div
-            style={{
-              fontWeight: 'bold',
-              color: statusColors[p.status] || '#333',
-              textTransform: 'capitalize',
-              padding: '5px 10px',
-              borderRadius: '10px',
-              backgroundColor: `${statusColors[p.status]}33`,
-              textAlign: 'center',
-            }}
-          >
-            {statusText}
-          </div>
-
-          <div style={{
-            gridColumn: '1 / -1',
-            marginTop: '8px',
-            fontStyle: notes[p._id] ? 'normal' : 'italic',
-            color: notes[p._id] ? '#000' : '#888'
-          }}>
-            {notes[p._id] || 'No note'}
-          </div>
-
-          <button
-            onClick={() => setEditRow(p)}
-            style={{
-              marginTop: '8px',
-              fontSize: '0.75rem',
-              padding: '4px 8px',
-              borderRadius: '6px',
-              border: '1px solid #999',
-              backgroundColor: '#f0f0f0',
-              cursor: 'pointer'
-            }}
-          >
-            Edit
-          </button>
-        </div>
-
-        {/* Payment bubbles */}
-        <div
-          style={{
-            flex: 3,
-            paddingLeft: '1rem',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem'
-          }}
-        >
-          {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
-            p.paymentDates.map((pd) => {
-              const paymentDate = new Date(pd.date);
-              const now = new Date();
-              now.setHours(0, 0, 0, 0);
-              paymentDate.setHours(0, 0, 0, 0);
-
-              const isPast = paymentDate <= now;
-              const isRefunded = p.status === 'refunded';
-              const isCompleted = p.status === 'completed';
-
-              return (
-                <div
-                  key={pd._id}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    whiteSpace: 'nowrap',
-                    backgroundColor: isCompleted
-                      ? '#ffdddd'
-                      : isRefunded
-                      ? '#bbb'
-                      : isPast
-                      ? '#ffdddd'
-                      : '#e1f5fe',
-                    border: isCompleted
-                      ? '1px solid #f28b82'
-                      : isRefunded
-                      ? '1px solid #888'
-                      : isPast
-                      ? '1px solid #f28b82'
-                      : '1px solid #81d4fa',
-                    color: isRefunded ? '#555' : undefined,
-                    opacity: isRefunded ? 0.8 : 1,
-                  }}
-                >
-                  {formatDate(pd.date)} — ${pd.amount}
-                </div>
-              );
-            })
-          ) : (
-            <span style={{ color: '#aaa' }}>No payments</span>
-          )}
-        </div>
-      </div>
-    );
-  })
-)}
-
-
-        {editRow && (
-          
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 1000,
-            }}
-            onClick={() => setEditRow(null)}
-          >
+          return (
             <div
+              key={p._id}
               style={{
-                background: '#fff',
-                padding: '2rem',
-                borderRadius: '12px',
-                width: '500px',
-                maxHeight: '85vh',
-                overflowY: 'auto',
-                position: 'relative',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                fontFamily: 'Arial, sans-serif',
+                display: 'flex',
+                padding: '1rem 0',
+                borderBottom: '1px solid #eee',
+                backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
+                alignItems: 'flex-start'
               }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Edit Purchase</h2>
-
-              {[
-                { label: 'Provider', key: 'provider' },
-                { label: 'Merchant', key: 'merchantName' },
-                { label: 'Payment Plan', key: 'paymentPlan' },
-                { label: 'Order ID', key: 'klarnaOrderId' },
-              ].map(({ label, key }) => (
-                <div key={key} style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>{label}</label>
-                  <input
-                    type="text"
-                    value={editRow[key] || ''}
-                    onChange={(e) => setEditRow({ ...editRow, [key]: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem',
-                      borderRadius: '6px',
-                      border: '1px solid #ccc',
-                      fontSize: '14px',
-                    }}
-                  />
+              {/* Purchase info */}
+              <div
+                style={{
+                  flex: 7,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(6, 1fr)',
+                  gap: '10px',
+                  alignItems: 'center'
+                }}
+              >
+                <div><strong>Provider:</strong> {p.provider || '—'}</div>
+                <div><strong>Merchant:</strong> {p.merchantName || '—'}</div>
+                <div><strong>Plan:</strong> {p.paymentPlan || '—'}</div>
+                <div><strong>Order ID:</strong> {p.klarnaOrderId || '—'}</div>
+                <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
+                <div>
+                  <strong>Next:</strong>{' '}
+                  {['completed', 'refunded'].includes(p.status)
+                    ? '—'
+                    : p.nextPaymentDate
+                      ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
+                      : '—'}
                 </div>
-              ))}
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Order Date</label>
-                <input
-                  type="date"
-                  value= {toLocalDateInput(editRow.orderDate)}
-                  onChange={(e) => setEditRow({ ...editRow, orderDate: e.target.value })}
+                <div
                   style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Date</label>
-                <input
-                  type="date"
-                  value={toLocalDateInput(editRow.nextPaymentDate)}
-                  onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Amount</label>
-                <input
-                  type="number"
-                  value={editRow.nextPaymentAmount}
-                  onChange={(e) => setEditRow({ ...editRow, nextPaymentAmount: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Status</label>
-                <select
-                  value={editRow.status}
-                  onChange={(e) => setEditRow({ ...editRow, status: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                    background: '#fff',
+                    fontWeight: 'bold',
+                    color: statusColors[p.status] || '#333',
+                    textTransform: 'capitalize',
+                    padding: '5px 10px',
+                    borderRadius: '10px',
+                    backgroundColor: `${statusColors[p.status]}33`,
+                    textAlign: 'center',
                   }}
                 >
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="refunded">Refunded</option>
-                </select>
+                  {statusText}
+                </div>
+
+                <div style={{
+                  gridColumn: '1 / -1',
+                  marginTop: '8px',
+                  fontStyle: notes[p._id] ? 'normal' : 'italic',
+                  color: notes[p._id] ? '#000' : '#888'
+                }}>
+                  {notes[p._id] || 'No note'}
+                </div>
+
+                <button
+                  onClick={() => setEditRow(p)}
+                  style={{
+                    marginTop: '8px',
+                    fontSize: '0.75rem',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    border: '1px solid #999',
+                    backgroundColor: '#f0f0f0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Edit
+                </button>
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ fontWeight: 'bold' }}>Payment Dates:</label>
-                {editRow.paymentDates?.map((pd, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    {/* <input
+              {/* Payment bubbles */}
+              <div
+                style={{
+                  flex: 3,
+                  paddingLeft: '1rem',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem'
+                }}
+              >
+                {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
+                  p.paymentDates.map((pd) => {
+                    const paymentDate = new Date(pd.date);
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    paymentDate.setHours(0, 0, 0, 0);
+
+                    const isPast = paymentDate <= now;
+                    const isRefunded = p.status === 'refunded';
+                    const isCompleted = p.status === 'completed';
+
+                    return (
+                      <div
+                        key={pd._id}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '999px',
+                          fontSize: '0.8rem',
+                          whiteSpace: 'nowrap',
+                          backgroundColor: isCompleted
+                            ? '#ffdddd'
+                            : isRefunded
+                              ? '#bbb'
+                              : isPast
+                                ? '#ffdddd'
+                                : '#e1f5fe',
+                          border: isCompleted
+                            ? '1px solid #f28b82'
+                            : isRefunded
+                              ? '1px solid #888'
+                              : isPast
+                                ? '1px solid #f28b82'
+                                : '1px solid #81d4fa',
+                          color: isRefunded ? '#555' : undefined,
+                          opacity: isRefunded ? 0.8 : 1,
+                        }}
+                      >
+                        {formatDate(pd.date)} — ${pd.amount}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <span style={{ color: '#aaa' }}>No payments</span>
+                )}
+              </div>
+            </div>
+          );
+        })
+      )}
+
+
+      {editRow && (
+
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setEditRow(null)}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: '2rem',
+              borderRadius: '12px',
+              width: '500px',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              position: 'relative',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+              fontFamily: 'Arial, sans-serif',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Edit Purchase</h2>
+
+            {[
+              { label: 'Provider', key: 'provider' },
+              { label: 'Merchant', key: 'merchantName' },
+              { label: 'Payment Plan', key: 'paymentPlan' },
+              { label: 'Order ID', key: 'klarnaOrderId' },
+            ].map(({ label, key }) => (
+              <div key={key} style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>{label}</label>
+                <input
+                  type="text"
+                  value={editRow[key] || ''}
+                  onChange={(e) => setEditRow({ ...editRow, [key]: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                  }}
+                />
+              </div>
+            ))}
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Order Date</label>
+              <input
+                type="date"
+                value={addOneDay(editRow.orderDate)}
+                onChange={(e) => setEditRow({ ...editRow, orderDate: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Date</label>
+              <input
+                type="date"
+                value={toLocalDateInput(editRow.nextPaymentDate)}
+                onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Amount</label>
+              <input
+                type="number"
+                value={editRow.nextPaymentAmount}
+                onChange={(e) => setEditRow({ ...editRow, nextPaymentAmount: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Status</label>
+              <select
+                value={editRow.status}
+                onChange={(e) => setEditRow({ ...editRow, status: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  background: '#fff',
+                }}
+              >
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ fontWeight: 'bold' }}>Payment Dates:</label>
+              {editRow.paymentDates?.map((pd, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  {/* <input
                       type="date"
                       value={pd.date?.slice(0, 10)}
                       onChange={(e) => {
@@ -434,102 +447,102 @@ const BNPLTable = ({
                         updated[idx].date = e.target.value;
                         setEditRow({ ...editRow, paymentDates: updated });
                       }} */}
-                      <input
-                        type="date"
-                        value={toLocalDateInput(pd.date)}
-                        onChange={(e) => {
-                          const updated = [...editRow.paymentDates];
-                          updated[idx].date = e.target.value; 
-                          setEditRow({ ...editRow, paymentDates: updated });
-                        }}
+                  <input
+                    type="date"
+                    value={toLocalDateInput(pd.date)}
+                    onChange={(e) => {
+                      const updated = [...editRow.paymentDates];
+                      updated[idx].date = e.target.value;
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
 
-                      style={{
-                        flex: 1,
-                        padding: '0.4rem',
-                        borderRadius: '5px',
-                        border: '1px solid #ccc',
-                        fontSize: '14px',
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Amount"
-                      value={pd.amount}
-                      onChange={(e) => {
-                        const updated = [...editRow.paymentDates];
-                        updated[idx].amount = parseFloat(e.target.value);
-                        setEditRow({ ...editRow, paymentDates: updated });
-                      }}
-                      style={{
-                        width: '100px',
-                        padding: '0.4rem',
-                        borderRadius: '5px',
-                        border: '1px solid #ccc',
-                        fontSize: '14px',
-                      }}
-                    />
-                    <button
-                      onClick={() => {
-                        const updated = [...editRow.paymentDates];
-                        updated.splice(idx, 1);
-                        setEditRow({ ...editRow, paymentDates: updated });
-                      }}
-                      style={{
-                        backgroundColor: '#f56565',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        padding: '0.3rem 0.6rem',
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                    style={{
+                      flex: 1,
+                      padding: '0.4rem',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                      fontSize: '14px',
+                    }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={pd.amount}
+                    onChange={(e) => {
+                      const updated = [...editRow.paymentDates];
+                      updated[idx].amount = parseFloat(e.target.value);
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
+                    style={{
+                      width: '100px',
+                      padding: '0.4rem',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                      fontSize: '14px',
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      const updated = [...editRow.paymentDates];
+                      updated.splice(idx, 1);
+                      setEditRow({ ...editRow, paymentDates: updated });
+                    }}
+                    style={{
+                      backgroundColor: '#f56565',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      padding: '0.3rem 0.6rem',
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
 
-                <button
-                  onClick={() =>
-                    setEditRow({
-                      ...editRow,
-                      paymentDates: [...(editRow.paymentDates || []), { date: '', amount: '' }],
-                    })
-                  }
-                  style={{
-                    marginTop: '10px',
-                    padding: '0.4rem 0.7rem',
-                    borderRadius: '6px',
-                    backgroundColor: '#e2e8f0',
-                    border: '1px solid #ccc',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                  }}
-                >
-                  + Add Payment
-                </button>
-              </div>
+              <button
+                onClick={() =>
+                  setEditRow({
+                    ...editRow,
+                    paymentDates: [...(editRow.paymentDates || []), { date: '', amount: '' }],
+                  })
+                }
+                style={{
+                  marginTop: '10px',
+                  padding: '0.4rem 0.7rem',
+                  borderRadius: '6px',
+                  backgroundColor: '#e2e8f0',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+              >
+                + Add Payment
+              </button>
+            </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>
-                  Note
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Optional note about this purchase"
-                  value={editRow.note || ''}
-                  onChange={(e) => setEditRow({ ...editRow, note: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                    resize: 'vertical',
-                    fontFamily: 'inherit',
-                    fontWeight: 'normal',
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>
+                Note
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Optional note about this purchase"
+                value={editRow.note || ''}
+                onChange={(e) => setEditRow({ ...editRow, note: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  fontWeight: 'normal',
+                }}
+              />
+            </div>
 
             <div
               style={{
@@ -542,9 +555,8 @@ const BNPLTable = ({
               <button
                 onClick={async () => {
                   const paymentData = { ...editRow };
-
-                  paymentData.orderDate = normalizeDate(paymentData.orderDate);
-                  paymentData.nextPaymentDate = normalizeDate(paymentData.nextPaymentDate);
+                  paymentData.orderDate = paymentData.orderDate; // keep as is
+                  paymentData.nextPaymentDate = paymentData.nextPaymentDate;
                   paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
                     ...pd,
                     date: normalizeDate(pd.date),
@@ -576,7 +588,7 @@ const BNPLTable = ({
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
-                  backgroundColor: '#3b82f6', 
+                  backgroundColor: '#3b82f6',
                   color: '#fff',
                   border: 'none',
                   fontWeight: '600',
@@ -603,9 +615,9 @@ const BNPLTable = ({
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
-                  backgroundColor: '#f3f4f6', 
-                  color: '#374151', 
-                  border: '1px solid #d1d5db', 
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'background-color 0.25s ease, border-color 0.25s ease',
@@ -643,7 +655,7 @@ const BNPLTable = ({
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
-                  backgroundColor: '#ef4444', 
+                  backgroundColor: '#ef4444',
                   color: '#fff',
                   border: 'none',
                   fontWeight: '600',
@@ -776,7 +788,7 @@ const BNPLTable = ({
                       fontFamily: 'inherit',
                     }}
                   />
-                  
+
                   <button
                     onClick={() => {
                       const updated = [...createRow.paymentDates];
@@ -852,54 +864,54 @@ const BNPLTable = ({
             >
               <button
                 onClick={async () => {
-                try {
-                  const paymentData = { ...createRow };
+                  try {
+                    const paymentData = { ...createRow };
 
-                  paymentData.orderDate = normalizeDate(paymentData.orderDate);
-                  paymentData.nextPaymentDate = normalizeDate(paymentData.nextPaymentDate);
-                  paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
-                    ...pd,
-                    date: normalizeDate(pd.date),
-                  }));
+                    paymentData.orderDate = normalizeDate(paymentData.orderDate);
+                    paymentData.nextPaymentDate = normalizeDate(paymentData.nextPaymentDate);
+                    paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
+                      ...pd,
+                      date: normalizeDate(pd.date),
+                    }));
 
-                  // Force next payment to match earliest future payment date in paymentDates
-                  if (paymentData.paymentDates.length) {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
+                    // Force next payment to match earliest future payment date in paymentDates
+                    if (paymentData.paymentDates.length) {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
 
-                    const futurePayments = paymentData.paymentDates
-                      .map(pd => new Date(pd.date))
-                      .filter(d => !isNaN(d.getTime()) && d >= today)
-                      .sort((a, b) => a - b);
+                      const futurePayments = paymentData.paymentDates
+                        .map(pd => new Date(pd.date))
+                        .filter(d => !isNaN(d.getTime()) && d >= today)
+                        .sort((a, b) => a - b);
 
-                    if (futurePayments.length) {
-                      const soonestDate = futurePayments[0];
-                      const soonestDateStr = soonestDate.toISOString().split('T')[0];
-                      const soonestPayment = paymentData.paymentDates.find(
-                        pd => new Date(pd.date).toISOString().split('T')[0] === soonestDateStr
-                      );
-                      paymentData.nextPaymentDate = soonestDateStr;
-                      paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
-                    } else {
-                      // If no future payments, clear next payment fields
-                      paymentData.nextPaymentDate = '';
-                      paymentData.nextPaymentAmount = '';
+                      if (futurePayments.length) {
+                        const soonestDate = futurePayments[0];
+                        const soonestDateStr = soonestDate.toISOString().split('T')[0];
+                        const soonestPayment = paymentData.paymentDates.find(
+                          pd => new Date(pd.date).toISOString().split('T')[0] === soonestDateStr
+                        );
+                        paymentData.nextPaymentDate = soonestDateStr;
+                        paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
+                      } else {
+                        // If no future payments, clear next payment fields
+                        paymentData.nextPaymentDate = '';
+                        paymentData.nextPaymentAmount = '';
+                      }
                     }
-                  }
 
-                  const token = localStorage.getItem('token');
-                  const res = await axios.post('/payments', paymentData, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-                  const saved = res.data;
-                  setLocalPayments(prev => [...prev, saved]);
-                  setCreateRow(null);
-                  window.location.reload();
-                } catch (err) {
-                  console.error('Save failed:', err);
-                  alert('Could not save new row. Try again.');
-                }
-              }}
+                    const token = localStorage.getItem('token');
+                    const res = await axios.post('/payments', paymentData, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const saved = res.data;
+                    setLocalPayments(prev => [...prev, saved]);
+                    setCreateRow(null);
+                    window.location.reload();
+                  } catch (err) {
+                    console.error('Save failed:', err);
+                    alert('Could not save new row. Try again.');
+                  }
+                }}
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
