@@ -16,7 +16,7 @@ const DataWidget = () => (
     maxWidth: '320px',
     textAlign: 'center',
     border: '1px solid #e2e8f0',
-    transform: 'translateZ(0)', // trigger GPU for smooth transform
+    transform: 'translateZ(0)',
     transition: 'transform 0.4s ease, box-shadow 0.4s ease',
   }}
     onMouseEnter={e => {
@@ -75,7 +75,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       fontFamily: '"Inter", sans-serif',
       background: 'linear-gradient(to bottom right, #f1f5f9, #ffffff)',
       color: '#1f2937',
-      overflow: 'hidden',
+      overflowX: 'hidden', // Prevent horizontal scroll from animations
     }}>
       <header style={{
         padding: '1.75rem 4rem',
@@ -92,7 +92,7 @@ export default function LandingPage({ onLogin, onRegister }) {
           color: '#2563eb',
           letterSpacing: '-0.05em'
         }}>
-          TrackNowNotLater
+          TNNL
         </div>
         <div>
           <button
@@ -162,7 +162,7 @@ export default function LandingPage({ onLogin, onRegister }) {
             letterSpacing: '-0.04em',
             color: '#1a202c',
           }}>
-            Take control of your <span style={{ color: '#2563eb' }}>Buy Now, Pay Later</span> payments.
+            Track Now, Not Later
           </h1>
           <p style={{
             fontSize: '1.4rem',
@@ -170,7 +170,8 @@ export default function LandingPage({ onLogin, onRegister }) {
             marginBottom: '2.8rem',
             lineHeight: 1.6,
           }}>
-            TrackNowNotLater helps you organize BNPL purchases and upcoming dues from all your accounts—automatically or manually.
+            Take control of your Buy Now, Pay Later spending—
+            automatically track and manage it all in one place.
           </p>
           <div>
             <button
@@ -266,6 +267,197 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </main>
 
+      {/* --- All your BNPL accounts, in one place --- */}
+      <section style={{
+        padding: '6rem 4rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '4rem',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h2 style={{
+            fontWeight: 800,
+            fontSize: '2.5rem',
+            marginBottom: '1.5rem',
+            lineHeight: 1.2,
+            color: '#1a202c',
+          }}>
+            All your BNPL accounts, <br />in one place
+          </h2>
+          <p style={{
+            fontSize: '1.15rem',
+            color: '#4a5568',
+            lineHeight: 1.7,
+          }}>
+            Designed specifically to track, organize, and manage your Buy Now, Pay Later purchases —
+            all in one place. No need for manually piecing together multiple BNPL providers, statements,
+            and emails with incomplete visibility — TNNL will automatically pull and update your activity
+            in one easy-to-use dashboard.
+          </p>
+        </div>
+        <div style={{
+          flex: 1,
+          minWidth: '350px',
+          height: '300px',
+          backgroundColor: '#e0e7ff', // Placeholder for image
+          borderRadius: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          color: '#3b82f6',
+          fontWeight: 'bold',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        }}>
+          [Image: Transaction lists with different providers (Klarna, PayPal, Affirm)]
+        </div>
+      </section>
+
+      {/* --- Free to Use --- */}
+      <section style={{
+        padding: '6rem 4rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row-reverse', // Reverse order for this section
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '4rem',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h2 style={{
+            fontWeight: 800,
+            fontSize: '2.5rem',
+            marginBottom: '1.5rem',
+            lineHeight: 1.2,
+            color: '#1a202c',
+          }}>
+            Free to Use
+          </h2>
+          <p style={{
+            fontSize: '1.15rem',
+            color: '#4a5568',
+            lineHeight: 1.7,
+          }}>
+            Enjoy at no cost — no hidden fees, no subscriptions, and no upsells. Effortlessly create
+            your free TNNL account and securely link your Gmail — no complicated setup required.
+          </p>
+        </div>
+        <div style={{
+          flex: 1,
+          minWidth: '350px',
+          height: '300px',
+          backgroundColor: '#ffeec2', // Placeholder for image
+          borderRadius: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          color: '#f59e0b',
+          fontWeight: 'bold',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        }}>
+          [Image: Pie chart and summary]
+        </div>
+      </section>
+
+      {/* --- Take control of your BNPL purchases --- */}
+      <section style={{
+        padding: '6rem 4rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '4rem',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h2 style={{
+            fontWeight: 800,
+            fontSize: '2.5rem',
+            marginBottom: '1.5rem',
+            lineHeight: 1.2,
+            color: '#1a202c',
+          }}>
+            Take control of your BNPL purchases
+          </h2>
+          <p style={{
+            fontSize: '1.15rem',
+            color: '#4a5568',
+            lineHeight: 1.7,
+          }}>
+            TNNL automatically detects your BNPL purchases so you never lose track.
+            Buy Now, Pay Later complicates your payments on purpose — We're here to put you back in control.
+          </p>
+        </div>
+        <div style={{
+          flex: 1,
+          minWidth: '350px',
+          height: '300px',
+          backgroundColor: '#ccfbf1', // Placeholder for image
+          borderRadius: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          color: '#06b6d4',
+          fontWeight: 'bold',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        }}>
+          [Image: Transaction list]
+        </div>
+      </section>
+
+      {/* --- Our Mission --- */}
+      <section style={{
+        padding: '6rem 4rem',
+        maxWidth: '800px', // Narrower width for a more focused mission statement
+        margin: '0 auto',
+        width: '100%',
+        textAlign: 'center',
+      }}>
+        <h2 style={{
+          fontWeight: 800,
+          fontSize: '2.5rem',
+          marginBottom: '1.5rem',
+          lineHeight: 1.2,
+          color: '#1a202c',
+        }}>
+          Our Mission
+        </h2>
+        <p style={{
+          fontSize: '1.15rem',
+          color: '#4a5568',
+          lineHeight: 1.7,
+          marginBottom: '1.5rem',
+        }}>
+          **Track Now, Not Later** was created to give users an easier, clearer way to manage Buy Now, Pay Later purchases.
+          As BNPL services grow, many make it difficult on purpose to track payments or understand total balances.
+          We built TNNL to change that with privacy-first tracking, simple insights, and a tool that works for you.
+        </p>
+        <p style={{
+          fontSize: '1.15rem',
+          color: '#4a5568',
+          lineHeight: 1.7,
+          fontWeight: '600',
+        }}>
+          We’re an independent project — always improving, always listening. Thanks for being part of it.
+        </p>
+      </section>
+      <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '2rem auto', maxWidth: '1200px' }} />
+
+
       <footer style={{
         textAlign: 'center',
         padding: '1.5rem',
@@ -292,19 +484,21 @@ export default function LandingPage({ onLogin, onRegister }) {
             100% { transform: scale(1.05); }
           }
           @media (max-width: 768px) {
-            main {
+            main, section {
               flex-direction: column;
               padding: 2rem;
+              text-align: center; /* Center text for smaller screens */
             }
-            main > div {
+            main > div, section > div {
               padding-right: 0;
               margin-bottom: 2rem;
-              text-align: center;
+              min-width: unset; /* Remove min-width for mobile */
+              width: 100%;
             }
-            main h1 {
+            main h1, section h2 {
               font-size: 2.5rem;
             }
-            main p {
+            main p, section p {
               font-size: 1.1rem;
             }
             header {
@@ -319,6 +513,15 @@ export default function LandingPage({ onLogin, onRegister }) {
               order: 2;
             }
             main > div:last-child {
+              order: 1;
+            }
+            section:nth-of-type(2) { /* For "Free to Use" section, reverse order on small screens */
+              flex-direction: column;
+            }
+            section:nth-of-type(2) > div:first-child {
+              order: 2;
+            }
+            section:nth-of-type(2) > div:last-child {
               order: 1;
             }
           }
