@@ -124,7 +124,7 @@ export default function DashboardApp() {
 
       if (Array.isArray(p.paymentDates)) {
         remaining = p.paymentDates.reduce((acc, pay) => {
-          const dueDate = new Date(pay.date || pay.paymentDate); 
+          const dueDate = new Date(pay.date || pay.paymentDate);
           if (dueDate >= now) {
             return acc + (parseFloat(pay.amount?.toString().replace(/[^0-9.]/g, '')) || 0);
           }
@@ -206,12 +206,12 @@ export default function DashboardApp() {
   // };
   const getNextDueDate = () => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
 
     const dates = payments
       .filter(p => p.status !== 'refunded' && p.status !== 'completed')
       .map(p => new Date(p.nextPaymentDate))
-      .filter(d => !isNaN(d.getTime()) && d >= today) 
+      .filter(d => !isNaN(d.getTime()) && d >= today)
       .sort((a, b) => a - b);
 
     return dates.length ? dates[0].toLocaleDateString() : 'N/A';
