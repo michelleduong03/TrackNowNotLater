@@ -19,14 +19,14 @@ const DataWidget = () => (
     transform: 'translateZ(0)', // trigger GPU for smooth transform
     transition: 'transform 0.4s ease, box-shadow 0.4s ease',
   }}
-  onMouseEnter={e => {
-    e.currentTarget.style.transform = 'scale(1.05)';
-    e.currentTarget.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.15)';
-  }}
-  onMouseLeave={e => {
-    e.currentTarget.style.transform = 'scale(1)';
-    e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
-  }}>
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'scale(1.05)';
+      e.currentTarget.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.15)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = 'scale(1)';
+      e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
+    }}>
     <div style={{
       width: '90px',
       height: '90px',
