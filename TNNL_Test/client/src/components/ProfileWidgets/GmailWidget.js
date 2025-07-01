@@ -77,7 +77,7 @@ class GmailWidget extends React.Component {
             onMouseEnter={this.toggleHover}
             onMouseLeave={this.toggleHover}
             onClick={() => {
-              const userId = this.props.userId; 
+              const userId = this.props.userId;
               window.location.href = `http://localhost:3000/dashboard?importGmail=true&userId=${userId}`;
               // window.location.href = gmailAuthUrl;
             }}

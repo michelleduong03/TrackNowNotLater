@@ -115,9 +115,9 @@ class AccountInfoWidget extends React.Component {
     const { hover, showForm, currentPassword, newPassword, message, loading } = this.state;
 
     return (
-      <div 
-      style={widgetStyle}
-      fontFamily= "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+      <div
+        style={widgetStyle}
+        fontFamily="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       >
         <h3 style={headingStyle}>Account Info</h3>
         <p style={textStyle}>Email: {email}</p>
