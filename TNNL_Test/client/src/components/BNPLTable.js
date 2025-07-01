@@ -43,6 +43,22 @@ const BNPLTable = ({
 
   const userId = localStorage.getItem('userId');
 
+  const normalizeDate = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day).toISOString();
+  };
+
+ const toLocalDateInput = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
       <h3>Your Purchases</h3>
@@ -174,7 +190,12 @@ const BNPLTable = ({
           <div><strong>Order ID:</strong> {p.klarnaOrderId || '—'}</div>
           <div><strong>Order Date:</strong> {p.orderDate ? formatDate(p.orderDate) : '—'}</div>
           <div>
-            <strong>Next:</strong> {p.status === 'refunded' ? '—' : p.nextPaymentDate ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})` : '—'}
+            <strong>Next:</strong>{' '}
+              {['completed', 'refunded'].includes(p.status)
+                ? '—'
+                : p.nextPaymentDate
+                ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
+                : '—'}
           </div>
 
           <div
@@ -276,7 +297,9 @@ const BNPLTable = ({
   })
 )}
 
+
         {editRow && (
+          
           <div
             style={{
               position: 'fixed',
@@ -335,7 +358,7 @@ const BNPLTable = ({
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Order Date</label>
                 <input
                   type="date"
-                  value={editRow.orderDate}
+                  value= {toLocalDateInput(editRow.orderDate)}
                   onChange={(e) => setEditRow({ ...editRow, orderDate: e.target.value })}
                   style={{
                     width: '100%',
@@ -351,11 +374,7 @@ const BNPLTable = ({
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Date</label>
                 <input
                   type="date"
-                  value={
-                    editRow.nextPaymentDate
-                      ? new Date(editRow.nextPaymentDate).toISOString().split('T')[0]
-                      : ''
-                  }
+                  value={toLocalDateInput(editRow.nextPaymentDate)}
                   onChange={(e) => setEditRow({ ...editRow, nextPaymentDate: e.target.value })}
                   style={{
                     width: '100%',
@@ -407,14 +426,23 @@ const BNPLTable = ({
                 <label style={{ fontWeight: 'bold' }}>Payment Dates:</label>
                 {editRow.paymentDates?.map((pd, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <input
+                    {/* <input
                       type="date"
                       value={pd.date?.slice(0, 10)}
                       onChange={(e) => {
                         const updated = [...editRow.paymentDates];
                         updated[idx].date = e.target.value;
                         setEditRow({ ...editRow, paymentDates: updated });
-                      }}
+                      }} */}
+                      <input
+                        type="date"
+                        value={toLocalDateInput(pd.date)}
+                        onChange={(e) => {
+                          const updated = [...editRow.paymentDates];
+                          updated[idx].date = e.target.value; 
+                          setEditRow({ ...editRow, paymentDates: updated });
+                        }}
+
                       style={{
                         flex: 1,
                         padding: '0.4rem',
@@ -514,6 +542,14 @@ const BNPLTable = ({
               <button
                 onClick={async () => {
                   const paymentData = { ...editRow };
+
+                  paymentData.orderDate = normalizeDate(paymentData.orderDate);
+                  paymentData.nextPaymentDate = normalizeDate(paymentData.nextPaymentDate);
+                  paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
+                    ...pd,
+                    date: normalizeDate(pd.date),
+                  }));
+
                   try {
                     let saved;
                     if (paymentData._id.startsWith('new-')) {
@@ -707,7 +743,7 @@ const BNPLTable = ({
                 >
                   <input
                     type="date"
-                    value={pd.date}
+                    value={toLocalDateInput(pd.date)}
                     onChange={(e) => {
                       const updated = [...createRow.paymentDates];
                       updated[idx].date = e.target.value;
@@ -740,6 +776,7 @@ const BNPLTable = ({
                       fontFamily: 'inherit',
                     }}
                   />
+                  
                   <button
                     onClick={() => {
                       const updated = [...createRow.paymentDates];
@@ -815,20 +852,54 @@ const BNPLTable = ({
             >
               <button
                 onClick={async () => {
-                  try {
-                    const token = localStorage.getItem('token');
-                    const res = await axios.post('/payments', createRow, {
-                      headers: { Authorization: `Bearer ${token}` },
-                    });
-                    const saved = res.data;
-                    setLocalPayments((prev) => [...prev, saved]);
-                    setCreateRow(null);
-                    window.location.reload();
-                  } catch (err) {
-                    console.error('Save failed:', err);
-                    alert('Could not save new row. Try again.');
+                try {
+                  const paymentData = { ...createRow };
+
+                  paymentData.orderDate = normalizeDate(paymentData.orderDate);
+                  paymentData.nextPaymentDate = normalizeDate(paymentData.nextPaymentDate);
+                  paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
+                    ...pd,
+                    date: normalizeDate(pd.date),
+                  }));
+
+                  // Force next payment to match earliest future payment date in paymentDates
+                  if (paymentData.paymentDates.length) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const futurePayments = paymentData.paymentDates
+                      .map(pd => new Date(pd.date))
+                      .filter(d => !isNaN(d.getTime()) && d >= today)
+                      .sort((a, b) => a - b);
+
+                    if (futurePayments.length) {
+                      const soonestDate = futurePayments[0];
+                      const soonestDateStr = soonestDate.toISOString().split('T')[0];
+                      const soonestPayment = paymentData.paymentDates.find(
+                        pd => new Date(pd.date).toISOString().split('T')[0] === soonestDateStr
+                      );
+                      paymentData.nextPaymentDate = soonestDateStr;
+                      paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
+                    } else {
+                      // If no future payments, clear next payment fields
+                      paymentData.nextPaymentDate = '';
+                      paymentData.nextPaymentAmount = '';
+                    }
                   }
-                }}
+
+                  const token = localStorage.getItem('token');
+                  const res = await axios.post('/payments', paymentData, {
+                    headers: { Authorization: `Bearer ${token}` },
+                  });
+                  const saved = res.data;
+                  setLocalPayments(prev => [...prev, saved]);
+                  setCreateRow(null);
+                  window.location.reload();
+                } catch (err) {
+                  console.error('Save failed:', err);
+                  alert('Could not save new row. Try again.');
+                }
+              }}
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
@@ -883,7 +954,6 @@ const BNPLTable = ({
         </div>
       )}
     </div>
-    
   );
 };
 
