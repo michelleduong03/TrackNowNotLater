@@ -196,12 +196,24 @@ export default function DashboardApp() {
     return parseFloat(totalDue.toFixed(2));
   };
 
+  // const getNextDueDate = () => {
+  //   const dates = payments
+  //     .filter(p => p.status !== 'refunded' && p.status !== 'completed')
+  //     .map(p => new Date(p.nextPaymentDate))
+  //     .filter(d => !isNaN(d.getTime()))
+  //     .sort((a, b) => a - b);
+  //   return dates.length ? dates[0].toLocaleDateString() : 'N/A';
+  // };
   const getNextDueDate = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
     const dates = payments
       .filter(p => p.status !== 'refunded' && p.status !== 'completed')
       .map(p => new Date(p.nextPaymentDate))
-      .filter(d => !isNaN(d.getTime()))
+      .filter(d => !isNaN(d.getTime()) && d >= today) 
       .sort((a, b) => a - b);
+
     return dates.length ? dates[0].toLocaleDateString() : 'N/A';
   };
 
