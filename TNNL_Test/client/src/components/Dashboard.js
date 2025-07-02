@@ -196,14 +196,6 @@ export default function DashboardApp() {
     return parseFloat(totalDue.toFixed(2));
   };
 
-  // const getNextDueDate = () => {
-  //   const dates = payments
-  //     .filter(p => p.status !== 'refunded' && p.status !== 'completed')
-  //     .map(p => new Date(p.nextPaymentDate))
-  //     .filter(d => !isNaN(d.getTime()))
-  //     .sort((a, b) => a - b);
-  //   return dates.length ? dates[0].toLocaleDateString() : 'N/A';
-  // };
   const getNextDueDate = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -227,12 +219,11 @@ export default function DashboardApp() {
 
       return (
         <>
-          <h2>TrackNowNotLater Dashboard</h2>
 
           <InfoToolTip />
 
           {/* Gmail Connect Button */}
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'right', marginTop: '2rem' }}>
             <button
               onClick={() => {
                 const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
