@@ -77,6 +77,20 @@ const BNPLTable = ({
     return isNaN(date.getTime()) ? null : date.toISOString();
   };
 
+  const areAllPaymentDatesPast = (paymentDates) => {
+    if (!Array.isArray(paymentDates) || paymentDates.length === 0) {
+      return false; 
+    }
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); 
+
+    return paymentDates.every(pd => {
+      const paymentDate = new Date(pd.date);
+      paymentDate.setHours(0, 0, 0, 0);
+      return paymentDate <= now;
+    });
+  };
+
   return (
     <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
       <h3>Your Purchases</h3>
@@ -171,10 +185,14 @@ const BNPLTable = ({
         </div>
       ) : (
         localPayments.map((p, idx) => {
+          let displayStatus = p.status;
+          if (displayStatus !== 'refunded' && areAllPaymentDatesPast(p.paymentDates)) {
+            displayStatus = 'completed';
+          }
           const statusText =
-            p.status === 'completed'
+            displayStatus === 'completed'
               ? 'Completed'
-              : p.status === 'refunded'
+              : displayStatus === 'refunded'
                 ? 'Refunded'
                 : 'Active';
 
@@ -205,7 +223,7 @@ const BNPLTable = ({
                 <div><strong>Order Date:</strong> {formatDate(p.orderDate)}</div>
                 <div>
                   <strong>Next:</strong>{' '}
-                  {['completed', 'refunded'].includes(p.status)
+                  {['completed', 'refunded'].includes(displayStatus)
                     ? '—'
                     : p.nextPaymentDate
                       ? `${formatDate(p.nextPaymentDate)} ($${p.nextPaymentAmount})`
@@ -215,11 +233,11 @@ const BNPLTable = ({
                 <div
                   style={{
                     fontWeight: 'bold',
-                    color: statusColors[p.status] || '#333',
+                    color: statusColors[displayStatus] || '#333', 
                     textTransform: 'capitalize',
                     padding: '5px 10px',
                     borderRadius: '10px',
-                    backgroundColor: `${statusColors[p.status]}33`,
+                    backgroundColor: `${statusColors[displayStatus]}33`,
                     textAlign: 'center',
                   }}
                 >
@@ -268,8 +286,8 @@ const BNPLTable = ({
                     paymentDate.setHours(0, 0, 0, 0);
 
                     const isPast = paymentDate <= now;
-                    const isRefunded = p.status === 'refunded';
-                    const isCompleted = p.status === 'completed';
+                    const isRefunded = displayStatus === 'refunded'; 
+                    const isCompleted = displayStatus === 'completed'; 
 
                     return (
                       <div
@@ -280,20 +298,20 @@ const BNPLTable = ({
                           fontSize: '0.8rem',
                           whiteSpace: 'nowrap',
                           backgroundColor: isCompleted
-                            ? '#ffdddd'
+                            ? '#d4edda' 
                             : isRefunded
                               ? '#bbb'
-                              : isPast
+                              : isPast 
                                 ? '#ffdddd'
-                                : '#e1f5fe',
+                                : '#e1f5fe', 
                           border: isCompleted
-                            ? '1px solid #f28b82'
+                            ? '1px solid #28a745'
                             : isRefunded
                               ? '1px solid #888'
                               : isPast
                                 ? '1px solid #f28b82'
                                 : '1px solid #81d4fa',
-                          color: isRefunded ? '#555' : undefined,
+                          color: isRefunded ? '#555' : isCompleted ? '#155724' : undefined, 
                           opacity: isRefunded ? 0.8 : 1,
                         }}
                       >
@@ -325,7 +343,7 @@ const BNPLTable = ({
             alignItems: 'center',
             zIndex: 1000,
           }}
-          onClick={() => setEditRow(null)} // Click outside to close (discards tempEditRow)
+          onClick={() => setEditRow(null)}
         >
           <div
             style={{
@@ -339,7 +357,7 @@ const BNPLTable = ({
               boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
               fontFamily: 'Arial, sans-serif',
             }}
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            onClick={(e) => e.stopPropagation()}
           >
             <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Edit Purchase</h2>
 
@@ -353,8 +371,8 @@ const BNPLTable = ({
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>{label}</label>
                 <input
                   type="text"
-                  value={tempEditRow[key] || ''} // Bind to tempEditRow
-                  onChange={(e) => setTempEditRow({ ...tempEditRow, [key]: e.target.value })} // Update tempEditRow
+                  value={tempEditRow[key] || ''} 
+                  onChange={(e) => setTempEditRow({ ...tempEditRow, [key]: e.target.value })} 
                   style={{
                     width: '100%',
                     padding: '0.5rem',
@@ -370,8 +388,8 @@ const BNPLTable = ({
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Order Date</label>
               <input
                 type="date"
-                value={normalizeDateForInput(tempEditRow.orderDate)} // Bind to tempEditRow
-                onChange={(e) => setTempEditRow({ ...tempEditRow, orderDate: e.target.value })} // Update tempEditRow
+                value={normalizeDateForInput(tempEditRow.orderDate)} 
+                onChange={(e) => setTempEditRow({ ...tempEditRow, orderDate: e.target.value })} 
                 style={{
                   width: '100%',
                   padding: '0.5rem',
@@ -386,7 +404,7 @@ const BNPLTable = ({
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Date</label>
               <input
                 type="date"
-                value={normalizeDateForInput(tempEditRow.nextPaymentDate)} // Bind to tempEditRow
+                value={normalizeDateForInput(tempEditRow.nextPaymentDate)}
                 onChange={(e) => setTempEditRow({
                   ...tempEditRow, nextPaymentDate: e.target.value
                 })}
@@ -404,8 +422,8 @@ const BNPLTable = ({
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Next Payment Amount</label>
               <input
                 type="number"
-                value={tempEditRow.nextPaymentAmount} // Bind to tempEditRow
-                onChange={(e) => setTempEditRow({ ...tempEditRow, nextPaymentAmount: e.target.value })} // Update tempEditRow
+                value={tempEditRow.nextPaymentAmount}
+                onChange={(e) => setTempEditRow({ ...tempEditRow, nextPaymentAmount: e.target.value })} 
                 style={{
                   width: '100%',
                   padding: '0.5rem',
@@ -419,8 +437,8 @@ const BNPLTable = ({
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Status</label>
               <select
-                value={tempEditRow.status} // Bind to tempEditRow
-                onChange={(e) => setTempEditRow({ ...tempEditRow, status: e.target.value })} // Update tempEditRow
+                value={tempEditRow.status} 
+                onChange={(e) => setTempEditRow({ ...tempEditRow, status: e.target.value })} 
                 style={{
                   width: '100%',
                   padding: '0.5rem',
@@ -438,7 +456,6 @@ const BNPLTable = ({
 
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ fontWeight: 'bold' }}>Payment Dates:</label>
-              {/* Use optional chaining for paymentDates as it might be null/undefined initially */}
               {tempEditRow.paymentDates?.map((pd, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                   <input
@@ -447,7 +464,7 @@ const BNPLTable = ({
                     onChange={(e) => {
                       const updated = [...tempEditRow.paymentDates];
                       updated[idx].date = e.target.value;
-                      setTempEditRow({ ...tempEditRow, paymentDates: updated }); // Update tempEditRow
+                      setTempEditRow({ ...tempEditRow, paymentDates: updated }); 
                     }}
                     style={{
                       flex: 1,
@@ -464,7 +481,7 @@ const BNPLTable = ({
                     onChange={(e) => {
                       const updated = [...tempEditRow.paymentDates];
                       updated[idx].amount = parseFloat(e.target.value);
-                      setTempEditRow({ ...tempEditRow, paymentDates: updated }); // Update tempEditRow
+                      setTempEditRow({ ...tempEditRow, paymentDates: updated }); 
                     }}
                     style={{
                       width: '100px',
@@ -478,7 +495,7 @@ const BNPLTable = ({
                     onClick={() => {
                       const updated = [...tempEditRow.paymentDates];
                       updated.splice(idx, 1);
-                      setTempEditRow({ ...tempEditRow, paymentDates: updated }); // Update tempEditRow
+                      setTempEditRow({ ...tempEditRow, paymentDates: updated });
                     }}
                     style={{
                       backgroundColor: '#f56565',
@@ -496,7 +513,7 @@ const BNPLTable = ({
 
               <button
                 onClick={() =>
-                  setTempEditRow({ // Update tempEditRow with a new payment date entry
+                  setTempEditRow({ 
                     ...tempEditRow,
                     paymentDates: [...(tempEditRow.paymentDates || []), { date: '', amount: '' }],
                   })
@@ -522,8 +539,8 @@ const BNPLTable = ({
               <textarea
                 rows={3}
                 placeholder="Optional note about this purchase"
-                value={tempEditRow.note || ''} // Bind to tempEditRow
-                onChange={(e) => setTempEditRow({ ...tempEditRow, note: e.target.value })} // Update tempEditRow
+                value={tempEditRow.note || ''} 
+                onChange={(e) => setTempEditRow({ ...tempEditRow, note: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '0.5rem',
@@ -547,7 +564,7 @@ const BNPLTable = ({
             >
               <button
                 onClick={async () => {
-                  const paymentData = { ...tempEditRow }; // Use tempEditRow for saving
+                  const paymentData = { ...tempEditRow }; 
                   paymentData.orderDate = prepareDateForBackend(paymentData.orderDate);
                   paymentData.nextPaymentDate = prepareDateForBackend(paymentData.nextPaymentDate);
                   paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
@@ -555,7 +572,12 @@ const BNPLTable = ({
                     date: prepareDateForBackend(pd.date),
                   }));
 
-                  // Logic to update nextPaymentDate/Amount based on future paymentDates
+                  if (areAllPaymentDatesPast(paymentData.paymentDates)) {
+                    paymentData.status = 'completed';
+                  } else if (paymentData.status === 'completed' && !areAllPaymentDatesPast(paymentData.paymentDates)) {
+                    paymentData.status = 'active'; 
+                  }
+
                   if (paymentData.paymentDates.length) {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
@@ -574,12 +596,10 @@ const BNPLTable = ({
                       paymentData.nextPaymentDate = prepareDateForBackend(soonestDateStr);
                       paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
                     } else {
-                      // If no future payment dates are found, clear next payment fields
                       paymentData.nextPaymentDate = null;
                       paymentData.nextPaymentAmount = '';
                     }
                   } else {
-                    // If there are no payment dates at all, clear next payment fields
                     paymentData.nextPaymentDate = null;
                     paymentData.nextPaymentAmount = '';
                   }
@@ -587,9 +607,7 @@ const BNPLTable = ({
 
                   try {
                     let saved;
-                    // This section handles both creating (if _id starts with 'new-') and updating existing
-                    // For the edit modal, it should typically be an update.
-                    if (paymentData._id.startsWith('new-')) { // This case should ideally not happen for edit modal
+                    if (paymentData._id.startsWith('new-')) { 
                       const token = localStorage.getItem('token');
                       const res = await axios.post('/payments', paymentData, {
                         headers: { Authorization: `Bearer ${token}` },
@@ -603,9 +621,8 @@ const BNPLTable = ({
                       );
                     }
                     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
-                    setEditRow(null); // Close modal and clear tempEditRow via useEffect
-                    // Remove window.location.reload() for a smoother UI update
-                    // window.location.reload();
+                    setEditRow(null);
+                    window.location.reload();
                   } catch (err) {
                     console.error('Save failed:', err);
                     alert('Could not save changes. Please try again.');
@@ -637,7 +654,7 @@ const BNPLTable = ({
               </button>
 
               <button
-                onClick={() => setEditRow(null)} // Closes modal, discarding tempEditRow changes
+                onClick={() => setEditRow(null)} 
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
@@ -851,15 +868,16 @@ const BNPLTable = ({
                   border: '1px solid #ccc',
                   cursor: 'pointer',
                   fontSize: '14px',
-                  fontFamily: 'inherit',
                 }}
               >
                 + Add Payment
               </button>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>Note</label>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>
+                Note
+              </label>
               <textarea
                 rows={3}
                 placeholder="Optional note about this purchase"
@@ -871,8 +889,9 @@ const BNPLTable = ({
                   borderRadius: '6px',
                   border: '1px solid #ccc',
                   fontSize: '14px',
-                  fontFamily: 'inherit',
                   resize: 'vertical',
+                  fontFamily: 'inherit',
+                  fontWeight: 'normal',
                 }}
               />
             </div>
@@ -887,42 +906,47 @@ const BNPLTable = ({
             >
               <button
                 onClick={async () => {
-                  try {
-                    const paymentData = { ...createRow };
+                  const paymentData = { ...createRow };
+                  paymentData.orderDate = prepareDateForBackend(paymentData.orderDate);
+                  paymentData.nextPaymentDate = prepareDateForBackend(paymentData.nextPaymentDate);
+                  paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
+                    ...pd,
+                    date: prepareDateForBackend(pd.date),
+                  }));
 
-                    paymentData.orderDate = prepareDateForBackend(paymentData.orderDate);
-                    paymentData.nextPaymentDate = prepareDateForBackend(paymentData.nextPaymentDate);
-                    paymentData.paymentDates = paymentData.paymentDates.map(pd => ({
-                      ...pd,
-                      date: prepareDateForBackend(pd.date),
-                    }));
+                  if (areAllPaymentDatesPast(paymentData.paymentDates)) {
+                    paymentData.status = 'completed';
+                  } else {
+                    paymentData.status = 'active'; 
+                  }
+               
+                  if (paymentData.paymentDates.length) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
 
-                    if (paymentData.paymentDates.length) {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
+                    const futurePayments = paymentData.paymentDates
+                      .map(pd => new Date(pd.date))
+                      .filter(d => !isNaN(d.getTime()) && d >= today)
+                      .sort((a, b) => a - b);
 
-                      const futurePayments = paymentData.paymentDates
-                        .map(pd => new Date(pd.date))
-                        .filter(d => !isNaN(d.getTime()) && d >= today)
-                        .sort((a, b) => a - b);
-
-                      if (futurePayments.length) {
-                        const soonestDate = futurePayments[0];
-                        const soonestDateStr = soonestDate.toISOString().split('T')[0];
-                        const soonestPayment = paymentData.paymentDates.find(
-                          pd => new Date(pd.date).toISOString().split('T')[0] === soonestDateStr
-                        );
-                        paymentData.nextPaymentDate = prepareDateForBackend(soonestDateStr);
-                        paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
-                      } else {
-                        paymentData.nextPaymentDate = null;
-                        paymentData.nextPaymentAmount = '';
-                      }
+                    if (futurePayments.length) {
+                      const soonestDate = futurePayments[0];
+                      const soonestDateStr = soonestDate.toISOString().split('T')[0];
+                      const soonestPayment = paymentData.paymentDates.find(
+                        pd => new Date(pd.date).toISOString().split('T')[0] === soonestDateStr
+                      );
+                      paymentData.nextPaymentDate = prepareDateForBackend(soonestDateStr);
+                      paymentData.nextPaymentAmount = soonestPayment?.amount ?? '';
                     } else {
                       paymentData.nextPaymentDate = null;
                       paymentData.nextPaymentAmount = '';
                     }
+                  } else {
+                    paymentData.nextPaymentDate = null;
+                    paymentData.nextPaymentAmount = '';
+                  }
 
+                  try {
                     const token = localStorage.getItem('token');
                     const res = await axios.post('/payments', paymentData, {
                       headers: { Authorization: `Bearer ${token}` },
@@ -931,37 +955,37 @@ const BNPLTable = ({
                     setLocalPayments((prev) => [...prev, saved]);
                     setNotes((prev) => ({ ...prev, [saved._id]: saved.note || '' }));
                     setCreateRow(null);
-                    // Remove window.location.reload() for a smoother UI update
-                    // window.location.reload();
+                    window.location.reload(); 
                   } catch (err) {
                     console.error('Create failed:', err);
-                    alert('Could not create purchase. Please try again.');
+                    alert('Could not create new purchase. Please try again.');
                   }
                 }}
                 style={{
                   padding: '10px 24px',
                   borderRadius: '8px',
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: '#28a745',
                   color: '#fff',
                   border: 'none',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 2px 6px rgba(40, 167, 69, 0.25)',
                   transition: 'background-color 0.25s ease, box-shadow 0.25s ease',
                   fontSize: '15px',
                   minWidth: '90px',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                  e.currentTarget.style.backgroundColor = '#218838';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(33, 136, 56, 0.35)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#3b82f6';
-                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.backgroundColor = '#28a745';
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(40, 167, 69, 0.25)';
                 }}
               >
                 Create
               </button>
+
               <button
                 onClick={() => setCreateRow(null)}
                 style={{
