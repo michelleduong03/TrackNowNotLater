@@ -7,7 +7,7 @@ import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
 import InfoToolTip from './InfoToolTip';
 import PrivacyPolicy from './PrivacyPolicy';
-import TermsOfUse from './TermsOfUse'
+import TermsOfUse from './TermsOfUse';
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
@@ -19,6 +19,8 @@ export default function DashboardApp() {
     const params = new URLSearchParams(window.location.search);
     return params.has('data');
   });
+
+  const [hoveredNavItem, setHoveredNavItem] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,7 +36,6 @@ export default function DashboardApp() {
   useEffect(() => {
     fetchPayments();
   }, [refreshFlag]);
-
 
   const userId = localStorage.getItem('userId');
 
@@ -64,7 +65,6 @@ export default function DashboardApp() {
       setShowBNPLImport(false);
     }
   }, [showBNPLImport]);
-
 
   const filteredPayments = activeTab === 'All'
     ? payments
@@ -195,7 +195,6 @@ export default function DashboardApp() {
 
     return parseFloat(totalDue.toFixed(2));
   };
-
 
   const getNextDueDate = () => {
     const today = new Date();
@@ -446,6 +445,51 @@ export default function DashboardApp() {
     return null;
   };
 
+  const baseNavItemStyle = {
+    fontSize: '1rem',
+    textAlign: 'left',
+    padding: '0.6rem 0.8rem',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease, color 0.2s ease',
+    borderRadius: '6px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    boxSizing: 'border-box',
+    color: '#ecf0f1',
+  };
+
+  const navItemHoverStyle = {
+    backgroundColor: '#4a657e',
+    color: '#f8f9fa',
+  };
+
+  const navItemActiveStyle = {
+    color: '#61dafb',
+    backgroundColor: '#4a657e',
+    fontWeight: '600',
+  };
+
+  const signOutButtonStyle = {
+    marginTop: 'auto',
+    padding: '0.7rem 1rem',
+    borderRadius: '8px',
+    border: 'none',
+    backgroundColor: '#e74c3c',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    boxShadow: '0 3px 6px rgba(231, 76, 60, 0.15)',
+    transition: 'background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+    boxSizing: 'border-box',
+  };
+
+  const signOutHoverStyle = {
+    backgroundColor: '#c0392b',
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 8px rgba(231, 76, 60, 0.25)',
+  };
 
   return (
     <div
@@ -459,6 +503,8 @@ export default function DashboardApp() {
       <nav
         style={{
           width: '300px',
+          minWidth: '300px',
+          maxWidth: '300px',
           backgroundColor: '#34495e',
           color: '#ecf0f1',
           display: 'flex',
@@ -466,94 +512,74 @@ export default function DashboardApp() {
           padding: '1rem',
           gap: '0.8rem',
           boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+          overflowX: 'hidden',
+          flexShrink: 0,
+          boxSizing: 'border-box',
         }}
       >
         <div style={{ paddingBottom: '1rem', marginBottom: '1rem', borderBottom: '1px solid #4a657e' }}>
+          {/* No "WealthWatch" text here */}
         </div>
-        <button
+
+        <div
           onClick={() => setPage('dashboard')}
+          onMouseEnter={() => setHoveredNavItem('dashboard')}
+          onMouseLeave={() => setHoveredNavItem(null)}
           style={{
-            background: 'none',
-            border: 'none',
-            color: page === 'dashboard' ? '#61dafb' : '#ecf0f1',
-            fontSize: '1rem',
-            textAlign: 'left',
-            padding: '0.6rem 0.8rem',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease, color 0.2s ease',
-            borderRadius: '6px',
-            '&:hover': {
-                backgroundColor: '#4a657e',
-            }
+            ...baseNavItemStyle,
+            ...(page === 'dashboard' ? navItemActiveStyle : {}),
+            ...(hoveredNavItem === 'dashboard' && page !== 'dashboard' ? navItemHoverStyle : {})
           }}
         >
           Dashboard
-        </button>
-        <button
+        </div>
+
+        <div
           onClick={() => setPage('profile')}
+          onMouseEnter={() => setHoveredNavItem('profile')}
+          onMouseLeave={() => setHoveredNavItem(null)}
           style={{
-            background: 'none',
-            border: 'none',
-            color: page === 'profile' ? '#61dafb' : '#ecf0f1',
-            fontSize: '1rem',
-            textAlign: 'left',
-            padding: '0.6rem 0.8rem',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease, color 0.2s ease',
-            borderRadius: '6px',
+            ...baseNavItemStyle,
+            ...(page === 'profile' ? navItemActiveStyle : {}),
+            ...(hoveredNavItem === 'profile' && page !== 'profile' ? navItemHoverStyle : {})
           }}
         >
           Profile
-        </button>
+        </div>
 
-        <button
+        <div
           onClick={() => setPage('privacy policy')}
+          onMouseEnter={() => setHoveredNavItem('privacy policy')}
+          onMouseLeave={() => setHoveredNavItem(null)}
           style={{
-            background: 'none',
-            border: 'none',
-            color: page === 'privacy policy' ? '#61dafb' : '#ecf0f1',
-            fontSize: '1rem',
-            textAlign: 'left',
-            padding: '0.6rem 0.8rem',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease, color 0.2s ease',
-            borderRadius: '6px',
+            ...baseNavItemStyle,
+            ...(page === 'privacy policy' ? navItemActiveStyle : {}),
+            ...(hoveredNavItem === 'privacy policy' && page !== 'privacy policy' ? navItemHoverStyle : {})
           }}
         >
           Privacy Policy
-        </button>
+        </div>
 
-        <button
+        <div
           onClick={() => setPage('terms of use')}
+          onMouseEnter={() => setHoveredNavItem('terms of use')}
+          onMouseLeave={() => setHoveredNavItem(null)}
           style={{
-            background: 'none',
-            border: 'none',
-            color: page === 'terms of use' ? '#61dafb' : '#ecf0f1',
-            fontSize: '1rem',
-            textAlign: 'left',
-            padding: '0.6rem 0.8rem',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease, color 0.2s ease',
-            borderRadius: '6px',
+            ...baseNavItemStyle,
+            ...(page === 'terms of use' ? navItemActiveStyle : {}),
+            ...(hoveredNavItem === 'terms of use' && page !== 'terms of use' ? navItemHoverStyle : {})
           }}
         >
           Terms of Use
-        </button>
+        </div>
 
         <button
           onClick={handleSignOut}
+          onMouseEnter={() => setHoveredNavItem('signOut')}
+          onMouseLeave={() => setHoveredNavItem(null)}
           style={{
-            marginTop: 'auto',
-            padding: '0.7rem 1rem',
-            borderRadius: '8px',
-            border: 'none',
-            backgroundColor: '#e74c3c',
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            boxShadow: '0 3px 6px rgba(231, 76, 60, 0.15)',
-            transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+            ...signOutButtonStyle,
+            ...(hoveredNavItem === 'signOut' ? signOutHoverStyle : {})
           }}
         >
           Sign Out
