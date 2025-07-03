@@ -72,7 +72,7 @@ router.get('/oauth2callback', async (req, res) => {
       'Laybuy'
     ];
 
-    const orderDateMap = {}; 
+    const orderDateMap = {};
 
     for (const msg of messages) {
       const fullMsg = await gmail.users.messages.get({
@@ -122,10 +122,10 @@ router.get('/oauth2callback', async (req, res) => {
       const orderId = orderIdMatch ? orderIdMatch[1].trim() : 'Unknown';
 
       if (orderId === 'Unknown') {
-      console.log(`Skipping email — missing valid order ID`);
-      continue;
-    }
-      
+        console.log(`Skipping email — missing valid order ID`);
+        continue;
+      }
+
       const totalMatch = bodyText.match(/(?:Total (to pay|amount|):?)\s*(-?\$\s?[\d,.]+)/i);
       let totalAmount;
 
@@ -217,7 +217,7 @@ router.get('/oauth2callback', async (req, res) => {
         'refund received',
         'refund approved',
         'refund'
-        ];
+      ];
 
       let refundSource = null;
 
@@ -277,8 +277,8 @@ router.get('/oauth2callback', async (req, res) => {
         subject,
         date,
         orderDate: orderDateMap[orderId]
-        ? orderDateMap[orderId].toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
-        : orderDateCandidate,
+          ? orderDateMap[orderId].toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          : orderDateCandidate,
         merchantName,
         klarnaOrderId: orderId,
         merchantOrder: orderId,
@@ -290,7 +290,7 @@ router.get('/oauth2callback', async (req, res) => {
         upcomingPayments,
         snippet: bodyText.substring(0, 300),
       };
-      
+
       if (isRefunded) {
         emailPayment.status = 'refunded';
         console.log(`Refund detected for ${merchantName} | Order ID: ${orderId} | ${refundSource}`);
@@ -330,7 +330,7 @@ router.get('/oauth2callback', async (req, res) => {
         emailPayment.status = allPaymentsCompleted ? 'completed' : 'active';
       }
 
-      console.log (`TOTAl AMOUNT ${totalAmount}`)
+      console.log(`TOTAl AMOUNT ${totalAmount}`)
 
       const now = new Date();
 
