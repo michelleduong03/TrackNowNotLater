@@ -93,16 +93,6 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // // Find payments for this user
-    // const payments = await Payment.find({ user: user._id });
-
-    // // If payments exist, get the email from one of the payments
-    // let gmailEmail = null;
-    // if (payments.length > 0) {
-    //   // assuming your Payment schema has an email field, adjust as needed
-    //   gmailEmail = payments[0].userEmail || payments[0].gmail || null;
-    // }
-
     const paymentWithEmail = await Payment.findOne({
       user: user._id,
       userEmail: { $exists: true, $ne: null }
