@@ -6,7 +6,7 @@ const router = express.Router();
 
 const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.split(' ')[1];
-  if(!token) return res.status(401).json({ message: 'No token' });
+  if (!token) return res.status(401).json({ message: 'No token' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,6 +21,7 @@ router.post('/', authMiddleware, async (req, res) => {
   console.log('POST /api/payments called');
   console.log('Request body:', req.body);
   console.log('User ID from token:', req.userId);
+
   try {
     console.log('Payment data received:', req.body);
 
@@ -79,7 +80,7 @@ router.get('/', authMiddleware, async (req, res) => {
     }
 
     const dedupedPayments = Array.from(uniqueMap.values());
-    dedupedPayments.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // optional
+    dedupedPayments.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
     res.json(dedupedPayments);
   } catch (err) {
