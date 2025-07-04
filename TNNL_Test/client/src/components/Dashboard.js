@@ -100,9 +100,9 @@ export default function DashboardApp() {
           return acc;
         }, 0);
       } else if (p.nextPaymentDate && new Date(p.nextPaymentDate) >= now) {
-         remaining = parseFloat(p.nextPaymentAmount?.toString().replace(/[^0-9.]/g, '')) || 0;
+        remaining = parseFloat(p.nextPaymentAmount?.toString().replace(/[^0-9.]/g, '')) || 0;
       } else if (p.totalAmount) {
-         remaining = parseFloat(p.totalAmount.toString().replace(/[^0-9.]/g, '')) || 0;
+        remaining = parseFloat(p.totalAmount.toString().replace(/[^0-9.]/g, '')) || 0;
       }
 
       return sum + remaining;
@@ -203,34 +203,34 @@ export default function DashboardApp() {
     const dates = [];
 
     payments.forEach(p => {
-        if (p.status === 'refunded' || p.status === 'completed') {
-            return;
-        }
+      if (p.status === 'refunded' || p.status === 'completed') {
+        return;
+      }
 
-        if (Array.isArray(p.paymentDates)) {
-            p.paymentDates.forEach(pay => {
-                const dueDate = new Date(pay.date || pay.paymentDate);
-                if (!isNaN(dueDate.getTime()) && dueDate >= today) {
-                    dates.push(dueDate);
-                }
-            });
-        } else if (Array.isArray(p.upcomingPayments)) {
-            p.upcomingPayments.forEach(pay => {
-                const dueDate = new Date(pay.date);
-                if (!isNaN(dueDate.getTime()) && dueDate >= today) {
-                    dates.push(dueDate);
-                }
-            });
-        } else if (p.nextPaymentDate) {
-            const dueDate = new Date(p.nextPaymentDate);
-            if (!isNaN(dueDate.getTime()) && dueDate >= today) {
-                dates.push(dueDate);
-            }
+      if (Array.isArray(p.paymentDates)) {
+        p.paymentDates.forEach(pay => {
+          const dueDate = new Date(pay.date || pay.paymentDate);
+          if (!isNaN(dueDate.getTime()) && dueDate >= today) {
+            dates.push(dueDate);
+          }
+        });
+      } else if (Array.isArray(p.upcomingPayments)) {
+        p.upcomingPayments.forEach(pay => {
+          const dueDate = new Date(pay.date);
+          if (!isNaN(dueDate.getTime()) && dueDate >= today) {
+            dates.push(dueDate);
+          }
+        });
+      } else if (p.nextPaymentDate) {
+        const dueDate = new Date(p.nextPaymentDate);
+        if (!isNaN(dueDate.getTime()) && dueDate >= today) {
+          dates.push(dueDate);
         }
+      }
     });
 
     if (dates.length === 0) {
-        return 'N/A';
+      return 'N/A';
     }
 
     dates.sort((a, b) => a - b);
@@ -265,13 +265,13 @@ export default function DashboardApp() {
           return sum;
         }, 0);
       } else if (Array.isArray(p.upcomingPayments)) {
-         total += p.upcomingPayments.reduce((sum, pay) => {
-            const dueDate = new Date(pay.date);
-            if (dueDate < now || p.status === 'completed' || p.status === 'refunded') {
-                return sum + (parseFloat(pay.amount?.toString().replace(/[^0-9.]/g, '')) || 0);
-            }
-            return sum;
-         }, 0);
+        total += p.upcomingPayments.reduce((sum, pay) => {
+          const dueDate = new Date(pay.date);
+          if (dueDate < now || p.status === 'completed' || p.status === 'refunded') {
+            return sum + (parseFloat(pay.amount?.toString().replace(/[^0-9.]/g, '')) || 0);
+          }
+          return sum;
+        }, 0);
       } else if (p.totalAmount && (p.status === 'completed' || p.status === 'refunded')) {
         total += parseFloat(p.totalAmount.toString().replace(/[^0-9.]/g, '')) || 0;
       } else if (p.nextPaymentDate && new Date(p.nextPaymentDate) < now && p.nextPaymentAmount) {
@@ -334,9 +334,9 @@ export default function DashboardApp() {
                 margin: '1.5rem auto',
               }}
             >
-                <h2 style={{ marginBottom: '1.2rem', color: '#2c3e50', fontSize: '2rem', fontWeight: 'bold', letterSpacing: '-0.03em' }}>
-                    Total Owed: <span style={{ color: '#2563eb' }}>${totalOwed.toFixed(2)}</span>
-                </h2>
+              <h2 style={{ marginBottom: '1.2rem', color: '#2c3e50', fontSize: '2rem', fontWeight: 'bold', letterSpacing: '-0.03em' }}>
+                Total Owed: <span style={{ color: '#2563eb' }}>${totalOwed.toFixed(2)}</span>
+              </h2>
 
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%', gap: '2.5rem' }}>
                 <div style={{ flexShrink: 0, padding: '1rem', borderRadius: '12px', background: '#ffffff', boxShadow: '0 5px 15px rgba(0,0,0,0.06)' }}>
@@ -359,23 +359,23 @@ export default function DashboardApp() {
                       })}
                     </Pie>
                     <Tooltip
-                        formatter={(value) => `$${value.toFixed(2)}`}
-                        contentStyle={{
-                            borderRadius: '6px',
-                            border: 'none',
-                            boxShadow: '0 1px 8px rgba(0,0,0,0.1)',
-                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                            padding: '8px',
-                            fontSize: '0.85rem'
-                        }}
-                        labelStyle={{ fontWeight: 'bold', color: '#333' }}
+                      formatter={(value) => `$${value.toFixed(2)}`}
+                      contentStyle={{
+                        borderRadius: '6px',
+                        border: 'none',
+                        boxShadow: '0 1px 8px rgba(0,0,0,0.1)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                        padding: '8px',
+                        fontSize: '0.85rem'
+                      }}
+                      labelStyle={{ fontWeight: 'bold', color: '#333' }}
                     />
                     <Legend
-                        iconType="circle"
-                        wrapperStyle={{ paddingTop: '10px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
-                        layout="vertical"
-                        align="right"
-                        verticalAlign="middle"
+                      iconType="circle"
+                      wrapperStyle={{ paddingTop: '10px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                      layout="vertical"
+                      align="right"
+                      verticalAlign="middle"
                     />
                   </PieChart>
                 </div>
