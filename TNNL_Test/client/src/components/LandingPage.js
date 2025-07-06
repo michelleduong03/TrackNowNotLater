@@ -267,7 +267,6 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </main>
 
-      {/* --- All your BNPL accounts, in one place --- */}
       <section style={{
         padding: '6rem 4rem',
         maxWidth: '1200px',
@@ -319,14 +318,13 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </section>
 
-      {/* --- Free to Use --- */}
       <section style={{
         padding: '6rem 4rem',
         maxWidth: '1200px',
         margin: '0 auto',
         width: '100%',
         display: 'flex',
-        flexDirection: 'row-reverse', // Reverse order for this section
+        flexDirection: 'row-reverse', 
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '4rem',
@@ -369,7 +367,6 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </section>
 
-      {/* --- Take control of your BNPL purchases --- */}
       <section style={{
         padding: '6rem 4rem',
         maxWidth: '1200px',
@@ -419,10 +416,10 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </section>
 
-      {/* --- Our Mission --- */}
+      {/* --- Mission --- */}
       <section style={{
         padding: '6rem 4rem',
-        maxWidth: '800px', // Narrower width for a more focused mission statement
+        maxWidth: '800px', 
         margin: '0 auto',
         width: '100%',
         textAlign: 'center',
