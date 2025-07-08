@@ -469,7 +469,8 @@ export default function LandingPage({ onLogin, onRegister }) {
           Terms of Use
         </Link>
         <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>
-          &copy; {new Date().getFullYear()} TrackNowNotLater. All rights reserved.
+          {/* &copy; {new Date().getFullYear()} TrackNowNotLater. All rights reserved. */}
+          Buy Now Pay Later Expense Tracker
         </p>
       </footer>
 
