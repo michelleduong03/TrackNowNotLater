@@ -547,7 +547,7 @@ export default function DashboardApp() {
           Profile
         </div>
 
-        <div
+        {/* <div
           onClick={() => setPage('privacy policy')}
           onMouseEnter={() => setHoveredNavItem('privacy policy')}
           onMouseLeave={() => setHoveredNavItem(null)}
@@ -571,7 +571,7 @@ export default function DashboardApp() {
           }}
         >
           Terms of Use
-        </div>
+        </div> */}
 
         <button
           onClick={handleSignOut}
