@@ -434,9 +434,9 @@ export default function DashboardApp() {
       return <ProfilePage userName={userName || 'there'} />;
     }
 
-    if (page === 'privacy policy') {
-      return <PrivacyPolicy />;
-    }
+    // if (page === 'privacy policy') {
+    //   return <PrivacyPolicy />;
+    // }
 
     if (page === 'terms of use') {
       return <TermsOfUse />;
