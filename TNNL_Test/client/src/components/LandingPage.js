@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import transactionsMultiProviderImage from './assets/listWName.png';
+import pieChartSummaryImage from './assets/piechart.png';
+import singleTransactionListImage from './assets/transactionList.png';
+import dashboard from './assets/dashboard.png';
+
 const DataWidget = () => (
   <div style={{
-    background: 'white',
+    background: 'transparent',
     borderRadius: '1.5rem',
-    padding: '1.75rem',
     boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
     display: 'flex',
     flexDirection: 'column',
@@ -15,7 +19,7 @@ const DataWidget = () => (
     width: '100%',
     maxWidth: '320px',
     textAlign: 'center',
-    border: '1px solid #e2e8f0',
+    border: 'none',
     transform: 'translateZ(0)',
     transition: 'transform 0.4s ease, box-shadow 0.4s ease',
   }}
@@ -27,42 +31,17 @@ const DataWidget = () => (
       e.currentTarget.style.transform = 'scale(1)';
       e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
     }}>
-    <div style={{
-      width: '90px',
-      height: '90px',
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #2563eb, #6366f1)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: '1.25rem',
-      fontSize: '2.2rem',
-      color: 'white',
-      boxShadow: '0 8px 20px rgba(37,99,235,0.4)'
-    }}>
-      📈
-    </div>
-    <h3 style={{
-      fontSize: '1.35rem',
-      fontWeight: 700,
-      color: '#1f2937',
-      marginBottom: '0.6rem'
-    }}>
-      Upcoming Payments
-    </h3>
-    <p style={{
-      fontSize: '1.6rem',
-      fontWeight: 800,
-      color: '#2563eb'
-    }}>
-      $450.75
-    </p>
-    <p style={{
-      fontSize: '0.9rem',
-      color: '#6b7280'
-    }}>
-      Due in the next 30 days
-    </p>
+    <img
+      src={dashboard}
+      alt="Dashboard preview"
+      style={{
+        width: '100%', 
+        height: '100%', 
+        objectFit: 'contain',
+        borderRadius: '1rem',
+        display: 'block',
+      }}
+    />
   </div>
 );
 
@@ -75,7 +54,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       fontFamily: '"Inter", sans-serif',
       background: 'linear-gradient(to bottom right, #f1f5f9, #ffffff)',
       color: '#1f2937',
-      overflowX: 'hidden', // Prevent horizontal scroll from animations
+      overflowX: 'hidden',
     }}>
       <header style={{
         padding: '1.75rem 4rem',
@@ -303,18 +282,25 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div style={{
           flex: 1,
           minWidth: '350px',
-          height: '300px',
-          backgroundColor: '#e0e7ff', // Placeholder for image
+          height: 'auto',
+          maxHeight: '450px',
           borderRadius: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '1.2rem',
-          color: '#3b82f6',
-          fontWeight: 'bold',
           boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
         }}>
-          [Image: Transaction lists with different providers (Klarna, PayPal, Affirm)]
+          <img
+            src={transactionsMultiProviderImage}
+            alt="Transaction lists with different BNPL providers like Klarna, PayPal, Affirm"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '1rem',
+            }}
+          />
         </div>
       </section>
 
@@ -324,7 +310,7 @@ export default function LandingPage({ onLogin, onRegister }) {
         margin: '0 auto',
         width: '100%',
         display: 'flex',
-        flexDirection: 'row-reverse', 
+        flexDirection: 'row-reverse',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '4rem',
@@ -352,18 +338,25 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div style={{
           flex: 1,
           minWidth: '350px',
-          height: '300px',
-          backgroundColor: '#ffeec2', // Placeholder for image
+          height: 'auto',
+          maxHeight: '450px',
           borderRadius: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '1.2rem',
-          color: '#f59e0b',
-          fontWeight: 'bold',
           boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
         }}>
-          [Image: Pie chart and summary]
+          <img
+            src={pieChartSummaryImage}
+            alt="Pie chart illustrating BNPL spending and a summary of financial overview"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '1rem',
+            }}
+          />
         </div>
       </section>
 
@@ -401,25 +394,31 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div style={{
           flex: 1,
           minWidth: '350px',
-          height: '300px',
-          backgroundColor: '#ccfbf1', // Placeholder for image
+          height: 'auto',
+          maxHeight: '450px',
           borderRadius: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '1.2rem',
-          color: '#06b6d4',
-          fontWeight: 'bold',
           boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
         }}>
-          [Image: Transaction list]
+          <img
+            src={singleTransactionListImage}
+            alt="Detailed list of individual BNPL transactions"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '1rem',
+            }}
+          />
         </div>
       </section>
 
-      {/* --- Mission --- */}
       <section style={{
         padding: '6rem 4rem',
-        maxWidth: '800px', 
+        maxWidth: '800px',
         margin: '0 auto',
         width: '100%',
         textAlign: 'center',
@@ -484,12 +483,12 @@ export default function LandingPage({ onLogin, onRegister }) {
             main, section {
               flex-direction: column;
               padding: 2rem;
-              text-align: center; /* Center text for smaller screens */
+              text-align: center;
             }
             main > div, section > div {
               padding-right: 0;
               margin-bottom: 2rem;
-              min-width: unset; /* Remove min-width for mobile */
+              min-width: unset;
               width: 100%;
             }
             main h1, section h2 {
@@ -512,7 +511,7 @@ export default function LandingPage({ onLogin, onRegister }) {
             main > div:last-child {
               order: 1;
             }
-            section:nth-of-type(2) { /* For "Free to Use" section, reverse order on small screens */
+            section:nth-of-type(2) {
               flex-direction: column;
             }
             section:nth-of-type(2) > div:first-child {
