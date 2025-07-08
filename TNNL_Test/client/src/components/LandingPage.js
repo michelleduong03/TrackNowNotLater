@@ -4,20 +4,20 @@ import { Link } from 'react-router-dom';
 import transactionsMultiProviderImage from './assets/listWName.png';
 import pieChartSummaryImage from './assets/piechart.png';
 import singleTransactionListImage from './assets/transactionList.png';
-import dashboard from './assets/dashboard2.0.png';
+import dashboard from './assets/dashboard4.png';
 
 const DataWidget = () => (
   <div style={{
     background: 'transparent',
     borderRadius: '0',
-    boxShadow: 'none', 
+    boxShadow: 'none',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '50px',
+    minHeight: '600px',
     width: '100%',
-    maxWidth: '500px',
+    maxWidth: '600px', 
     textAlign: 'center',
     border: 'none',
     transform: 'translateZ(0)',
@@ -25,11 +25,11 @@ const DataWidget = () => (
   }}
     onMouseEnter={e => {
       e.currentTarget.style.transform = 'scale(1.05)';
-      e.currentTarget.style.boxShadow = 'none'; 
+      e.currentTarget.style.boxShadow = 'none';
     }}
     onMouseLeave={e => {
       e.currentTarget.style.transform = 'scale(1)';
-      e.currentTarget.style.boxShadow = 'none'; 
+      e.currentTarget.style.boxShadow = 'none';
     }}>
     <img
       src={dashboard}
@@ -38,7 +38,7 @@ const DataWidget = () => (
         width: '100%',
         height: '100%',
         objectFit: 'contain',
-        borderRadius: '0', 
+        borderRadius: '0',
         display: 'block',
       }}
     />
@@ -438,7 +438,7 @@ export default function LandingPage({ onLogin, onRegister }) {
           lineHeight: 1.7,
           marginBottom: '1.5rem',
         }}>
-          **Track Now, Not Later** was created to give users an easier, clearer way to manage Buy Now, Pay Later purchases.
+          Track Now, Not Later was created to give users an easier, clearer way to manage Buy Now, Pay Later purchases.
           As BNPL services grow, many make it difficult on purpose to track payments or understand total balances.
           We built TNNL to change that with privacy-first tracking, simple insights, and a tool that works for you.
         </p>
