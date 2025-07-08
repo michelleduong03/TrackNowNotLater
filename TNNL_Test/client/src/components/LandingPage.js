@@ -4,20 +4,20 @@ import { Link } from 'react-router-dom';
 import transactionsMultiProviderImage from './assets/listWName.png';
 import pieChartSummaryImage from './assets/piechart.png';
 import singleTransactionListImage from './assets/transactionList.png';
-import dashboard from './assets/dashboard.png';
+import dashboard from './assets/dashboard2.0.png';
 
 const DataWidget = () => (
   <div style={{
     background: 'transparent',
-    borderRadius: '1.5rem',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+    borderRadius: '0',
+    boxShadow: 'none', 
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '220px',
+    minHeight: '350px',
     width: '100%',
-    maxWidth: '320px',
+    maxWidth: '500px',
     textAlign: 'center',
     border: 'none',
     transform: 'translateZ(0)',
@@ -25,20 +25,21 @@ const DataWidget = () => (
   }}
     onMouseEnter={e => {
       e.currentTarget.style.transform = 'scale(1.05)';
-      e.currentTarget.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.15)';
+      // Keep or adjust hover shadow as desired, removed for now for a cleaner look
+      e.currentTarget.style.boxShadow = 'none'; 
     }}
     onMouseLeave={e => {
       e.currentTarget.style.transform = 'scale(1)';
-      e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
+      e.currentTarget.style.boxShadow = 'none'; // Removed box-shadow on leave as well
     }}>
     <img
       src={dashboard}
       alt="Dashboard preview"
       style={{
-        width: '100%', 
-        height: '100%', 
+        width: '100%',
+        height: '100%',
         objectFit: 'contain',
-        borderRadius: '1rem',
+        borderRadius: '0', // Removed border-radius from the image
         display: 'block',
       }}
     />
