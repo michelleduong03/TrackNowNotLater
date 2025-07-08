@@ -17,7 +17,7 @@ const DataWidget = () => (
     justifyContent: 'center',
     minHeight: '600px',
     width: '100%',
-    maxWidth: '600px', 
+    maxWidth: '600px',
     textAlign: 'center',
     border: 'none',
     transform: 'translateZ(0)',
@@ -38,7 +38,7 @@ const DataWidget = () => (
         width: '100%',
         height: '100%',
         objectFit: 'contain',
-        borderRadius: '0',
+        borderRadius: '1rem',
         display: 'block',
       }}
     />
