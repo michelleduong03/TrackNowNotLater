@@ -438,9 +438,9 @@ export default function DashboardApp() {
     //   return <PrivacyPolicy />;
     // }
 
-    if (page === 'terms of use') {
-      return <TermsOfUse />;
-    }
+    // if (page === 'terms of use') {
+    //   return <TermsOfUse />;
+    // }
 
     return null;
   };
