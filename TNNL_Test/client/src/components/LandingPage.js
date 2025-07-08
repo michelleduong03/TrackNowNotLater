@@ -15,7 +15,7 @@ const DataWidget = () => (
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '350px',
+    minHeight: '50px',
     width: '100%',
     maxWidth: '500px',
     textAlign: 'center',
@@ -25,12 +25,11 @@ const DataWidget = () => (
   }}
     onMouseEnter={e => {
       e.currentTarget.style.transform = 'scale(1.05)';
-      // Keep or adjust hover shadow as desired, removed for now for a cleaner look
       e.currentTarget.style.boxShadow = 'none'; 
     }}
     onMouseLeave={e => {
       e.currentTarget.style.transform = 'scale(1)';
-      e.currentTarget.style.boxShadow = 'none'; // Removed box-shadow on leave as well
+      e.currentTarget.style.boxShadow = 'none'; 
     }}>
     <img
       src={dashboard}
@@ -39,7 +38,7 @@ const DataWidget = () => (
         width: '100%',
         height: '100%',
         objectFit: 'contain',
-        borderRadius: '0', // Removed border-radius from the image
+        borderRadius: '0', 
         display: 'block',
       }}
     />
