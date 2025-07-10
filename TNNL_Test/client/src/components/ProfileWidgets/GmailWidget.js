@@ -57,7 +57,7 @@ class GmailWidget extends React.Component {
       });
 
       alert('Gmail unlinked and data deleted.');
-      this.setState({ localGmailEmail: null }); // 👈 update email to disappear from widget
+      this.setState({ localGmailEmail: null });
     } catch (err) {
       console.error('Unlink failed', err);
       alert('Something went wrong. Please try again.');
