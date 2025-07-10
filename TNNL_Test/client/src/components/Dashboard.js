@@ -238,17 +238,18 @@ export default function DashboardApp() {
   };
 
   const getTotalTransactions = () => {
-    let count = 0;
-    payments.forEach(p => {
-      if (Array.isArray(p.paymentDates)) {
-        count += p.paymentDates.length;
-      } else if (Array.isArray(p.upcomingPayments)) {
-        count += p.upcomingPayments.length;
-      } else if (p.totalAmount) {
-        count += 1;
-      }
-    });
-    return count;
+    // let count = 0;
+    // payments.forEach(p => {
+    //   if (Array.isArray(p.paymentDates)) {
+    //     count += p.paymentDates.length;
+    //   } else if (Array.isArray(p.upcomingPayments)) {
+    //     count += p.upcomingPayments.length;
+    //   } else if (p.totalAmount) {
+    //     count += 1;
+    //   }
+    // });
+    // return count;
+    return payments.length;
   };
 
   const getTotalOverallSpending = () => {
