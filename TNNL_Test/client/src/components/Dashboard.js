@@ -6,8 +6,8 @@ import BNPLTable from './BNPLTable';
 import ProfilePage from './ProfilePage';
 import { generatePastelColors } from '../utils/ColorGen';
 import InfoToolTip from './InfoToolTip';
-import PrivacyPolicy from './PrivacyPolicy';
-import TermsOfUse from './TermsOfUse';
+// import PrivacyPolicy from './PrivacyPolicy';
+// import TermsOfUse from './TermsOfUse';
 
 export default function DashboardApp() {
   const [payments, setPayments] = useState([]);
