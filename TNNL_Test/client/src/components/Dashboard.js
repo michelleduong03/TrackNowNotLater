@@ -26,6 +26,7 @@ export default function DashboardApp() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('importGmail') === 'true') {
       const userId = localStorage.getItem('userId');
+      // needs to be changed for site
       const gmailAuthUrl = `http://localhost:5001/api/gmail/auth/google?userId=${userId}`;
       window.location.href = gmailAuthUrl;
     }
