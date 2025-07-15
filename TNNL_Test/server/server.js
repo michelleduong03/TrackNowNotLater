@@ -27,12 +27,12 @@ app.use('/api/gmail', gmailRoutes);
 
 const PORT = process.env.PORT || 5001;
 
-const path = require('path');
-app.use(express.static(path.join(__dirname, '../client/build')));
+// const path = require('path');
+// app.use(express.static(path.join(__dirname, '../client/build')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// });
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
