@@ -36,7 +36,7 @@ export default function Register() {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      fontFamily: '"Inter", sans-serif',
+      fontFamily: '"Lora", serif', // Applied Lora font
       background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
       padding: '2rem'
     }}>
@@ -150,6 +150,11 @@ export default function Register() {
           </p>
         </div>
       </form>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
+        `}
+      </style>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default function Login() {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      fontFamily: '"Inter", sans-serif',
+      fontFamily: '"Lora", serif',
       background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
       padding: '2rem'
     }}>
@@ -147,4 +147,3 @@ export default function Login() {
     </div>
   );
 }
-
