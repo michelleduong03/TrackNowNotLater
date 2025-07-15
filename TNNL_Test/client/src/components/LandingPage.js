@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import transactionsMultiProviderImage from './assets/listWName.png';
@@ -73,8 +73,63 @@ export default function LandingPage({ onLogin, onRegister }) {
     },
   ];
 
+  const faqItems = [
+    {
+      question: 'Is TNNL free to use?',
+      answer: 'Yep! TNNL is completely free. No subscriptions, no hidden fees.'
+    },
+    {
+      question: 'How does TNNL track my BNPL purchases?',
+      answer: 'With official approval from Google, TNNL connects securely to your Gmail read-only account and automatically detects BNPL-related emails (purchase confirmations, payment reminders). We use this info to display your BNPL plans in one clear dashboard.'
+    },
+    {
+      question: 'What BNPL services does TNNL support?',
+      answer: 'TNNL works with major BNPL providers (like Affirm, Afterpay, Klarna, PayPal Pay in 4, and more), and we’re adding support for more all the time.'
+    },
+    {
+      question: 'How long does it take to see results?',
+      answer: 'Almost instantly. Once you connect your Gmail, TNNL quickly scans for past BNPL-related emails and displays your active plans, balances, and payment schedules in your dashboard within seconds.'
+    },
+    {
+      question: 'Is my data safe?',
+      answer: 'Absolutely. We only pull BNPL-related emails — nothing else. We do not store or share your email contents.'
+    },
+    {
+      question: 'Does TNNL connect to my bank account?',
+      answer: 'No, TNNL does not connect to your bank account. We only access BNPL-related emails from your Gmail to track purchases.'
+    },
+    {
+      question: 'What if I don\'t fully trust TNNL?',
+      answer: 'No problem — we get it! You can sign up and try TNNL with full control. If at any time you want to disconnect your Gmail, you can easily revoke access in your Google account settings. We only pull BNPL-related emails and never store or share your data.'
+    },
+  ];
+
+
   const scrollToSection = (id) => {
     document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const [isSticky, setIsSticky] = useState(false);
+  const [openFAQIndex, setOpenFAQIndex] = useState(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const toggleFAQ = (index) => {
+    setOpenFAQIndex(openFAQIndex === index ? null : index);
   };
 
   return (
@@ -97,10 +152,11 @@ export default function LandingPage({ onLogin, onRegister }) {
         width: '100%',
         position: 'sticky',
         top: 0,
-        background: 'linear-gradient(to bottom right, #f1f5f9, #ffffff)',
         zIndex: 1000,
-        boxShadow: 'none',
-        backdropFilter: 'none',
+        background: isSticky ? 'rgba(255, 255, 255, 0.95)' : 'linear-gradient(to bottom right, #f1f5f9, #ffffff)',
+        boxShadow: isSticky ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
+        backdropFilter: isSticky ? 'blur(10px)' : 'none',
+        transition: 'background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out',
       }}>
         <div style={{
           fontSize: 'clamp(1.5rem, 4vw, 1.9rem)',
@@ -181,6 +237,42 @@ export default function LandingPage({ onLogin, onRegister }) {
             onMouseLeave={e => e.currentTarget.style.color = '#4b5563'}
           >
             About us
+          </button>
+          <button
+            onClick={() => scrollToSection('FAQ')}
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: 'clamp(0.85rem, 1.5vw, 0.95rem)',
+              borderRadius: '9999px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              color: '#4b5563',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'color 0.4s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
+            onMouseLeave={e => e.currentTarget.style.color = '#4b5563'}
+          >
+            FAQ
+          </button>
+          <button
+            onClick={() => scrollToSection('contact-us')}
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: 'clamp(0.85rem, 1.5vw, 0.95rem)',
+              borderRadius: '9999px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              color: '#4b5563',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'color 0.4s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
+            onMouseLeave={e => e.currentTarget.style.color = '#4b5563'}
+          >
+            Contact Us
           </button>
         </nav>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -287,7 +379,7 @@ export default function LandingPage({ onLogin, onRegister }) {
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
-              Get Started Now
+              Get Started
             </button>
             <button
               onClick={onLogin}
@@ -365,7 +457,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       }}>
         <p style={{
           fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
-          fontWeight: 600,
+          fontWeight: 800,
           color: '#2563eb',
           marginBottom: '0.5rem',
         }}>
@@ -423,10 +515,10 @@ export default function LandingPage({ onLogin, onRegister }) {
       }}>
         <p style={{
           fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
-          fontWeight: 600,
+          fontWeight: 800,
           color: '#2563eb',
-          marginBottom: '2rem',
-          marginTop: '0',
+          marginBottom: '2.5rem',
+          marginTop: '-1rem',
         }}>
           • How it works
         </p>
@@ -607,9 +699,10 @@ export default function LandingPage({ onLogin, onRegister }) {
       }}>
         <p style={{
           fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
-          fontWeight: 600,
+          fontWeight: 800,
           color: '#2563eb',
           marginBottom: '0.5rem',
+          marginTop: '-1rem'
         }}>
           • About us
         </p>
@@ -641,8 +734,247 @@ export default function LandingPage({ onLogin, onRegister }) {
           We’re an independent project — always improving, always listening. Thanks for being part of it.
         </p>
       </section>
-      <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '2rem auto', maxWidth: '1200px' }} />
 
+      <section id="FAQ" style={{
+        padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 5vw, 4rem)',
+        maxWidth: '800px',
+        margin: '0 auto',
+        width: '100%',
+        textAlign: 'center',
+      }}>
+        <p style={{
+          fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+          fontWeight: 800,
+          color: '#2563eb',
+          marginBottom: '2rem',
+          marginTop: '-1rem'
+        }}>
+          • FAQ
+        </p>
+        <h2 style={{
+          fontWeight: 800,
+          fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+          marginBottom: '2.5rem',
+          lineHeight: 1.2,
+          color: '#1a202c',
+        }}>
+          Answers to your most <br></br> common questions
+        </h2>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}>
+          {faqItems.map((item, index) => (
+            <div key={index} style={{
+              borderBottom: '1px solid #e2e8f0',
+              paddingBottom: openFAQIndex === index ? '0.5rem' : '0',
+            }}>
+              <button
+                onClick={() => toggleFAQ(index)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '1rem 0',
+                  fontSize: 'clamp(1rem, 1.8vw, 1.15rem)',
+                  fontWeight: 600,
+                  color: '#1a202c',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
+                onMouseLeave={e => e.currentTarget.style.color = '#1a202c'}
+              >
+                {item.question}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: openFAQIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s ease',
+                    color: '#2563eb',
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              {openFAQIndex === index && (
+                <div style={{
+                  padding: '0 0 1rem 0',
+                  fontSize: 'clamp(0.9rem, 1.6vw, 1.05rem)',
+                  color: '#4a5568',
+                  lineHeight: 1.6,
+                  textAlign: 'left',
+                }}>
+                  {item.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="contact-us" style={{
+        padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 5vw, 4rem)',
+        margin: '2rem auto 0 auto',
+        width: '100%',
+        textAlign: 'center',
+        backgroundColor: '#2563eb',
+        color: 'white',
+        boxShadow: '0 10px 30px rgba(37, 99, 235, 0.4)',
+      }}>
+        <p style={{
+          fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+          fontWeight: 800,
+          color: 'white',
+          marginBottom: '0.5rem',
+          marginTop: '-1rem',
+          textAlign: 'left',
+          marginLeft: '9.5rem'
+        }}>
+          • Contact Us
+        </p>
+        <h2 style={{
+          fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+          fontWeight: '800',
+          color: '#e0e7ff',
+          marginBottom: '2.5rem',
+          lineHeight: 1.6,
+          textAlign: 'left',
+          marginLeft: '9.5rem'
+        }}>
+          Get in touch with our team
+        </h2>
+        <form
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            width: '100%',
+            maxWidth: '1200px',
+            padding: '0 1rem',
+            margin: '0 auto',
+            textAlign: 'left',
+          }}
+          onSubmit={e => {
+            e.preventDefault();
+
+            const form = e.currentTarget;
+            const firstName = form.querySelector('input[placeholder="First Name"]').value.trim();
+            const lastName = form.querySelector('input[placeholder="Last Name"]').value.trim();
+            const email = form.querySelector('input[placeholder="Your Email"]').value.trim();
+            const message = form.querySelector('textarea[placeholder="How can we help?"]').value.trim();
+
+            const subject = encodeURIComponent(`Contact Us Inquiry - ${firstName} ${lastName}`);
+            const body = encodeURIComponent(`${message}`);
+
+            const mailtoLink = `mailto:tracknownotlater@gmail.com?subject=${subject}&body=${body}`;
+
+            window.location.href = mailtoLink;
+          }}
+        >
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="First Name"
+              style={{
+                flex: 1,
+                minWidth: '150px',
+                padding: '0.8rem 1rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #93c5fd',
+                backgroundColor: '#e0e7ff',
+                color: '#1a202c',
+                fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+              }}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              style={{
+                flex: 1,
+                minWidth: '150px',
+                padding: '0.8rem 1rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #93c5fd',
+                backgroundColor: '#e0e7ff',
+                color: '#1a202c',
+                fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+              }}
+              required
+            />
+          </div>
+          <input
+            type="email"
+            placeholder="Your Email"
+            style={{
+              padding: '0.8rem 1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #93c5fd',
+              backgroundColor: '#e0e7ff',
+              color: '#1a202c',
+              fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+            }}
+            required
+          />
+          <textarea
+            placeholder="How can we help?"
+            rows="5"
+            style={{
+              padding: '0.8rem 1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #93c5fd',
+              backgroundColor: '#e0e7ff',
+              color: '#1a202c',
+              fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+              resize: 'vertical',
+            }}
+            required
+          ></textarea>
+          <button
+            type="submit"
+            style={{
+              alignSelf: 'flex-start',
+              padding: '0.6rem 1.4rem',
+              fontSize: '1rem',
+              borderRadius: '9999px',
+              border: 'none',
+              backgroundColor: 'white',
+              color: '#2563eb',
+              fontWeight: '700',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              transition: 'all 0.3s ease',
+              marginTop: '1rem',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = '#e0e7ff';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'white';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            Submit your Form
+          </button>
+        </form>
+      </section>
+
+      <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '2rem auto', maxWidth: '1200px' }} />
 
       <footer style={{
         textAlign: 'center',
@@ -665,6 +997,13 @@ export default function LandingPage({ onLogin, onRegister }) {
 
       <style>
         {`
+          html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-y: scroll; /* Ensure vertical scrolling is enabled */
+          }
+
           @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
 
           @keyframes pulse {
