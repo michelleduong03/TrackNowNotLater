@@ -842,7 +842,8 @@ export default function LandingPage({ onLogin, onRegister }) {
           marginBottom: '0.5rem',
           marginTop: '-1rem',
           textAlign: 'left',
-          marginLeft: '9.5rem'
+          marginLeft: '9.5rem',
+          fontFamily: 'Lora, serif',
         }}>
           • Contact Us
         </p>
@@ -853,7 +854,8 @@ export default function LandingPage({ onLogin, onRegister }) {
           marginBottom: '2.5rem',
           lineHeight: 1.6,
           textAlign: 'left',
-          marginLeft: '9.5rem'
+          marginLeft: '9.5rem',
+          fontFamily: 'Lora, serif',
         }}>
           Get in touch with our team
         </h2>
@@ -867,6 +869,7 @@ export default function LandingPage({ onLogin, onRegister }) {
             padding: '0 1rem',
             margin: '0 auto',
             textAlign: 'left',
+            fontFamily: 'Lora, serif',
           }}
           onSubmit={e => {
             e.preventDefault();
@@ -898,6 +901,7 @@ export default function LandingPage({ onLogin, onRegister }) {
                 backgroundColor: '#e0e7ff',
                 color: '#1a202c',
                 fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+                fontFamily: 'Lora, serif',
               }}
               required
             />
@@ -913,6 +917,7 @@ export default function LandingPage({ onLogin, onRegister }) {
                 backgroundColor: '#e0e7ff',
                 color: '#1a202c',
                 fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+                fontFamily: 'Lora, serif',
               }}
               required
             />
@@ -927,6 +932,7 @@ export default function LandingPage({ onLogin, onRegister }) {
               backgroundColor: '#e0e7ff',
               color: '#1a202c',
               fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
+              fontFamily: 'Lora, serif',
             }}
             required
           />
@@ -941,6 +947,7 @@ export default function LandingPage({ onLogin, onRegister }) {
               color: '#1a202c',
               fontSize: 'clamp(0.9rem, 1.5vw, 1rem)',
               resize: 'vertical',
+              fontFamily: 'Lora, serif',
             }}
             required
           ></textarea>
@@ -949,7 +956,7 @@ export default function LandingPage({ onLogin, onRegister }) {
             style={{
               alignSelf: 'flex-start',
               padding: '0.6rem 1.4rem',
-              fontSize: '1rem',
+              fontSize: '1.2rem',
               borderRadius: '9999px',
               border: 'none',
               backgroundColor: 'white',
@@ -959,6 +966,7 @@ export default function LandingPage({ onLogin, onRegister }) {
               boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               transition: 'all 0.3s ease',
               marginTop: '1rem',
+              fontFamily: 'Lora',
             }}
             onMouseEnter={e => {
               e.currentTarget.style.backgroundColor = '#e0e7ff';
@@ -990,6 +998,9 @@ export default function LandingPage({ onLogin, onRegister }) {
         <Link to="/terms" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>
           Terms of Use
         </Link>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>
+          Contact Us @ tracknownotlater@gmail.com
+        </p>
         <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>
           Buy Now Pay Later Expense Tracker
         </p>
