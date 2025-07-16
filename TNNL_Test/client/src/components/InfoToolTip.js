@@ -22,7 +22,8 @@ export default function InfoToolTip() {
           cursor: 'pointer',
           userSelect: 'none',
           fontSize: '1.1rem',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+          boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+          fontFamily: 'Lora, serif',
         }}
         title="Info"
       >
@@ -44,9 +45,10 @@ export default function InfoToolTip() {
             fontSize: '0.9rem',
             color: '#374151',
             position: 'relative',
+            fontFamily: 'Lora, serif',
           }}
         >
-          <p style={{ marginBottom: '1rem', fontStyle: 'italic' }}>
+          <p style={{ marginBottom: '1rem', fontStyle: 'italic', fontFamily: 'Lora, serif', }}>
             This app is currently in development. Feel free to send feedback or suggestions!
           </p>
           <button
@@ -59,7 +61,8 @@ export default function InfoToolTip() {
               color: 'white',
               cursor: 'pointer',
               fontSize: '0.85rem',
-              fontWeight: '600'
+              fontWeight: '600',
+              fontFamily: 'Lora, serif',
             }}
           >
             OK
