@@ -9,7 +9,7 @@ const widgetStyle = {
   boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
   backgroundColor: '#fff',
   maxWidth: '400px',
-  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  fontFamily: 'Lora, serif',
 };
 
 const headingStyle = {
