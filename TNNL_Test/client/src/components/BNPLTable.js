@@ -92,7 +92,7 @@ const BNPLTable = ({
   };
 
   return (
-    <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ padding: '1rem', fontFamily: 'Lora, serif', }}>
       <h3>Your Purchases</h3>
 
       <div style={{ marginBottom: '1rem' }}>
@@ -108,7 +108,9 @@ const BNPLTable = ({
               backgroundColor: activeTab === tab ? '#2563eb' : '#ddd',
               color: activeTab === tab ? '#fff' : '#2563eb',
               fontWeight: activeTab === tab ? 'bold' : 'normal',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontFamily: 'Lora, serif',
+              fontSize: '1rem'
             }}
           >
             {tab}
@@ -122,11 +124,12 @@ const BNPLTable = ({
           fontWeight: 'bold',
           borderBottom: '2px solid #ccc',
           paddingBottom: '8px',
-          position: 'relative'
+          position: 'relative',
+          fontFamily: 'Lora, serif',
         }}
       >
-        <div style={{ flex: 7 }}>Purchase Info</div>
-        <div style={{ flex: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ flex: 7, fontFamily: 'Lora, serif', }}>Purchase Info</div>
+        <div style={{ flex: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Lora, serif', }}>
           Payment Dates
           <button
             onClick={() =>
@@ -159,7 +162,8 @@ const BNPLTable = ({
               cursor: 'pointer',
               display: 'flex',
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
+              fontFamily: 'Lora, serif',
             }}
             title="Add New Purchase"
           >
@@ -178,6 +182,7 @@ const BNPLTable = ({
             border: '1px dashed #ccc',
             borderRadius: '10px',
             marginTop: '1rem',
+            fontFamily: 'Lora, serif',
           }}
         >
           No purchases found.<br />
@@ -204,7 +209,8 @@ const BNPLTable = ({
                 padding: '1rem 0',
                 borderBottom: '1px solid #eee',
                 backgroundColor: idx % 2 === 0 ? '#fff' : '#fafafa',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                fontFamily: 'Lora, serif',
               }}
             >
               <div
@@ -213,7 +219,9 @@ const BNPLTable = ({
                   display: 'grid',
                   gridTemplateColumns: 'repeat(6, 1fr)',
                   gap: '10px',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  fontFamily: 'Lora, serif',
+                  fontSize: '1.08rem'
                 }}
               >
                 <div><strong>Provider:</strong> {p.provider || '—'}</div>
@@ -239,6 +247,7 @@ const BNPLTable = ({
                     borderRadius: '10px',
                     backgroundColor: `${statusColors[displayStatus]}33`,
                     textAlign: 'center',
+                    fontFamily: 'Lora, serif',
                   }}
                 >
                   {statusText}
@@ -248,7 +257,8 @@ const BNPLTable = ({
                   gridColumn: '1 / -1',
                   marginTop: '8px',
                   fontStyle: notes[p._id] ? 'normal' : 'italic',
-                  color: notes[p._id] ? '#000' : '#888'
+                  color: notes[p._id] ? '#000' : '#888',
+                  fontFamily: 'Lora, serif',
                 }}>
                   {notes[p._id] || 'No note'}
                 </div>
@@ -257,12 +267,13 @@ const BNPLTable = ({
                   onClick={() => setEditRow(p)}
                   style={{
                     marginTop: '8px',
-                    fontSize: '0.75rem',
+                    fontSize: '1rem',
                     padding: '4px 8px',
                     borderRadius: '6px',
                     border: '1px solid #999',
                     backgroundColor: '#f0f0f0',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    fontFamily: 'Lora, serif',
                   }}
                 >
                   Edit
@@ -275,7 +286,8 @@ const BNPLTable = ({
                   paddingLeft: '1rem',
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: '0.5rem'
+                  gap: '0.5rem',
+                  fontFamily: 'Lora, serif',
                 }}
               >
                 {Array.isArray(p.paymentDates) && p.paymentDates.length > 0 ? (
@@ -313,6 +325,7 @@ const BNPLTable = ({
                                 : '1px solid #81d4fa',
                           color: isRefunded ? '#555' : isCompleted ? '#155724' : undefined,
                           opacity: isRefunded ? 0.8 : 1,
+                          fontFamily: 'Lora, serif',
                         }}
                       >
                         {formatDate(pd.date)} — ${pd.amount}
@@ -342,6 +355,7 @@ const BNPLTable = ({
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000,
+            fontFamily: 'Lora, serif',
           }}
           onClick={() => setEditRow(null)}
         >
@@ -355,7 +369,7 @@ const BNPLTable = ({
               overflowY: 'auto',
               position: 'relative',
               boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-              fontFamily: 'Arial, sans-serif',
+              fontFamily: 'Lora, serif',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -379,6 +393,7 @@ const BNPLTable = ({
                     borderRadius: '6px',
                     border: '1px solid #ccc',
                     fontSize: '14px',
+                    fontFamily: 'Lora, serif',
                   }}
                 />
               </div>
@@ -396,6 +411,7 @@ const BNPLTable = ({
                   borderRadius: '6px',
                   border: '1px solid #ccc',
                   fontSize: '14px',
+                  fontFamily: 'Lora, serif',
                 }}
               />
             </div>
@@ -414,6 +430,7 @@ const BNPLTable = ({
                   borderRadius: '6px',
                   border: '1px solid #ccc',
                   fontSize: '14px',
+                  fontFamily: 'Lora, serif',
                 }}
               />
             </div>
@@ -430,6 +447,7 @@ const BNPLTable = ({
                   borderRadius: '6px',
                   border: '1px solid #ccc',
                   fontSize: '14px',
+                  fontFamily: 'Lora, serif',
                 }}
               />
             </div>
@@ -446,6 +464,7 @@ const BNPLTable = ({
                   border: '1px solid #ccc',
                   fontSize: '14px',
                   background: '#fff',
+                  fontFamily: 'Lora, serif',
                 }}
               >
                 <option value="active">Active</option>
@@ -472,6 +491,7 @@ const BNPLTable = ({
                       borderRadius: '5px',
                       border: '1px solid #ccc',
                       fontSize: '14px',
+                      fontFamily: 'Lora, serif',
                     }}
                   />
                   <input
@@ -489,6 +509,7 @@ const BNPLTable = ({
                       borderRadius: '5px',
                       border: '1px solid #ccc',
                       fontSize: '14px',
+                      fontFamily: 'Lora, serif',
                     }}
                   />
                   <button
@@ -504,6 +525,7 @@ const BNPLTable = ({
                       borderRadius: '4px',
                       cursor: 'pointer',
                       padding: '0.3rem 0.6rem',
+                      fontFamily: 'Lora, serif',
                     }}
                   >
                     ✕
@@ -526,6 +548,7 @@ const BNPLTable = ({
                   border: '1px solid #ccc',
                   cursor: 'pointer',
                   fontSize: '14px',
+                  fontFamily: 'Lora, serif',
                 }}
               >
                 + Add Payment
@@ -533,7 +556,7 @@ const BNPLTable = ({
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.4rem', fontFamily: 'Lora, serif', }}>
                 Note
               </label>
               <textarea
@@ -550,6 +573,7 @@ const BNPLTable = ({
                   resize: 'vertical',
                   fontFamily: 'inherit',
                   fontWeight: 'normal',
+                  fontFamily: 'Lora, serif',
                 }}
               />
             </div>
@@ -640,6 +664,7 @@ const BNPLTable = ({
                   transition: 'background-color 0.25s ease, box-shadow 0.25s ease',
                   fontSize: '15px',
                   minWidth: '90px',
+                  fontFamily: 'Lora, serif',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#2563eb';
@@ -666,6 +691,7 @@ const BNPLTable = ({
                   transition: 'background-color 0.25s ease, border-color 0.25s ease',
                   fontSize: '15px',
                   minWidth: '90px',
+                  fontFamily: 'Lora, serif',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#e5e7eb';
@@ -707,6 +733,7 @@ const BNPLTable = ({
                   transition: 'background-color 0.25s ease, box-shadow 0.25s ease',
                   fontSize: '15px',
                   minWidth: '90px',
+                  fontFamily: 'Lora, serif',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#dc2626';
@@ -750,7 +777,7 @@ const BNPLTable = ({
               overflowY: 'auto',
               position: 'relative',
               boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-              fontFamily: 'Arial, sans-serif',
+              fontFamily: 'Lora, serif',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -777,7 +804,7 @@ const BNPLTable = ({
                     borderRadius: '6px',
                     border: '1px solid #ccc',
                     fontSize: '14px',
-                    fontFamily: 'inherit',
+                    fontFamily: 'Lora, serif',
                   }}
                 />
               </div>
@@ -793,6 +820,7 @@ const BNPLTable = ({
                     gap: '0.5rem',
                     marginTop: '0.5rem',
                     alignItems: 'center',
+                    fontFamily: 'Lora, serif',
                   }}
                 >
                   <input
@@ -809,7 +837,7 @@ const BNPLTable = ({
                       borderRadius: '5px',
                       border: '1px solid #ccc',
                       fontSize: '14px',
-                      fontFamily: 'inherit',
+                      fontFamily: 'Lora, serif',
                     }}
                   />
                   <input
@@ -827,7 +855,7 @@ const BNPLTable = ({
                       borderRadius: '5px',
                       border: '1px solid #ccc',
                       fontSize: '14px',
-                      fontFamily: 'inherit',
+                      fontFamily: 'Lora, serif',
                     }}
                   />
 
@@ -846,6 +874,7 @@ const BNPLTable = ({
                       padding: '0.3rem 0.6rem',
                       fontSize: '16px',
                       lineHeight: '1',
+                      fontFamily: 'Lora, serif',
                     }}
                   >
                     ✕
@@ -868,6 +897,7 @@ const BNPLTable = ({
                   border: '1px solid #ccc',
                   cursor: 'pointer',
                   fontSize: '14px',
+                  fontFamily: 'Lora, serif',
                 }}
               >
                 + Add Payment
@@ -890,7 +920,7 @@ const BNPLTable = ({
                   border: '1px solid #ccc',
                   fontSize: '14px',
                   resize: 'vertical',
-                  fontFamily: 'inherit',
+                  fontFamily: 'Lora, serif',
                   fontWeight: 'normal',
                 }}
               />
