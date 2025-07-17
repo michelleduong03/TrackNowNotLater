@@ -27,7 +27,7 @@ const ProfilePage = () => {
   }, []);
 
   return (
-    <div style={{ padding: '2rem', position: 'relative', minHeight: '85vh' }}>
+    <div style={{ padding: '2rem', position: 'relative', minHeight: '85vh', fontFamily: 'Lora, serif', }}>
       {user ? (
         <>
           <h1>Hello, {user.fname} {user.lname} 👋</h1>
@@ -41,7 +41,7 @@ const ProfilePage = () => {
               left: '10px',
               fontSize: '0.9rem',
               color: '#555',
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+              fontFamily: 'Lora, serif',
             }}>
               Last logged in: {new Date(user.lastLogin).toLocaleString()}
             </div>
@@ -67,7 +67,8 @@ const ProfilePage = () => {
           color: 'white',
           border: 'none',
           borderRadius: '5px',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          fontFamily: 'Lora, serif',
         }}
       >
         Feedback / Report Issue
@@ -102,7 +103,8 @@ const ProfilePage = () => {
           color: 'white',
           border: 'none',
           borderRadius: '5px',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          fontFamily: 'Lora, serif',
         }}
       >
         Delete Account
