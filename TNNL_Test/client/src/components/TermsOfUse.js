@@ -84,10 +84,10 @@ const TermsOfUse = () => {
         <p style={{ fontSize: '1.05rem', color: '#374151' }}>
           Have questions? Email us at
           <a
-            href="mailto:TrackNowNotLater@gmail.com"
+            href="mailto:tracknownotlater@gmail.com"
             style={{ color: '#3b82f6', textDecoration: 'none', marginLeft: '4px' }}
           >
-            TrackNowNotLater@gmail.com
+            tracknownotlater@gmail.com
           </a>.
         </p>
       </section>
