@@ -84,10 +84,10 @@ const PrivacyPolicy = () => {
           <li>
             For data removal or help, email
             <a
-              href="mailto:TrackNowNotLater@gmail.com"
+              href="mailto:tracknownotlater@gmail.com"
               style={{ color: '#3b82f6', textDecoration: 'none', marginLeft: '4px' }}
             >
-              TrackNowNotLater@gmail.com
+              tracknownotlater@gmail.com
             </a>
           </li>
         </ul>
@@ -98,10 +98,10 @@ const PrivacyPolicy = () => {
         <p style={{ fontSize: '1.05rem', color: '#374151' }}>
           Have questions about your data? Email us at
           <a
-            href="mailto:TrackNowNotLater@gmail.com"
+            href="mailto:tracknownotlater@gmail.com"
             style={{ color: '#3b82f6', textDecoration: 'none', marginLeft: '4px' }}
           >
-            TrackNowNotLater@gmail.com
+            tracknownotlater@gmail.com
           </a>. We’re here to help.
         </p>
       </section>
