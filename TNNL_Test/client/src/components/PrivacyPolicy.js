@@ -10,7 +10,6 @@ const PrivacyPolicy = () => {
         background: '#fff',
         borderRadius: '20px',
         boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
-        // fontFamily: "'Poppins', sans-serif",
         fontFamily: 'Lora, serif',
         color: '#1a202c',
       }}
